@@ -191,4 +191,10 @@ val blockRatings = partitionRatings(ratings, userPart, itemPart)
 &emsp;&emsp;获取`inblocks`和`outblocks`数据是数据处理的重点。我们知道，通信复杂度是分布式实现一个算法时要重点考虑的问题，不同的实现可能会对性能产生很大的影响。我们假设最坏的情况：即求解商品需要的所有用户特征都需要从其它节点获得。
 如下图3.1所示，求解`v1`需要获得`u1`,`u2`，求解`v2`需要获得`u1`,`u2`,`u3`等，在这种假设下，每步迭代所需的交换数据量是`O(m*rank)`，其中`m`表示所有观察到的打分集大小，`rank`表示特征数量。
 
-<div  align="center"><img src="imgs/ALS.3.1.png" width = "520" height = "260" alt="例子1" align="center" /></div>
+<div  align="center"><img src="imgs/ALS.3.1.png" width = "260" height = "130" alt="例子1" align="center" /></div>
+
+&emsp;&emsp;从图3.1中，我们知道，如果计算`v1`和`v2`是在同一个分区上进行的，那么我们只需要把`u1`和`u2`一次发给这个分区就好了，而不需要将`u2`分别发给`v1`,`v2`，这样就省掉了不必要的数据传输。
+
+&emsp;&emsp;图3.2描述了如何在分区的情况下通过`U`来求解`V`，注意节点之间的数据交换量减少了。使用这种分区结构，我们需要在原始打分数据的基础上额外保存一些信息。
+
+<div  align="center"><img src="imgs/ALS.3.2.png" width = "450" height = "200" alt="例子2" align="center" /></div>
