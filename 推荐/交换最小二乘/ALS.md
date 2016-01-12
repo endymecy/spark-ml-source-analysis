@@ -202,5 +202,64 @@ val blockRatings = partitionRatings(ratings, userPart, itemPart)
 &emsp;&emsp;在`Q1`中，我们需要知道和`v1`相关联的用户向量及其对应的打分，从而构建最小二乘问题并求解。这部分数据不仅包含原始打分数据，还包含从每个用户分区收到的向量排序信息，在代码里称作`InBlock`。在`P1`中，我们要知道把`u1`,`u2` 发给`Q1`。我们可以查看和`u1`相关联的所有产品来确定需要把`u1`发给谁，但每次迭代都扫一遍数据很不划算，所以在`spark`的实现中只计算一次这个信息，然后把结果通过`RDD`缓存起来重复使用。这部分数据我们在代码里称作`OutBlock`。
 所以从`U`求解`V`，我们需要通过用户的`OutBlock`信息把用户向量发给商品分区，然后通过商品的`InBlock`信息构建最小二乘问题并求解。从`V`求解`U`，我们需要商品的`OutBlock`信息和用户的`InBlock`信息。所有的`InBlock`和`OutBlock`信息在迭代过程中都通过`RDD`缓存。打分数据在用户的`InBlock`和商品的`InBlock`各存了一份，但分区方式不同。这么做可以避免在迭代过程中原始数据的交换。
 
-&emsp;&emsp;下面介绍获取`InBlock`和`OutBlock`的方法。
+&emsp;&emsp;下面介绍获取`InBlock`和`OutBlock`的方法。下面的代码用来分别获取用户和商品的`InBlock`和`OutBlock`。
+
+```scala
+val (userInBlocks, userOutBlocks) =makeBlocks("user", blockRatings, userPart, itemPart,intermediateRDDStorageLevel)
+//交换userBlockId和itemBlockId以及其对应的数据
+val swappedBlockRatings = blockRatings.map {
+  case ((userBlockId, itemBlockId), RatingBlock(userIds, itemIds, localRatings)) =>
+    ((itemBlockId, userBlockId), RatingBlock(itemIds, userIds, localRatings))
+}
+val (itemInBlocks, itemOutBlocks) =makeBlocks("item", swappedBlockRatings, itemPart, userPart,intermediateRDDStorageLevel)
+```
+
+&emsp;&emsp;我们会以求商品的`InBlock`以及用户的`OutBlock`为例来分析`makeBlocks`方法。因为在第（5）步中构建最小二乘的讲解中，我们会用到这两部分数据。下面的代码用来求商品的`InBlock`信息。
+
+```scala
+val inBlocks = ratingBlocks.map {
+  case ((srcBlockId, dstBlockId), RatingBlock(srcIds, dstIds, ratings)) =>
+    val start = System.nanoTime()
+    val dstIdSet = new OpenHashSet[ID](1 << 20)
+    //将用户id保存到hashset中，用来去重
+    dstIds.foreach(dstIdSet.add)
+    val sortedDstIds = new Array[ID](dstIdSet.size)
+    var i = 0
+    var pos = dstIdSet.nextPos(0)
+    while (pos != -1) {
+      sortedDstIds(i) = dstIdSet.getValue(pos)
+      pos = dstIdSet.nextPos(pos + 1)
+      i += 1
+    }
+    //对用户id进行排序
+    Sorting.quickSort(sortedDstIds)
+    val dstIdToLocalIndex = new OpenHashMap[ID, Int](sortedDstIds.length)
+    i = 0
+    while (i < sortedDstIds.length) {
+      dstIdToLocalIndex.update(sortedDstIds(i), i)
+      i += 1
+    }
+    //求取块内，用户id的本地位置
+    val dstLocalIndices = dstIds.map(dstIdToLocalIndex.apply)
+    //返回数据集
+    (srcBlockId, (dstBlockId, srcIds, dstLocalIndices, ratings))
+}.groupByKey(new ALSPartitioner(srcPart.numPartitions))
+  .mapValues { iter =>
+    val builder =
+      new UncompressedInBlockBuilder[ID](new LocalIndexEncoder(dstPart.numPartitions))
+    iter.foreach { case (dstBlockId, srcIds, dstLocalIndices, ratings) =>
+      builder.add(dstBlockId, srcIds, dstLocalIndices, ratings)
+    }
+    //构建非压缩块，并压缩
+    builder.build().compress()
+  }.setName(prefix + "InBlocks")
+  .persist(storageLevel)
+```
+
+&emsp;&emsp;这段代码首先对`ratingBlocks`数据集作`map`操作，将`ratingBlocks`转换成`（商品分区id，（用户分区id，商品集合，用户id在分区中相对应的位置，打分）`这样的集合形式。然后对这个数据集作`groupByKey`操作，以商品分区id为key值，处理key对应的值，将数据集转换成`（商品分区id，InBlocks）`的形式。
+这里值得我们去分析的是输入块（InBlock）的结构。为简单起见，我们用图3.2为例来说明输入块的结构。
+
+
+
+
 
