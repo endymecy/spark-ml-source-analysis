@@ -407,4 +407,33 @@ while (j < dstIds.length) {
 }
 ```
 
-&emsp;&emsp;到了这一步，构建显式反馈算法的最小二乘就结束了。
+&emsp;&emsp;到了这一步，构建显式反馈算法的最小二乘就结束了。隐式反馈算法的实现与此类似，不同的地方是它将`YtY`这个值预先计算了（可以参考文献【1】了解更多信息），而不用在每次迭代中都计算一遍。代码如下：
+
+```scala
+//在循环之外计算
+val YtY = if (implicitPrefs) Some(computeYtY(srcFactorBlocks, rank)) else None
+
+//在每个循环内
+if (implicitPrefs) {
+  ls.merge(YtY.get)
+}
+if (implicitPrefs) {
+  // Extension to the original paper to handle b < 0. confidence is a function of |b|
+  // instead so that it is never negative. c1 is confidence - 1.0.
+  val c1 = alpha * math.abs(rating)
+  // For rating <= 0, the corresponding preference is 0. So the term below is only added
+  // for rating > 0. Because YtY is already added, we need to adjust the scaling here.
+  if (rating > 0) {
+    numExplicits += 1
+    ls.add(srcFactor, (c1 + 1.0) / c1, c1)
+  }
+} 
+```
+
+&emsp;&emsp;后面的问题就如何求解最小二乘了。我们会在最优化章节介绍`spark`版本的`NNLS`。
+
+# 参考文献
+
+[【1】 Yifan Hu，Yehuda Koren∗，Chris Volinsky. Collaborative Filtering for Implicit Feedback Datasets](papers/Collaborative Filtering for Implicit Feedback Datasets.pdf)
+[【2】 Yehuda Koren, Robert Bell and Chris Volinsky. Matrix Factorization Techniques for Recommender Systems](papers/Matrix Factorization Techniques for Recommender Systems.pdf)
+[【3】 Yunhong Zhou, Dennis Wilkinson, Robert Schreiber and Rong Pan. Large-scale Parallel Collaborative Filtering for the Netflix Prize](papers/Large-scale Parallel Collaborative Filtering the Netflix Prize.pdf)
