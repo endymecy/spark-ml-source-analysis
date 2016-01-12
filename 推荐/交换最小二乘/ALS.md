@@ -205,16 +205,20 @@ val blockRatings = partitionRatings(ratings, userPart, itemPart)
 &emsp;&emsp;下面介绍获取`InBlock`和`OutBlock`的方法。下面的代码用来分别获取用户和商品的`InBlock`和`OutBlock`。
 
 ```scala
-val (userInBlocks, userOutBlocks) =makeBlocks("user", blockRatings, userPart, itemPart,intermediateRDDStorageLevel)
+val (userInBlocks, userOutBlocks) =makeBlocks("user", blockRatings,
+ userPart, itemPart,intermediateRDDStorageLevel)
 //交换userBlockId和itemBlockId以及其对应的数据
 val swappedBlockRatings = blockRatings.map {
   case ((userBlockId, itemBlockId), RatingBlock(userIds, itemIds, localRatings)) =>
     ((itemBlockId, userBlockId), RatingBlock(itemIds, userIds, localRatings))
 }
-val (itemInBlocks, itemOutBlocks) =makeBlocks("item", swappedBlockRatings, itemPart, userPart,intermediateRDDStorageLevel)
+val (itemInBlocks, itemOutBlocks) =makeBlocks("item", swappedBlockRatings,
+ itemPart, userPart,intermediateRDDStorageLevel)
 ```
 
-&emsp;&emsp;我们会以求商品的`InBlock`以及用户的`OutBlock`为例来分析`makeBlocks`方法。因为在第（5）步中构建最小二乘的讲解中，我们会用到这两部分数据。下面的代码用来求商品的`InBlock`信息。
+&emsp;&emsp;我们会以求商品的`InBlock`以及用户的`OutBlock`为例来分析`makeBlocks`方法。因为在第（5）步中构建最小二乘的讲解中，我们会用到这两部分数据。
+
+&emsp;&emsp;下面的代码用来求商品的`InBlock`信息。
 
 ```scala
 val inBlocks = ratingBlocks.map {
@@ -250,7 +254,7 @@ val inBlocks = ratingBlocks.map {
     iter.foreach { case (dstBlockId, srcIds, dstLocalIndices, ratings) =>
       builder.add(dstBlockId, srcIds, dstLocalIndices, ratings)
     }
-    //构建非压缩块，并压缩
+    //构建非压缩块，并压缩为InBlock
     builder.build().compress()
   }.setName(prefix + "InBlocks")
   .persist(storageLevel)
@@ -263,8 +267,99 @@ val inBlocks = ratingBlocks.map {
 第二，存储大量的`Tuple`会降低垃圾回收的效率。所以`spark`实现中，是使用三个数组来存储打分的，如`([v1, v2, v1, v2, v2], [u1, u1, u2, u2, u3], [r11, r12, r21, r22, r32])`。这样不仅大幅减少了实例数量，还有效地利用了连续内存。
 
 &emsp;&emsp;但是，光这么做并不够，`spark`代码实现中，并没有存储用户的真实id，而是存储的使用`LocalIndexEncoder`生成的编码，这样节省了空间，格式为`UncompressedInBlock`:`（商品id集，用户id集对应的编码集，打分集）`，
-如，`([v1, v2, v1, v2, v2], [ui1, ui1, ui2, ui2, ui3], [r11, r12, r21, r22, r32])`。这种结构仍旧有压缩的空间，`spark`调用`compress`方法将商品id进行排序（排序有两个好处，除了压缩以为，后文构建最小二乘也会因此受益），
+如，`([v1, v2, v1, v2, v2], [ui1, ui1, ui2, ui2, ui3], [r11, r12, r21, r22, r32])`。这种结构仍旧有压缩的空间，`spark`调用`compress`方法将商品id进行排序（排序有两个好处，除了压缩以外，后文构建最小二乘也会因此受益），
 并且转换为`（不重复的有序的商品id集，商品位置偏移集，用户id集对应的编码集，打分集）`的形式，以获得更优的存储效率（代码中就是将矩阵的`coo`格式转换为`csc`格式，你可以更进一步了解矩阵存储，以获得更多信息）。
 以这样的格式修改`([v1, v2, v1, v2, v2], [ui1, ui1, ui2, ui2, ui3], [r11, r12, r21, r22, r32])`，得到的结果是`([v1, v2], [0, 2, 5], [ui1, ui2, ui1, ui2, ui3], [r11, r21, r12, r22, r32])`。其中`[0, 2]`指`v1`对应的打分的区间是`[0, 2]`，`[2, 5]`指`v2`对应的打分的区间是`[2, 5]`。
 
+&emsp;&emsp;`Compress`方法利用`spark`内置的`Timsort`算法将`UncompressedInBlock`进行排序并转换为`InBlock`。代码如下所示：
+
+```scala
+def compress(): InBlock[ID] = {
+  val sz = length
+  //Timsort排序
+  sort()
+  val uniqueSrcIdsBuilder = mutable.ArrayBuilder.make[ID]
+  val dstCountsBuilder = mutable.ArrayBuilder.make[Int]
+  var preSrcId = srcIds(0)
+  uniqueSrcIdsBuilder += preSrcId
+  var curCount = 1
+  var i = 1
+  var j = 0
+  while (i < sz) {
+    val srcId = srcIds(i)
+    if (srcId != preSrcId) {
+      uniqueSrcIdsBuilder += srcId
+      dstCountsBuilder += curCount
+      preSrcId = srcId
+      j += 1
+      curCount = 0
+    }
+    curCount += 1
+    i += 1
+  }
+  dstCountsBuilder += curCount
+  val uniqueSrcIds = uniqueSrcIdsBuilder.result()
+  val numUniqueSrdIds = uniqueSrcIds.length
+  val dstCounts = dstCountsBuilder.result()
+  val dstPtrs = new Array[Int](numUniqueSrdIds + 1)
+  var sum = 0
+  i = 0
+  //计算偏移量
+  while (i < numUniqueSrdIds) {
+    sum += dstCounts(i)
+    i += 1
+    dstPtrs(i) = sum
+  }
+  InBlock(uniqueSrcIds, dstPtrs, dstEncodedIndices, ratings)
+}
+private def sort(): Unit = {
+  val sz = length
+  val sortId = Utils.random.nextInt()
+  val sorter = new Sorter(new UncompressedInBlockSort[ID])
+  sorter.sort(this, 0, length, Ordering[KeyWrapper[ID]])
+  }
+```
+
+&emsp;&emsp;下面的代码用来求用户的`OutBlock`信息。
+
+```scala
+val outBlocks = inBlocks.mapValues { case InBlock(srcIds, dstPtrs, dstEncodedIndices, _) =>
+  val encoder = new LocalIndexEncoder(dstPart.numPartitions)
+  val activeIds = Array.fill(dstPart.numPartitions)(mutable.ArrayBuilder.make[Int])
+  var i = 0
+  val seen = new Array[Boolean](dstPart.numPartitions)
+  while (i < srcIds.length) {
+    var j = dstPtrs(i)
+    ju.Arrays.fill(seen, false)
+    while (j < dstPtrs(i + 1)) {
+      val dstBlockId = encoder.blockId(dstEncodedIndices(j))
+      if (!seen(dstBlockId)) {
+        activeIds(dstBlockId) += i 
+        seen(dstBlockId) = true
+      }
+      j += 1
+    }
+    i += 1
+  }
+  activeIds.map { x =>
+    x.result()
+  }
+}.setName(prefix + "OutBlocks")
+  .persist(storageLevel)
+```
+
+&emsp;&emsp;这段代码中，`inBlocks`表示用户的输入分区块，格式为`（用户分区id，（不重复的用户id集，用户位置偏移集，商品id集对应的编码集，打分集））`。
+`activeIds`表示商品分区中涉及的用户id集，也即上文所说的需要发送给确定的商品分区的用户信息。`activeIds`是一个二维数组，第一维表示分区，第二维表示用户id集。用户`OutBlocks`的最终格式是`（用户分区id，OutBlocks）`。
+
+&emsp;&emsp;通过用户的`OutBlock`把用户信息发给商品分区，然后结合商品的`InBlock`信息构建最小二乘问题，我们就可以借此解得商品的极小解。反之，通过商品`OutBlock`把商品信息发送给用户分区，然后结合用户的`InBlock`信息构建最小二乘问题，我们就可以解得用户解。
+第（6）步会详细介绍如何构建最小二乘。
+
+- **（5）初始化用户特征矩阵和商品特征矩阵。**
+
+&emsp;&emsp;交换最小二乘算法是分别固定用户特征矩阵和商品特征矩阵来交替计算下一次迭代的商品特征矩阵和用户特征矩阵。通过下面的代码初始化第一次迭代的特征矩阵。
+
+```scala
+var userFactors = initialize(userInBlocks, rank, seedGen.nextLong())
+var itemFactors = initialize(itemInBlocks, rank, seedGen.nextLong())
+```
 
