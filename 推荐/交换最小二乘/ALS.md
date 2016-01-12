@@ -81,7 +81,7 @@
 
 # 3 ALS在spark中的实现
 
-&emsp;&emsp;在`spark`的源代码中，ALS算法实现于`org.apache.spark.ml.recommendation.ALS.scala`文件中。我们以官方文档中的例子为起点，来分析`ALS`算法的分布式实现。下面是官方的例子：
+&emsp;&emsp;在`spark`的源代码中，`ALS`算法实现于`org.apache.spark.ml.recommendation.ALS.scala`文件中。我们以官方文档中的例子为起点，来分析`ALS`算法的分布式实现。下面是官方的例子：
 
 ```scala
 //处理训练数据
@@ -94,4 +94,26 @@ val rank = 10
 val numIterations = 10
 val model = ALS.train(ratings, rank, numIterations, 0.01)
 ```
+
+&emsp;&emsp;从代码中我们知道，训练模型用到了`ALS.scala`文件中的`train`方法，下面我们将详细介绍`train`方法的实现。在此之前，我们先了解一下`train`方法的参数表示的含义。
+
+```scala
+def train( 
+    ratings: RDD[Rating[ID]],  //训练数据
+    rank: Int = 10,   //隐含特征数
+    numUserBlocks: Int = 10, //分区数
+    numItemBlocks: Int = 10,
+    maxIter: Int = 10,   //迭代次数
+    regParam: Double = 1.0,
+    implicitPrefs: Boolean = false,
+    alpha: Double = 1.0,
+    nonnegative: Boolean = false,
+    intermediateRDDStorageLevel: StorageLevel = StorageLevel.MEMORY_AND_DISK,
+    finalRDDStorageLevel: StorageLevel = StorageLevel.MEMORY_AND_DISK,
+    checkpointInterval: Int = 10,
+    seed: Long = 0L)
+```
+
+在这段代码中，`ratings`指用户提供的训练数据，它包括用户id集、商品id集和打分集。`rank`表示隐含因素的数量，也即特征的数量。`numUserBlocks`和`numItemBlocks`分别指用户和商品的块数量，即分区数量。`maxIter`表示迭代次数。`regParam`表示最小二乘法中`lambda`值的大小。
+`implicitPrefs`表示我们的训练数据是否是隐式反馈数据。`Nonnegative`表示求解的最小二乘的值是否是非负,根据`Nonnegative`的值的不同，`spark`使用了不同的矩阵分解方法。
 
