@@ -367,4 +367,42 @@ var itemFactors = initialize(itemInBlocks, rank, seedGen.nextLong())
 
 - **（6）利用inblock和outblock信息构建最小二乘。**
 
-&emsp;&emsp;
+&emsp;&emsp;构建最小二乘的方法是在`computeFactors`方法中实现的。我们以商品`inblock`信息结合用户`outblock`信息构建最小二乘为例来说明这个过程。代码首先用用户`outblock`与`userFactor`进行join操作，然后以商品分区id为key进行分组。
+每一个商品分区包含一组所需的用户分区及其对应的用户`factor`信息，格式即`（用户分区id集，用户分区对应的factor集）`。紧接着，用商品`inblock`信息与`merged`进行join操作，得到商品分区所需要的所有信息，即`（商品inblock，（用户分区id集，用户分区对应的factor集））`。
+有了这些信息，构建最小二乘的数据就齐全了。详细代码如下：
+
+```scala
+val srcOut = srcOutBlocks.join(srcFactorBlocks).flatMap {
+  case (srcBlockId, (srcOutBlock, srcFactors)) =>
+    srcOutBlock.view.zipWithIndex.map { case (activeIndices, dstBlockId) =>
+      (dstBlockId, (srcBlockId, activeIndices.map(idx => srcFactors(idx))))
+    }
+}
+val merged = srcOut.groupByKey(new ALSPartitioner(dstInBlocks.partitions.length))
+dstInBlocks.join(merged)
+```
+
+&emsp;&emsp;我们知道求解商品值时，我们需要通过所有和商品关联的用户向量信息来构建最小二乘问题。这里有两个选择，第一是扫一遍`InBlock`信息，同时对所有的产品构建对应的最小二乘问题；
+第二是对于每一个产品，扫描`InBlock`信息，构建并求解其对应的最小二乘问题。第一种方式复杂度较高，具体的复杂度计算在此不作推导。spark选取第二种方法求解最小二乘问题，但是也做了相应的优化。
+做优化的原因是二种方法针对每个商品，都会扫描一遍`InBlock`信息，这会浪费较多时间，为此，代码已经将InBlock按照商品id进行排序（前文已经提到过），这样我们通过一次扫描就可以创建所有的最小二乘问题并求解。
+构建代码如下所示：
+
+```scala
+while (j < dstIds.length) {
+  ls.reset()
+  var i = srcPtrs(j)
+  var numExplicits = 0
+  while (i < srcPtrs(j + 1)) {
+    val encoded = srcEncodedIndices(i)
+    val blockId = srcEncoder.blockId(encoded)
+    val localIndex = srcEncoder.localIndex(encoded)
+    val srcFactor = sortedSrcFactors(blockId)(localIndex)
+    val rating = ratings(i)
+    ls.add(srcFactor, rating)
+    numExplicits += 1
+    i += 1
+  }
+   dstFactors(j) = solver.solve(ls, numExplicits * regParam)
+  j += 1
+}
+```
