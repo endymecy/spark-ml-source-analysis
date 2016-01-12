@@ -432,7 +432,7 @@ if (implicitPrefs) {
 
 &emsp;&emsp;后面的问题就如何求解最小二乘了。我们会在最优化章节介绍`spark`版本的`NNLS`。
 
-# 参考文献
+# 4 参考文献
 
 [【1】 Yifan Hu，Yehuda Koren∗，Chris Volinsky. Collaborative Filtering for Implicit Feedback Datasets](papers/Collaborative Filtering for Implicit Feedback Datasets.pdf)
 
