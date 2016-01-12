@@ -15,7 +15,7 @@
 我们把打分理解成相似度，那么打分矩阵A就可以由用户喜好矩阵和产品特征矩阵的乘积<img src="http://www.forkosh.com/mathtex.cgi?{U}{V}^{T}">来近似了。
 
 &emsp;&emsp;低维空间的选取是一个问题。这个低维空间要能够很好的区分事物，那么就需要一个明确的可量化目标，这就是重构误差。在`ALS`中我们使用F范数来量化重构误差，就是每个元素重构误差的平方和。这里存在一个问题，我们只观察到部分打分，`A`中的大量未知元是我们想推断的，所以这个重构误差是包含未知数的。
-解决方案很简单：只计算已知打分的重构误差，即
+解决方案很简单：只计算已知打分的重构误差。
 
 <div  align="center"><img src="imgs/math.1.1.png" width = "250" height = "50" alt="重构误差" align="center" /></div>
 
@@ -56,4 +56,9 @@
 
 &emsp;&emsp;在显式反馈的基础上，我们需要做一些改动得到我们的隐式反馈模型。首先，我们需要形式化由<img src="http://www.forkosh.com/mathtex.cgi?{r}_{ij}">变量衡量的信任度的概念。我们引入了一组二元变量<img src="http://www.forkosh.com/mathtex.cgi?{p}_{ij}">，它表示用户u对商品v的偏好。<img src="http://www.forkosh.com/mathtex.cgi?{p}_{ij}">的公式如下：
 
-<div  align="center"><img src="imgs/math.2.2.png" width = "650" height = "95" alt="重构误差" align="center" /></div>
+<div  align="center"><img src="imgs/math.2.2.png" width = "650" height = "95" alt="p形式" align="center" /></div>
+
+&emsp;&emsp;换句话说，如果用户购买了商品，我们认为用户喜欢该商品，否则我们认为用户不喜欢该商品。然而我们的信念（`beliefs`）与变化的信任（`confidence`）等级息息相关。首先，很自然的，<img src="http://www.forkosh.com/mathtex.cgi?{p}_{ij}">的值为0和低信任有关。用户对一个商品没有得到一个正的偏好可能源于多方面的原因，并不一定是不喜欢该商品。例如，用户可能并不知道该商品的存在。
+另外，用户购买一个商品也并不一定是用户喜欢它。因此我们需要一个新的信任等级来显示用户偏爱某个商品。一般情况下，<img src="http://www.forkosh.com/mathtex.cgi?{r}_{ij}">越大，越能暗示用户喜欢某个商品。因此，我们引入了一组变量<img src="http://www.forkosh.com/mathtex.cgi?{c}_{ij}">，它衡量了我们观察到<img src="http://www.forkosh.com/mathtex.cgi?{p}_{ij}">的信任度。<img src="http://www.forkosh.com/mathtex.cgi?{c}_{ij}">一个合理的选择如下所示：
+
+<div  align="center"><img src="imgs/math.2.3.png" width = "600" height = "40" alt="信任度" align="center" /></div>
