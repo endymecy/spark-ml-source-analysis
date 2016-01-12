@@ -435,5 +435,7 @@ if (implicitPrefs) {
 # 参考文献
 
 [【1】 Yifan Hu，Yehuda Koren∗，Chris Volinsky. Collaborative Filtering for Implicit Feedback Datasets](papers/Collaborative Filtering for Implicit Feedback Datasets.pdf)
+
 [【2】 Yehuda Koren, Robert Bell and Chris Volinsky. Matrix Factorization Techniques for Recommender Systems](papers/Matrix Factorization Techniques for Recommender Systems.pdf)
+
 [【3】 Yunhong Zhou, Dennis Wilkinson, Robert Schreiber and Rong Pan. Large-scale Parallel Collaborative Filtering for the Netflix Prize](papers/Large-scale Parallel Collaborative Filtering the Netflix Prize.pdf)
