@@ -198,3 +198,9 @@ val blockRatings = partitionRatings(ratings, userPart, itemPart)
 &emsp;&emsp;图3.2描述了如何在分区的情况下通过`U`来求解`V`，注意节点之间的数据交换量减少了。使用这种分区结构，我们需要在原始打分数据的基础上额外保存一些信息。
 
 <div  align="center"><img src="imgs/ALS.3.2.png" width = "450" height = "200" alt="例子2" align="center" /></div>
+
+&emsp;&emsp;在`Q1`中，我们需要知道和`v1`相关联的用户向量及其对应的打分，从而构建最小二乘问题并求解。这部分数据不仅包含原始打分数据，还包含从每个用户分区收到的向量排序信息，在代码里称作`InBlock`。在`P1`中，我们要知道把`u1`,`u2` 发给`Q1`。我们可以查看和`u1`相关联的所有产品来确定需要把`u1`发给谁，但每次迭代都扫一遍数据很不划算，所以在`spark`的实现中只计算一次这个信息，然后把结果通过`RDD`缓存起来重复使用。这部分数据我们在代码里称作`OutBlock`。
+所以从`U`求解`V`，我们需要通过用户的`OutBlock`信息把用户向量发给商品分区，然后通过商品的`InBlock`信息构建最小二乘问题并求解。从`V`求解`U`，我们需要商品的`OutBlock`信息和用户的`InBlock`信息。所有的`InBlock`和`OutBlock`信息在迭代过程中都通过`RDD`缓存。打分数据在用户的`InBlock`和商品的`InBlock`各存了一份，但分区方式不同。这么做可以避免在迭代过程中原始数据的交换。
+
+&emsp;&emsp;下面介绍获取`InBlock`和`OutBlock`的方法。
+
