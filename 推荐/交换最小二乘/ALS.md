@@ -79,3 +79,19 @@
 
 <div  align="center"><img src="imgs/ALS.2.1.png" width = "750" height = "180" alt="交替最小二乘法处理流程" align="center" /></div>
 
+# 3 ALS在spark中的实现
+
+&emsp;&emsp;在`spark`的源代码中，ALS算法实现于`org.apache.spark.ml.recommendation.ALS.scala`文件中。我们以官方文档中的例子为起点，来分析`ALS`算法的分布式实现。下面是官方的例子：
+
+```scala
+//处理训练数据
+val data = sc.textFile("data/mllib/als/test.data")
+val ratings = data.map(_.split(',') match { case Array(user, item, rate) =>
+  Rating(user.toInt, item.toInt, rate.toDouble)
+})
+// 使用ALS训练推荐模型
+val rank = 10
+val numIterations = 10
+val model = ALS.train(ratings, rank, numIterations, 0.01)
+```
+
