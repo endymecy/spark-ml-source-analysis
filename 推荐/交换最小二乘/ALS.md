@@ -77,5 +77,5 @@
 &emsp;&emsp;公式（2.1）和公式（2.4）是非凸函数，无法求解最优解。但是，固定公式中的用户-特征向量或者商品-特征向量，公式就会变成二次方程，可以求出全局的极小值。这样就产生了交替最小二乘的优化过程：我们交替的重新计算用户-特征向量和商品-特征向量，每一步都保证降低损失函数的值。
 交替最小二乘法的处理过程如下所示：
 
-<div  align="center"><img src="imgs/ALS.2.1.png" width = "750" height = "180" alt="信任度" align="center" /></div>
+<div  align="center"><img src="imgs/ALS.2.1.png" width = "750" height = "180" alt="交替最小二乘法处理流程" align="center" /></div>
 
