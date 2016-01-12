@@ -363,3 +363,8 @@ var userFactors = initialize(userInBlocks, rank, seedGen.nextLong())
 var itemFactors = initialize(itemInBlocks, rank, seedGen.nextLong())
 ```
 
+&emsp;&emsp;初始化后的`userFactors`的格式是`（用户分区id，用户特征矩阵factors）`，其中`factors`是一个二维数组，第一维的长度是用户数，第二维的长度是`rank`数。初始化的值是异或随机数的F范式。`itemFactors`的初始化与此类似。
+
+- **（6）利用inblock和outblock信息构建最小二乘。**
+
+&emsp;&emsp;
