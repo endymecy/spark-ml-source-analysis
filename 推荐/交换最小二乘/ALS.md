@@ -61,4 +61,4 @@
 &emsp;&emsp;换句话说，如果用户购买了商品，我们认为用户喜欢该商品，否则我们认为用户不喜欢该商品。然而我们的信念（`beliefs`）与变化的信任（`confidence`）等级息息相关。首先，很自然的，<img src="http://www.forkosh.com/mathtex.cgi?{p}_{ij}">的值为0和低信任有关。用户对一个商品没有得到一个正的偏好可能源于多方面的原因，并不一定是不喜欢该商品。例如，用户可能并不知道该商品的存在。
 另外，用户购买一个商品也并不一定是用户喜欢它。因此我们需要一个新的信任等级来显示用户偏爱某个商品。一般情况下，<img src="http://www.forkosh.com/mathtex.cgi?{r}_{ij}">越大，越能暗示用户喜欢某个商品。因此，我们引入了一组变量<img src="http://www.forkosh.com/mathtex.cgi?{c}_{ij}">，它衡量了我们观察到<img src="http://www.forkosh.com/mathtex.cgi?{p}_{ij}">的信任度。<img src="http://www.forkosh.com/mathtex.cgi?{c}_{ij}">一个合理的选择如下所示：
 
-<div  align="center"><img src="imgs/math.2.3.png" width = "600" height = "40" alt="信任度" align="center" /></div>
+<div  align="center"><img src="imgs/math.2.3.png" width = "560" height = "50" alt="信任度" align="center" /></div>
