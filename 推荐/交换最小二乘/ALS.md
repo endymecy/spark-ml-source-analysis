@@ -19,6 +19,7 @@
 
 <div  align="center"><img src="imgs/math.1.1.png" width = "250" height = "50" alt="重构误差" align="center" /></div>
 
+
 &emsp;&emsp;后面的章节我们将从原理上讲解spark中实现的ALS模型。
 
 # 2 spark中ALS的实现原理
@@ -118,3 +119,24 @@ def train(
 `implicitPrefs`表示我们的训练数据是否是隐式反馈数据。`Nonnegative`表示求解的最小二乘的值是否是非负,根据`Nonnegative`的值的不同，`spark`使用了不同的矩阵分解方法。
 
 &emsp;&emsp;下面我们分步骤分析`train`方法的处理流程。
+
+- (1) 初始化`ALSPartitioner`和`LocalIndexEncoder`。
+&emsp;&emsp;`ALSPartitioner`实现了基于`hash`的分区，它根据用户或者商品id的`hash`值来进行分区。`LocalIndexEncoder`对`（blockid，localindex）`即`（分区id，分区内索引）`进行编码，并将其转换为一个整数，这个整数在高位存分区ID，在低位存对应分区的索引，在空间上尽量做到了不浪费。
+同时也可以根据这个转换的整数分别获得`blockid`和`localindex`。这两个对象在后续的代码中会用到。
+
+```scala
+val userPart = new ALSPartitioner(numUserBlocks)
+val itemPart = new ALSPartitioner(numItemBlocks)
+val userLocalIndexEncoder = new LocalIndexEncoder(userPart.numPartitions)
+val itemLocalIndexEncoder = new LocalIndexEncoder(itemPart.numPartitions)
+```
+
+- (2)根据`nonnegative`参数选择解决矩阵分解的方法。
+&emsp;&emsp;如果需要解的值为非负,即`nonnegative`为`true`，那么用非负正则化最小二乘来解，如果没有这个限制，用乔里斯基分解来解。这两个算法我们在最优化模块作了详细讲解。
+
+```scala
+val solver = if (nonnegative) new NNLSSolver else new CholeskySolver
+```
+
+- (3)将`ratings`数据转换为分区的格式。
+&emsp;&emsp;
