@@ -62,3 +62,11 @@
 另外，用户购买一个商品也并不一定是用户喜欢它。因此我们需要一个新的信任等级来显示用户偏爱某个商品。一般情况下，<img src="http://www.forkosh.com/mathtex.cgi?{r}_{ij}">越大，越能暗示用户喜欢某个商品。因此，我们引入了一组变量<img src="http://www.forkosh.com/mathtex.cgi?{c}_{ij}">，它衡量了我们观察到<img src="http://www.forkosh.com/mathtex.cgi?{p}_{ij}">的信任度。<img src="http://www.forkosh.com/mathtex.cgi?{c}_{ij}">一个合理的选择如下所示：
 
 <div  align="center"><img src="imgs/math.2.3.png" width = "560" height = "50" alt="信任度" align="center" /></div>
+
+&emsp;&emsp;按照这种方式，我们存在最小限度的信任度，并且随着我们观察到的正偏向的证据越来越多，信任度也会越来越大。
+
+&emsp;&emsp;我们的目的是找到用户向量`ui`以及商品向量`vj`来表明用户偏好。这些向量分别是用户因素向量和商品因素向量。本质上，这些向量将用户和商品映射到一个公用的隐式因素空间，从而使它们可以直接比较。这和用于显式数据集的矩阵分解技术类似，但是包含两点不一样的地方：
+（1）我们需要考虑不同的信任度，（2）最优化需要考虑所有可能的u，v对，而不仅仅是和观察数据相关的u，i对。因此，通过最小化下面的损失函数来计算相关因素（`factors`）。
+
+<div  align="center"><img src="imgs/math.2.4.png" width = "900" height = "100" alt="信任度" align="center" /></div>
+
