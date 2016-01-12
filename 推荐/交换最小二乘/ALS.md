@@ -2,7 +2,7 @@
 
 &emsp;&emsp;ALS 是交替最小二乘（`alternating least squares`）的简称。在机器学习中，`ALS`特指使用交替最小二乘求解的一个协同推荐算法。它通过观察到的所有用户给商品的打分，来推断每个用户的喜好并向用户推荐适合的商品。举个例子，我们看下面一个`8*8`的用户打分矩阵。
 
-<div  align="center"><img src="imgs/ALS.1.1.png" width = "450" height = "300" alt="图片名称" align="center" /></div>
+<div  align="center"><img src="imgs/ALS.1.1.png" width = "450" height = "300" alt="8*8打分" align="center" /></div>
 
 &emsp;&emsp;&emsp;这个矩阵的每一行代表一个用户（u1,u2,…,u8）、每一列代表一个商品（v1,v2,…,v8）、用户的打分为1-9分。这个矩阵只显示了观察到的打分，我们需要推测没有观察到的打分。比如（u6，v5）打分多少？如果以数独的方式来解决这个问题，可以得到唯一的结果。
 因为数独的规则很强，每添加一条规则，就让整个系统的自由度下降一个量级。当我们满足所有的规则时，整个系统的自由度就降为`1`了，也就得出了唯一的结果。对于上面的打分矩阵，如果我们不添加任何条件的话，也即打分之间是相互独立的，我们就没法得到（u6，v5）的打分。
@@ -16,10 +16,12 @@
 
 &emsp;&emsp;低维空间的选取是一个问题。这个低维空间要能够很好的区分事物，那么就需要一个明确的可量化目标，这就是重构误差。在`ALS`中我们使用F范数来量化重构误差，就是每个元素重构误差的平方和。这里存在一个问题，我们只观察到部分打分，A中的大量未知元是我们想推断的，所以这个重构误差是包含未知数的。
 解决方案很简单：只计算已知打分的重构误差，即
-<div  align="center"><img src="imgs/math.1.1.png" width = "250" height = "50" alt="图片名称" align="center" /></div>
+<div  align="center"><img src="imgs/math.1.1.png" width = "250" height = "50" alt="重构误差" align="center" /></div>
 
-后面的章节我们将从原理上讲解spark中实现的ALS模型。
+&emsp;&emsp;后面的章节我们将从原理上讲解spark中实现的ALS模型。
 
 # 2 spark中ALS的实现原理
 
+&emsp;&emsp;`Spark`利用交换最小二乘解决矩阵分解问题分两种情况：数据集是显式反馈和数据集是隐式反馈。由于隐式反馈算法的原理是在显示反馈算法原理的基础上作的修改，所以我们在此只会具体讲解数据集为隐式反馈的算法。
+算法实现所依据的文献为[Collaborative Filtering for Implicit Feedback Datasets](papers/Collaborative Filtering for Implicit Feedback Datasets.pdf)。
 
