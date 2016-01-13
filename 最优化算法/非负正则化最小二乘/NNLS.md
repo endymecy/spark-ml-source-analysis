@@ -180,6 +180,14 @@
 
 <div  align="center"><img src="imgs/math.2.8.png" width = "300" height = "45" alt="2.8" align="center" /></div><br />
 
+&emsp;&emsp;计算`f(x)`在<img src="http://www.forkosh.com/mathtex.cgi?{x}^{(k+1)}">处的梯度，若<img src="http://www.forkosh.com/mathtex.cgi?||{g}_{(k+1)}||=0">，则停止计算，
+否则用<img src="http://www.forkosh.com/mathtex.cgi?{g}_{(k+1)}">和<img src="http://www.forkosh.com/mathtex.cgi?{d}^{(k)}">构造下一个搜索方向<img src="http://www.forkosh.com/mathtex.cgi?{d}^{(k+1)}">，并使<img src="http://www.forkosh.com/mathtex.cgi?{d}^{(k)}">与<img src="http://www.forkosh.com/mathtex.cgi?{d}^{(k+1)}">共轭。按照这种设想，令
+
+<div  align="center"><img src="imgs/math.2.9.png" width = "286" height = "25" alt="2.9" align="center" /></div><br />
+
+&emsp;&emsp;在公式（2.9）两端同时乘以<img src="http://www.forkosh.com/mathtex.cgi?{d}^{(k)T}A">，并令
+
+
 
 
 
