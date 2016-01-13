@@ -1,5 +1,5 @@
 > &emsp;&emsp;`spark`中的非负正则化最小二乘法并不是`wiki`中介绍的[NNLS](https://en.wikipedia.org/wiki/Non-negative_least_squares)的实现，而是做了相应的优化。它使用改进投影梯度法结合共轭梯度法来求解非负最小二乘。
-在介绍`spark`的源码之前，我们要先了解什么事最小二乘法以及共轭梯度法。
+在介绍`spark`的源码之前，我们要先了解什么是最小二乘法以及共轭梯度法。
 
 # 1 最小二乘法
 
@@ -186,6 +186,33 @@
 <div  align="center"><img src="imgs/math.2.9.png" width = "286" height = "25" alt="2.9" align="center" /></div><br />
 
 &emsp;&emsp;在公式（2.9）两端同时乘以<img src="http://www.forkosh.com/mathtex.cgi?{d}^{(k)T}A">，并令
+
+<div  align="center"><img src="imgs/math.2.10.png" width = "435" height = "30" alt="2.10" align="center" /></div><br />
+
+&emsp;&emsp;可以求得
+
+<div  align="center"><img src="imgs/math.2.11.png" width = "300" height = "41" alt="2.11" align="center" /></div><br />
+
+&emsp;&emsp;再从<img src="http://www.forkosh.com/mathtex.cgi?{x}^{(k+1)}">出发，沿<img src="http://www.forkosh.com/mathtex.cgi?{d}^{(k+1)}">方向搜索。综上分析 ，在第1个搜索方向取负梯度的前提下，重复使用公式（2.5）、（2.8）、（2.9）、（2.11），我们就能够构造一组搜索方向。当然，前提是这组方向是关于`A`共轭的。
+定理2.3说明了这组方向是共轭的。
+
+**&emsp;&emsp;定理2.3** 对于正定二次函数（2.3），具有精确一维搜索的的共轭梯度法在`m<=n`次一维搜索后终止，并且对于所有`i(1<=i<=m)`，下列关系成立：
+
+<div  align="center"><img src="imgs/math.2.11.a1.png" width = "265" height = "63" alt="2.11.a1" align="center" /></div><br />
+
+&emsp;&emsp;还可以证明，对于正定二次函数，运用共轭梯度法时，不做矩阵运算也可以计算变量`beta_k`。
+
+**&emsp;&emsp;定理2.4** 对于正定二次函数，共轭梯度法中因子`beta_k`具有下列表达式
+
+<div  align="center"><img src="imgs/math.2.12.png" width = "285" height = "45" alt="2.12" align="center" /></div><br />
+
+&emsp;&emsp;对于二次凸函数，共轭梯度法的计算步骤如下：
+
+<div  align="center"><img src="imgs/NNLS.2.1.png" width = "560" height = "210" alt="NNLS.2.1" align="center" /></div><br />
+
+
+
+
 
 
 
