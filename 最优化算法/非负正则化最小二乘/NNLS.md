@@ -131,7 +131,7 @@
 沿<img src="http://www.forkosh.com/mathtex.cgi?{d}^{(1)},{d}^{(2)},...,{d}^{(k)}">进行一维搜索，得到<img src="http://www.forkosh.com/mathtex.cgi?{x}^{(2)},{x}^{(3)},...,{x}^{(k+1)}">，则<img src="http://www.forkosh.com/mathtex.cgi?{d}^{(k+1)}">是线性流型
 <img src="http://www.forkosh.com/mathtex.cgi?{x}^{(1)}+{H}_{k}">上的唯一极小点，特别的，当k=n时，<img src="http://www.forkosh.com/mathtex.cgi?{x}^{(n+1)}">是函数`1f(x)`的唯一极小点。其中，
 
-<div  align="center"><img src="imgs/math.2.2.a2.png" width = "294" height = "84" alt="2.2.a2" align="center" /></div><br />
+<div  align="center"><img src="imgs/math.2.2.a2.png" width = "294" height = "58" alt="2.2.a2" align="center" /></div><br />
 
 是<img src="http://www.forkosh.com/mathtex.cgi?{d}^{(1)},{d}^{(2)},...,{d}^{(k)}">生成的子空间。
 
@@ -176,7 +176,7 @@
 
 <div  align="center"><img src="imgs/math.2.7.png" width = "420" height = "45" alt="2.7" align="center" /></div><br />
 
-由（2.7）式可以得到
+&emsp;&emsp;由（2.7）式可以得到
 
 <div  align="center"><img src="imgs/math.2.8.png" width = "300" height = "45" alt="2.8" align="center" /></div><br />
 
