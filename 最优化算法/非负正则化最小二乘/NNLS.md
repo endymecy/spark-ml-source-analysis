@@ -346,7 +346,13 @@ while (i < n) {
 }
 ```
 
+# 4 参考文献
 
+【1】陈宝林，最优化理论和算法
+
+[【2】Boris T. Polyak，The conjugate gradient method in extreme problems](papers/The conjugate gradient method in extreme problems.pdf)
+
+[【3】https://en.wikipedia.org/wiki/Non-negative_least_squares](https://en.wikipedia.org/wiki/Non-negative_least_squares)
 
 
 
