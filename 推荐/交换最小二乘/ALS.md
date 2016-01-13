@@ -72,7 +72,7 @@
 &emsp;&emsp;我们的目的是找到用户向量`ui`以及商品向量`vj`来表明用户偏好。这些向量分别是用户因素向量和商品因素向量。本质上，这些向量将用户和商品映射到一个公用的隐式因素空间，从而使它们可以直接比较。这和用于显式数据集的矩阵分解技术类似，但是包含两点不一样的地方：
 （1）我们需要考虑不同的信任度，（2）最优化需要考虑所有可能的u，v对，而不仅仅是和观察数据相关的u，v对。因此，通过最小化下面的损失函数来计算相关因素（`factors`）。
 
-<div  align="center"><img src="imgs/math.2.4.png" width = "350" height = "40" alt="信任度" align="center" /></div>
+<div  align="center"><img src="imgs/math.2.4.png" width = "450" height = "50" alt="信任度" align="center" /></div>
 
 ## 2.4 求解最小化损失函数
 
@@ -81,7 +81,7 @@
 &emsp;&emsp;公式（2.1）和公式（2.4）是非凸函数，无法求解最优解。但是，固定公式中的用户-特征向量或者商品-特征向量，公式就会变成二次方程，可以求出全局的极小值。这样就产生了交替最小二乘的优化过程：我们交替的重新计算用户-特征向量和商品-特征向量，每一步都保证降低损失函数的值。
 交替最小二乘法的处理过程如下所示：
 
-<div  align="center"><img src="imgs/ALS.2.1.png" width = "500" height = "120" alt="交替最小二乘法处理流程" align="center" /></div>
+<div  align="center"><img src="imgs/ALS.2.1.png" width = "400" height = "100" alt="交替最小二乘法处理流程" align="center" /></div>
 
 # 3 ALS在spark中的实现
 
