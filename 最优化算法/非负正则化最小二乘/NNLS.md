@@ -222,7 +222,7 @@ lapack.dppsv(“u”, k, 1, ne.ata, ne.atb, k, info)
 
 &emsp;&emsp;可以深入`dppsv`代码（`Fortran`代码）了解更深的细节。我们分析的重点是非负正则化最小二乘的实现，因为在某些情况下，方程组的解为负数是没有意义的。虽然方程组可以得到精确解，但却不能取负值解。在这种情况下，其非负最小二乘解比方程的精确解更有意义。非负最小二乘问题要求解的问题如下公式
 
-<div  align="center"><img src="imgs/math.3.1.png" width = "320" height = "28" alt="3.1" align="center" /></div><br />
+<div  align="center"><img src="imgs/math.3.1.png" width = "480" height = "42" alt="3.1" align="center" /></div><br />
 
 其中ata是半正定矩阵。
 
@@ -273,14 +273,14 @@ blas.daxpy(n, -1.0, atb, 1, res, 1)
 &emsp;&emsp;详细代码如下所示：
 
 ```scala
-	//转换为投影矩阵
-    i = 0
-    while (i < n) {
-      if (grad(i) > 0.0 && x(i) == 0.0) {
-        grad(i) = 0.0
-      }
-      i = i + 1
-    }
+//转换为投影矩阵
+i = 0
+while (i < n) {
+   if (grad(i) > 0.0 && x(i) == 0.0) {
+     grad(i) = 0.0
+   }
+   i = i + 1
+}
 ```
 - **（4）求搜索方向。**
 
@@ -321,29 +321,29 @@ blas.dgemv("N", n, n, 1.0, ata, n, dir, 1, 0.0, scratch, 1)
 &emsp;&emsp;因为解是非负的，所以步长需要做一定的处理，如果步长与搜索方向的乘积大于x的值，那么重置步长。重置逻辑如下：
 
 ```scala
-    i = 0
-    while (i < n) {
-      if (step * dir(i) > x(i)) {
-        //如果步长过大，那么二者的商替代
-        step = x(i) / dir(i)
-      }
-      i = i + 1
-    }
+i = 0
+while (i < n) {
+   if (step * dir(i) > x(i)) {
+     //如果步长过大，那么二者的商替代
+     step = x(i) / dir(i)
+   }
+   i = i + 1
+}
 ```
 &emsp;&emsp;最后，修改x的值，完成该次迭代。
 
 ```scala
-    i = 0
-    while (i < n) {
-      // x(i)趋向为0
-      if (step * dir(i) > x(i) * (1 - 1e-14)) {
-        x(i) = 0
-        lastWall = iterno
-      } else {
-        x(i) -= step * dir(i)
-      }
-      i = i + 1
-    }
+i = 0
+while (i < n) {
+// x(i)趋向为0
+  if (step * dir(i) > x(i) * (1 - 1e-14)) {
+    x(i) = 0
+    lastWall = iterno
+  } else {
+    x(i) -= step * dir(i)
+  }
+  i = i + 1
+}
 ```
 
 
