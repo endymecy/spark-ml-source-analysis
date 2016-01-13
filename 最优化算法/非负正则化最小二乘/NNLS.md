@@ -9,11 +9,11 @@
 
 <div  align="center"><img src="imgs/math.1.1.png" width = "335" height = "50" alt="1.1" align="center" /></div>
 
-&emsp;&emsp;其中x=（x1,x2,…,xn），一般假设m>=n。把极小化这类函数的问题称为最小二乘问题。
+&emsp;&emsp;其中`x=（x1,x2,…,xn）`，一般假设`m>=n`。把极小化这类函数的问题称为最小二乘问题。
 
 <div  align="center"><img src="imgs/math.1.2.png" width = "355" height = "55" alt="1.2" align="center" /></div>
 
-&emsp;&emsp;当<img src="http://www.forkosh.com/mathtex.cgi?{f}_{i}(x)">为x的线性函数时，称（1.2）为线性最小二乘问题，当<img src="http://www.forkosh.com/mathtex.cgi?{f}_{i}(x)">为x的非线性函数时，称（1.2）为非线性最小二乘问题。
+&emsp;&emsp;当<img src="http://www.forkosh.com/mathtex.cgi?{f}_{i}(x)">为`x`的线性函数时，称（1.2）为线性最小二乘问题，当<img src="http://www.forkosh.com/mathtex.cgi?{f}_{i}(x)">为`x`的非线性函数时，称（1.2）为非线性最小二乘问题。
 
 ## 1.2 线性最小二乘问题
 
@@ -21,5 +21,7 @@
 
 <div  align="center"><img src="imgs/math.1.3.png" width = "365" height = "25" alt="1.3" align="center" /></div>
 
+&emsp;&emsp;其中，`p`是维列向量，`bi`是实数，这样我们可以用矩阵的形式表示（1.1）式。令
 
+<div  align="center"><img src="imgs/math.1.3.1.png" width = "190" height = "65" alt="1.3" align="center" /></div>
 
