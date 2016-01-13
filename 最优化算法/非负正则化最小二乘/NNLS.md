@@ -25,3 +25,17 @@
 
 <div  align="center"><img src="imgs/math.1.3.1.png" width = "190" height = "65" alt="1.3" align="center" /></div>
 
+&emsp;&emsp;A是`m * n`矩阵，`b`是`m`维列向量。则
+
+<div  align="center"><img src="imgs/math.1.4.png" width = "520" height = "84" alt="1.4" align="center" /></div>
+
+&emsp;&emsp;因为`F(x)`是凸的，所以对（1.4）求导可以得到全局极小值，令其导数为0，我们可以得到这个极小值。
+
+<div  align="center"><img src="imgs/math.1.5.png" width = "220" height = "43" alt="1.5" align="center" /></div>
+
+假设`A`为满秩，<img src="http://www.forkosh.com/mathtex.cgi?{A}^{T}{A}">为n阶对称正定矩阵，我们可以求得x的值为以下的形式：
+
+<div  align="center"><img src="imgs/math.1.6.png" width = "235" height = "25" alt="1.6" align="center" /></div>
+
+## 1.3 非线性最小二乘问题
+
