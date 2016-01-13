@@ -51,9 +51,10 @@
 &emsp;&emsp;潜在因素模型由一个针对协同过滤的交替方法组成，它以一个更加全面的方式发现潜在特征来解释观察的`ratings`数据。我们关注的模型由奇异值分解（`SVD`）推演而来。一个典型的模型将每个用户`u`（包含一个用户-因素向量`ui`）和每个商品`v`（包含一个用户-因素向量`vj`）联系起来。
 预测通过内积<img src="http://www.forkosh.com/mathtex.cgi?{r}_{ij}={{u}_{i}}^{T}{v}_{j}">来实现。另一个需要关注的地方是参数估计。许多当前的工作都应用到了显式反馈数据集中，这些模型仅仅基于观察到的`rating`数据直接建模，同时通过一个适当的正则化来避免过拟合。公式如下：
 
-<div  align="center"><img src="imgs/math.2.1.png" width = "425" height = "50" alt="重构误差" align="center" /></div><br>
+<div  align="center"><img src="imgs/math.2.1.png" width = "425" height = "50" alt="重构误差" align="center" /></div>
 
 &emsp;&emsp;在公式(2.1)中，`lambda`是正则化的参数。就这样，我们用最小化重构误差来解决协同推荐问题。我们也成功将推荐问题转换为了最优化问题。
+
 
 ## 2.3 隐式反馈模型
 
