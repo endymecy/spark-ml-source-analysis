@@ -17,9 +17,15 @@
     * PIC
     * LDA
     * 流式k-means
-* [最优化算法]()
+* [最优化算法]
     * 梯度下降算法
     * L-BFGS
     * [NNLS(非负正则化最小二乘)](最优化算法/非负正则化最小二乘/NNLS.md)
 * 特征抽取和转换
-    
+    * TF-IDF
+    * Word2Vec
+    * StandardScaler
+    * Normalizer
+    * ChiSqSelector
+    * ElementwiseProduct
+    * PCA
