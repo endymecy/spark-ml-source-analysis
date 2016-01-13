@@ -94,7 +94,7 @@
 - （3）	解方程组（1.14）求得`Gauss-Newton`方向<img src="http://www.forkosh.com/mathtex.cgi?{d}^{(k)}">
 
 - （4）从<img src="http://www.forkosh.com/mathtex.cgi?{x}^{(k)}">出发，沿着<img src="http://www.forkosh.com/mathtex.cgi?{d}^{(k)}">作一维搜索，求出步长<img src="http://www.forkosh.com/mathtex.cgi?{\lambda}^{(k)}">，并令
-<img src="http://chart.googleapis.com/chart?{x}^{(k+1)}={x}^{(k)}- \lambda{d}^{(k)}">
+<img src="http://www.forkosh.com/mathtex.cgi?{x}^{(k+1)}={x}^{(k)}- \lambda{d}^{(k)}">
 
 - （5）若<img src="http://www.forkosh.com/mathtex.cgi?||{x}^{(k+1)}-{x}^{(k)}|| <= \varepsilon "> 停止迭代，求出`x`，否则，`k=k+1`，返回步骤（2）
 
@@ -136,6 +136,52 @@
 是<img src="http://www.forkosh.com/mathtex.cgi?{d}^{(1)},{d}^{(2)},...,{d}^{(k)}">生成的子空间。
 
 &emsp;&emsp;这两个定理在文献【1】中有详细证明。
+
+## 2.2 共轭梯度法
+
+&emsp;&emsp;共轭梯度法的基本思想是把共轭性与最速下降方法相结合，利用已知点处的梯度构造一组共轭方向，并沿这组方向进行搜索，求出目标函数的极小点。这里我们仅仅讨论二次凸函数的共轭梯度法。
+
+&emsp;&emsp;考虑问题
+
+<div  align="center"><img src="imgs/math.2.3.png" width = "340" height = "35" alt="2.3" align="center" /></div><br />
+
+&emsp;&emsp;其中A是对称正定矩阵，c是常数。
+
+&emsp;&emsp;具体求解方式如下：
+
+&emsp;&emsp;首先给定任何一个初始点<img src="http://www.forkosh.com/mathtex.cgi?{x}^{(1)}">，计算目标函数`f(x)`在这点的梯度<img src="http://www.forkosh.com/mathtex.cgi?{g}_{(1)}">，若<img src="http://www.forkosh.com/mathtex.cgi?||{x}_{(1)}||=0">，则停止计算；否则令
+
+<div  align="center"><img src="imgs/math.2.4.png" width = "280" height = "28" alt="2.4" align="center" /></div><br />
+
+&emsp;&emsp;沿方向<img src="http://www.forkosh.com/mathtex.cgi?{d}^{(1)}">搜索，得到点<img src="http://www.forkosh.com/mathtex.cgi?{x}^{(2)}">。计算<img src="http://www.forkosh.com/mathtex.cgi?{x}^{(2)}">处的梯度，
+若<img src="http://www.forkosh.com/mathtex.cgi?||{g}_{(1)}||!=0}">，则利用<img src="http://www.forkosh.com/mathtex.cgi?{g}_{(2)}">和<img src="http://www.forkosh.com/mathtex.cgi?{d}^{(1)}">构造第二个搜索方向<img src="http://www.forkosh.com/mathtex.cgi?{d}^{(1)}">，再沿<img src="http://www.forkosh.com/mathtex.cgi?{d}^{(1)}">搜索。
+
+&emsp;&emsp;一般的，若已知<img src="http://www.forkosh.com/mathtex.cgi?{x}^{(k)}">和搜索方向<img src="http://www.forkosh.com/mathtex.cgi?{d}^{(k)}">，则从<img src="http://www.forkosh.com/mathtex.cgi?{x}^{(k)}">出发，沿方向<img src="http://www.forkosh.com/mathtex.cgi?{d}^{(k)}">搜索，得到
+
+<div  align="center"><img src="imgs/math.2.5.png" width = "285" height = "30" alt="2.5" align="center" /></div><br />
+
+&emsp;&emsp;其中步长`lambda`满足
+
+<div  align="center"><img src="imgs/math.2.5.a1.png" width = "275" height = "25" alt="2.5.a1" align="center" /></div><br />
+
+&emsp;&emsp;此时可以求得`lambda`的显式表达。令
+
+<div  align="center"><img src="imgs/math.2.5.a2.png" width = "275" height = "25" alt="2.5.a2" align="center" /></div><br />
+
+&emsp;&emsp;通过求导可以求上面公式的极小值，即
+
+<div  align="center"><img src="imgs/math.2.6.png" width = "275" height = "28" alt="2.6" align="center" /></div><br />
+
+&emsp;&emsp;根据二次函数梯度表达式，（2.6）式可以推出如下方程
+
+<div  align="center"><img src="imgs/math.2.7.png" width = "420" height = "45" alt="2.7" align="center" /></div><br />
+
+由（2.7）式可以得到
+
+<div  align="center"><img src="imgs/math.2.8.png" width = "300" height = "45" alt="2.8" align="center" /></div><br />
+
+
+
 
 
 
