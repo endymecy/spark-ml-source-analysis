@@ -94,7 +94,7 @@
 - （3）	解方程组（1.14）求得`Gauss-Newton`方向<img src="http://www.forkosh.com/mathtex.cgi?{d}^{(k)}">
 
 - （4）从<img src="http://www.forkosh.com/mathtex.cgi?{x}^{(k)}">出发，沿着<img src="http://www.forkosh.com/mathtex.cgi?{d}^{(k)}">作一维搜索，求出步长<img src="http://www.forkosh.com/mathtex.cgi?{\lambda}^{(k)}">，并令
-<img src="http://www.forkosh.com/mathtex.cgi?{x}^{(k+1)}={x}^{(k)}- \lambda{d}^{(k)}">
+<img src="src="http://chart.googleapis.com/chart?{x}^{(k+1)}={x}^{(k)}- \lambda{d}^{(k)}">
 
 - （5）若<img src="http://www.forkosh.com/mathtex.cgi?||{x}^{(k+1)}-{x}^{(k)}|| <= \varepsilon "> 停止迭代，求出`x`，否则，`k=k+1`，返回步骤（2）
 
