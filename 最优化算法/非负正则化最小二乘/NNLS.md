@@ -4,3 +4,7 @@
 # 1 最小二乘法
 
 ## 1.1 最小二乘问题
+
+&emsp;&emsp;在某些最优化问题中，目标函数由若干个函数的平方和构成，它的一般形式如下所示：
+
+<div  align="center"><img src="imgs/math.1.1.png" width = "335" height = "50" alt="1.1" align="center" /></div>
