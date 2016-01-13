@@ -81,7 +81,7 @@
 
 <div  align="center"><img src="imgs/math.1.15.png" width = "300" height = "30" alt="1.15" align="center" /></div><br />
 
-&emsp;&emsp;求出步长<img src="http://www.forkosh.com/mathtex.cgi?{\\lambda}^{(k)}">后，令
+&emsp;&emsp;求出步长<img src="http://www.forkosh.com/mathtex.cgi?{\lambda}^{(k)}">后，令
 
 <div  align="center"><img src="imgs/math.1.16.png" width = "300" height = "25" alt="1.16" align="center" /></div><br />
 
