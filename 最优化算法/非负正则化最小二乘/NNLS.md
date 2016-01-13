@@ -210,6 +210,149 @@
 
 <div  align="center"><img src="imgs/NNLS.2.1.png" width = "560" height = "210" alt="NNLS.2.1" align="center" /></div><br />
 
+# 3 最小二乘法在spark中的具体实现
+
+&emsp;&emsp;`Spark ml`中解决最小二乘可以选择两种方式，一种是非负正则化最小二乘，一种是乔里斯基分解（`Cholesky`）。
+
+&emsp;&emsp;乔里斯基分解分解是把一个对称正定的矩阵表示成一个上三角矩阵`U`的转置和其本身的乘积的分解。在`ml`代码中，直接调用[netlib-java](https://github.com/fommil/netlib-java)封装的`dppsv`方法实现。
+
+```scala
+lapack.dppsv(“u”, k, 1, ne.ata, ne.atb, k, info)
+```
+
+&emsp;&emsp;可以深入`dppsv`代码（`Fortran`代码）了解更深的细节。我们分析的重点是非负正则化最小二乘的实现，因为在某些情况下，方程组的解为负数是没有意义的。虽然方程组可以得到精确解，但却不能取负值解。在这种情况下，其非负最小二乘解比方程的精确解更有意义。非负最小二乘问题要求解的问题如下公式
+
+<div  align="center"><img src="imgs/math.3.1.png" width = "320" height = "28" alt="3.1" align="center" /></div><br />
+
+其中ata是半正定矩阵。
+
+&emsp;&emsp;在`ml`代码中，`org.apache.spark.mllib.optimization.NNLS`对象实现了非负最小二乘算法。该算法结合了投影梯度算法和共轭梯度算法来求解。
+
+&emsp;&emsp;首先介绍`NNLS`对象中的`Workspace`类。
+
+```scala
+class Workspace(val n: Int) {
+  val scratch = new Array[Double](n)
+  val grad = new Array[Double](n)  //投影梯度
+  val x = new Array[Double](n)
+  val dir = new Array[Double](n)   //搜索方向
+  val lastDir = new Array[Double](n)
+  val res = new Array[Double](n)  //梯度
+}
+```
+
+&emsp;&emsp;在`Workspace`中，`res`表示梯度，`grad`表示梯度的投影，`dir`表示迭代过程中的搜索方向（共轭梯度中的搜索方向<img src="http://www.forkosh.com/mathtex.cgi?{d}^{(k)}">），`scratch`代表公式（2.8）中的
+<img src="http://www.forkosh.com/mathtex.cgi?{d}^{(kT)}A">。
+
+&emsp;&emsp;`NNLS`对象中，`sort`方法用来解最小二乘，它通过迭代求解极小值。我们将分步骤剖析该方法。
+
+- **（1）确定迭代次数。**
+
+```scala
+val iterMax = math.max(400, 20 * n)
+```
+- **（2）求梯度。**
+
+&emsp;&emsp;在每次迭代内部，第一步会求梯度res，代码如下
+
+```scala
+//y := alpha*A*x + beta*y 即  y:=1.0 * ata * x + 0.0 * res
+blas.dgemv("N", n, n, 1.0, ata, n, x, 1, 0.0, res, 1)
+// ata*x - atb
+blas.daxpy(n, -1.0, atb, 1, res, 1)
+```
+
+&emsp;&emsp;`dgemv`方法的作用是得到`y := alpha*A*x + beta*y`，在本代码中表示`res=ata*x`。`daxpy`方法的作用是得到`y:=step*x +y`,在本代码中表示`res=ata*x-atb`，即梯度。
+
+- **（3）求梯度的投影矩阵**
+
+&emsp;&emsp;求梯度矩阵的投影矩阵的依据如下公式。
+
+<div  align="center"><img src="imgs/math.3.2.png" width = "292" height = "42" alt="3.2" align="center" /></div><br />
+
+&emsp;&emsp;详细代码如下所示：
+
+```scala
+	//转换为投影矩阵
+    i = 0
+    while (i < n) {
+      if (grad(i) > 0.0 && x(i) == 0.0) {
+        grad(i) = 0.0
+      }
+      i = i + 1
+    }
+```
+- **（4）求搜索方向。**
+
+&emsp;&emsp;在第一次迭代中，搜索方向即为梯度方向。如下面代码所示。
+
+```scala
+//在第一次迭代中，搜索方向dir即为梯度方向
+blas.dcopy(n, grad, 1, dir, 1)
+```
+&emsp;&emsp;在第k次迭代中，搜索方向由梯度方向和前一步的搜索方向共同确定，计算依赖的公式是（2.9）。具体代码有两行
+
+```scala
+val alpha = ngrad / lastNorm
+//alpha*lastDir + dir，此时dir为梯度方向 
+blas.daxpy(n, alpha, lastDir, 1, dir, 1)
+```
+&emsp;&emsp;此处的`alpha`就是根据公式（2.12）计算的。
+
+- **（5）计算步长。**
+
+&emsp;&emsp;知道了搜索方向，我们就可以依据公式（2.8）来计算步长。
+
+```scala
+def steplen(dir: Array[Double], res: Array[Double]): Double = {
+  //top = g * d
+val top = blas.ddot(n, dir, 1, res, 1)
+  // y := alpha*A*x + beta*y.
+  // scratch = d * ata
+blas.dgemv("N", n, n, 1.0, ata, n, dir, 1, 0.0, scratch, 1)
+  //公式（2.8），添加1e-20是为了避免分母为0
+//g*d/d*ata*d
+  top / (blas.ddot(n, scratch, 1, dir, 1) + 1e-20)
+}
+```
+
+- **（6）调整步长并修改迭代值。**
+
+&emsp;&emsp;因为解是非负的，所以步长需要做一定的处理，如果步长与搜索方向的乘积大于x的值，那么重置步长。重置逻辑如下：
+
+```scala
+    i = 0
+    while (i < n) {
+      if (step * dir(i) > x(i)) {
+        //如果步长过大，那么二者的商替代
+        step = x(i) / dir(i)
+      }
+      i = i + 1
+    }
+```
+&emsp;&emsp;最后，修改x的值，完成该次迭代。
+
+```scala
+    i = 0
+    while (i < n) {
+      // x(i)趋向为0
+      if (step * dir(i) > x(i) * (1 - 1e-14)) {
+        x(i) = 0
+        lastWall = iterno
+      } else {
+        x(i) -= step * dir(i)
+      }
+      i = i + 1
+    }
+```
+
+
+
+
+
+
+
+
 
 
 
