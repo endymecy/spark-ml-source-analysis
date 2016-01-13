@@ -44,3 +44,22 @@
 用（1.6）中的公式求解极小点<img src="http://www.forkosh.com/mathtex.cgi?{x}^{(k+1)}">，把它作为非线性最小二乘问题解的第`k+1`次近似。然后再从<img src="http://www.forkosh.com/mathtex.cgi?{x}^{(k+1)}">出发，继续迭代。下面将来推导迭代公式。令
 
 <div  align="center"><img src="imgs/math.1.7.png" width = "490" height = "68" alt="1.7" align="center" /></div>
+
+&emsp;&emsp;上式右端是<img src="http://www.forkosh.com/mathtex.cgi?{f}_{i}(x)">在<img src="http://www.forkosh.com/mathtex.cgi?{x}^{(k)}">处展开的一阶泰勒级数多项式。令
+
+<div  align="center"><img src="imgs/math.1.8.png" width = "290" height = "55" alt="1.8" align="center" /></div>
+
+&emsp;&emsp;用`∅(x)`近似`F(x)`，从而用`∅(x)`的极小点作为目标函数`F(x)`的极小点的估计。现在求解线性最小二乘问题
+
+<div  align="center"><img src="imgs/math.1.9.png" width = "220" height = "24" alt="1.9" align="center" /></div>
+
+&emsp;&emsp;把（1.9）写成
+
+<div  align="center"><img src="imgs/math.1.10.png" width = "285" height = "24" alt="1.10" align="center" /></div>
+
+&emsp;&emsp;在公式（1.10）中，
+
+<div  align="center"><img src="imgs/math.1.10.append1.png" width = "380" height = "190" alt="1.10" align="center" /></div>
+
+
+
