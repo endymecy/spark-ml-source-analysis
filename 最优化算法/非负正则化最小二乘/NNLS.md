@@ -31,7 +31,7 @@
 
 &emsp;&emsp;因为`F(x)`是凸的，所以对（1.4）求导可以得到全局极小值，令其导数为0，我们可以得到这个极小值。
 
-<div  align="center"><img src="imgs/math.1.5.png" width = "220" height = "43" alt="1.5" align="center" /></div>
+<div  align="center"><img src="imgs/math.1.5.png" width = "275" height = "43" alt="1.5" align="center" /></div>
 
 假设`A`为满秩，<img src="http://www.forkosh.com/mathtex.cgi?{A}^{T}{A}">为n阶对称正定矩阵，我们可以求得x的值为以下的形式：
 
