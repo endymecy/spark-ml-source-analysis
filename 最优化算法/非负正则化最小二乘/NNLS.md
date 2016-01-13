@@ -33,9 +33,14 @@
 
 <div  align="center"><img src="imgs/math.1.5.png" width = "275" height = "43" alt="1.5" align="center" /></div>
 
-假设`A`为满秩，<img src="http://www.forkosh.com/mathtex.cgi?{A}^{T}{A}">为n阶对称正定矩阵，我们可以求得x的值为以下的形式：
+&emsp;&emsp;假设`A`为满秩，<img src="http://www.forkosh.com/mathtex.cgi?{A}^{T}{A}">为`n`阶对称正定矩阵，我们可以求得`x`的值为以下的形式：
 
 <div  align="center"><img src="imgs/math.1.6.png" width = "235" height = "25" alt="1.6" align="center" /></div>
 
 ## 1.3 非线性最小二乘问题
 
+&emsp;&emsp;假设在（1.1）中，<img src="http://www.forkosh.com/mathtex.cgi?{f}_{i}(x)">为非线性函数，且`F(x)`有连续偏导数。由于<img src="http://www.forkosh.com/mathtex.cgi?{f}_{i}(x)">为非线性函数，所以（1.2）中的非线性最小二乘无法套用（1.6）中的公式求得。
+解这类问题的基本思想是，通过解一系列线性最小二乘问题求非线性最小二乘问题的解。设<img src="http://www.forkosh.com/mathtex.cgi?{x}^{(k)}">是解的第`k`次近似。在<img src="http://www.forkosh.com/mathtex.cgi?{x}^{(k)}">时，将函数<img src="http://www.forkosh.com/mathtex.cgi?{f}_{i}(x)">线性化，从而将非线性最小二乘转换为线性最小二乘问题，
+用（1.6）中的公式求解极小点<img src="http://www.forkosh.com/mathtex.cgi?{x}^{(k+1)}">，把它作为非线性最小二乘问题解的第`k+1`次近似。然后再从<img src="http://www.forkosh.com/mathtex.cgi?{x}^{(k+1)}">出发，继续迭代。下面将来推导迭代公式。令
+
+<div  align="center"><img src="imgs/math.1.7.png" width = "490" height = "68" alt="1.7" align="center" /></div>
