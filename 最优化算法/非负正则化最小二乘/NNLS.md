@@ -85,7 +85,12 @@
 
 <div  align="center"><img src="imgs/math.1.16.png" width = "300" height = "25" alt="1.16" align="center" /></div><br />
 
-**最小二乘的计算步骤如下**
+**&emsp;&emsp;最小二乘的计算步骤如下:**
 
+- （1）	给定初始点<img src="http://www.forkosh.com/mathtex.cgi?{x}^{(1)}">，允许误差`ε>0，k=1`
+- （2）	计算函数值<img src="http://www.forkosh.com/mathtex.cgi?{f}_{i}(x)">，得到向量<img src="http://www.forkosh.com/mathtex.cgi?{f}^{(k)}">，再计算一阶偏导，得到`m*n`矩阵<img src="http://www.forkosh.com/mathtex.cgi?{A}_{(k)}">
+- （3）	解方程组（1.14）求得`Gauss-Newton`方向<img src="http://www.forkosh.com/mathtex.cgi?{d}^{(k)}">
+- （4）从<img src="http://www.forkosh.com/mathtex.cgi?{x}^{(k)}">出发，沿着<img src="http://www.forkosh.com/mathtex.cgi?{d}^{(k)}">作一维搜索，求出步长<img src="http://www.forkosh.com/mathtex.cgi?{λ}^{(k)}">，并令
+<img src="http://www.forkosh.com/mathtex.cgi?{x}^{(k+1)}={x}^{(k)}-\lambda {d}^{(k)}">
 
 
