@@ -7,11 +7,11 @@
 
 &emsp;&emsp;在某些最优化问题中，目标函数由若干个函数的平方和构成，它的一般形式如下所示：
 
-<div  align="center"><img src="imgs/math.1.1.png" width = "335" height = "50" alt="1.1" align="center" /></div>
+<div  align="center"><img src="imgs/math.1.1.png" width = "335" height = "50" alt="1.1" align="center" /></div><br />
 
 &emsp;&emsp;其中`x=（x1,x2,…,xn）`，一般假设`m>=n`。把极小化这类函数的问题称为最小二乘问题。
 
-<div  align="center"><img src="imgs/math.1.2.png" width = "355" height = "55" alt="1.2" align="center" /></div>
+<div  align="center"><img src="imgs/math.1.2.png" width = "355" height = "55" alt="1.2" align="center" /></div><br />
 
 &emsp;&emsp;当<img src="http://www.forkosh.com/mathtex.cgi?{f}_{i}(x)">为`x`的线性函数时，称（1.2）为线性最小二乘问题，当<img src="http://www.forkosh.com/mathtex.cgi?{f}_{i}(x)">为`x`的非线性函数时，称（1.2）为非线性最小二乘问题。
 
@@ -19,7 +19,7 @@
 
 &emsp;&emsp;在公式（1.1）中，假设
 
-<div  align="center"><img src="imgs/math.1.3.png" width = "365" height = "25" alt="1.3" align="center" /></div>
+<div  align="center"><img src="imgs/math.1.3.png" width = "365" height = "25" alt="1.3" align="center" /></div><br />
 
 &emsp;&emsp;其中，`p`是维列向量，`bi`是实数，这样我们可以用矩阵的形式表示（1.1）式。令
 
@@ -51,7 +51,7 @@
 
 &emsp;&emsp;用`∅(x)`近似`F(x)`，从而用`∅(x)`的极小点作为目标函数`F(x)`的极小点的估计。现在求解线性最小二乘问题
 
-<div  align="center"><img src="imgs/math.1.9.png" width = "220" height = "24" alt="1.9" align="center" /></div>
+<div  align="center"><img src="imgs/math.1.9.png" width = "220" height = "24" alt="1.9" align="center" /></div><br />
 
 &emsp;&emsp;把（1.9）写成
 
@@ -79,6 +79,6 @@
 
 &emsp;&emsp;称为点<img src="http://www.forkosh.com/mathtex.cgi?{x}^{(k)}">处的`Gauss-Newton`方向。为保证每次迭代能使目标函数值下降（至少不能上升），在求出<img src="http://www.forkosh.com/mathtex.cgi?{d}^{(k)}">后，不直接使用<img src="http://www.forkosh.com/mathtex.cgi?{x}^{(k)}+{d}^{(k)}">作为k+1次近似，而是从<img src="http://www.forkosh.com/mathtex.cgi?{x}^{(k)}">出发，沿<img src="http://www.forkosh.com/mathtex.cgi?{d}^{(k)}">方向进行一维搜索。
 
-
+<div  align="center"><img src="imgs/math.1.15.png" width = "300" height = "30" alt="1.15" align="center" /></div><br />
 
 
