@@ -17,7 +17,7 @@
 &emsp;&emsp;低维空间的选取是一个问题。这个低维空间要能够很好的区分事物，那么就需要一个明确的可量化目标，这就是重构误差。在`ALS`中我们使用F范数来量化重构误差，就是每个元素重构误差的平方和。这里存在一个问题，我们只观察到部分打分，`A`中的大量未知元是我们想推断的，所以这个重构误差是包含未知数的。
 解决方案很简单：只计算已知打分的重构误差。
 
-<div  align="center"><img src="imgs/math.1.1.png" width = "150" height = "30" alt="重构误差" align="center" /></div>
+<div  align="center"><img src="imgs/math.1.1.png" width = "150" height = "30" alt="重构误差" align="center" /></div><br />
 
 &emsp;&emsp;后面的章节我们将从原理上讲解spark中实现的ALS模型。
 
