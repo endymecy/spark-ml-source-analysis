@@ -25,7 +25,7 @@
 # 2 spark中ALS的实现原理
 
 &emsp;&emsp;`Spark`利用交换最小二乘解决矩阵分解问题分两种情况：数据集是显式反馈和数据集是隐式反馈。由于隐式反馈算法的原理是在显示反馈算法原理的基础上作的修改，所以我们在此只会具体讲解数据集为隐式反馈的算法。
-算法实现所依据的文献为:[Collaborative Filtering for Implicit Feedback Datasets](papers/Collaborative Filtering for Implicit Feedback Datasets.pdf)。
+算法实现所依据的文献见参考文献【1】。
 
 ## 2.1 介绍
 
@@ -430,7 +430,7 @@ if (implicitPrefs) {
 } 
 ```
 
-&emsp;&emsp;后面的问题就如何求解最小二乘了。我们会在最优化章节介绍`spark`版本的`NNLS`。
+&emsp;&emsp;后面的问题就如何求解最小二乘了。我们会在最优化章节介绍`spark`版本的[NNLS](最优化算法/非负正则化最小二乘/NNLS.md)。
 
 # 4 参考文献
 
