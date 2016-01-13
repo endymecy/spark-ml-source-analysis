@@ -72,7 +72,7 @@
 &emsp;&emsp;我们的目的是找到用户向量`ui`以及商品向量`vj`来表明用户偏好。这些向量分别是用户因素向量和商品因素向量。本质上，这些向量将用户和商品映射到一个公用的隐式因素空间，从而使它们可以直接比较。这和用于显式数据集的矩阵分解技术类似，但是包含两点不一样的地方：
 （1）我们需要考虑不同的信任度，（2）最优化需要考虑所有可能的u，v对，而不仅仅是和观察数据相关的u，v对。因此，通过最小化下面的损失函数来计算相关因素（`factors`）。
 
-<div  align="center"><img src="imgs/math.2.4.png" width = "400" height = "45" alt="信任度" align="center" /></div>
+<div  align="center"><img src="imgs/math.2.4.png" width = "350" height = "40" alt="信任度" align="center" /></div>
 
 ## 2.4 求解最小化损失函数
 
