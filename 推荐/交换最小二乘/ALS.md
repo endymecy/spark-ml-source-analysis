@@ -2,7 +2,7 @@
 
 &emsp;&emsp;ALS 是交替最小二乘（`alternating least squares`）的简称。在机器学习中，`ALS`特指使用交替最小二乘求解的一个协同推荐算法。它通过观察到的所有用户给商品的打分，来推断每个用户的喜好并向用户推荐适合的商品。举个例子，我们看下面一个`8*8`的用户打分矩阵。
 
-<div  align="center"><img src="imgs/ALS.1.1.png" width = "450" height = "300" alt="8*8打分" align="center" /></div>
+<div  align="center"><img src="imgs/ALS.1.1.png" width = "450" height = "300" alt="8*8打分" align="center" /></div><br>
 
 &emsp;&emsp;&emsp;这个矩阵的每一行代表一个用户`（u1,u2,…,u8）`、每一列代表一个商品`（v1,v2,…,v8）`、用户的打分为`1-9`分。这个矩阵只显示了观察到的打分，我们需要推测没有观察到的打分。比如`（u6，v5）`打分多少？如果以数独的方式来解决这个问题，可以得到唯一的结果。
 因为数独的规则很强，每添加一条规则，就让整个系统的自由度下降一个量级。当我们满足所有的规则时，整个系统的自由度就降为`1`了，也就得出了唯一的结果。对于上面的打分矩阵，如果我们不添加任何条件的话，也即打分之间是相互独立的，我们就没法得到`（u6，v5）`的打分。
@@ -17,7 +17,7 @@
 &emsp;&emsp;低维空间的选取是一个问题。这个低维空间要能够很好的区分事物，那么就需要一个明确的可量化目标，这就是重构误差。在`ALS`中我们使用F范数来量化重构误差，就是每个元素重构误差的平方和。这里存在一个问题，我们只观察到部分打分，`A`中的大量未知元是我们想推断的，所以这个重构误差是包含未知数的。
 解决方案很简单：只计算已知打分的重构误差。
 
-<div  align="center"><img src="imgs/math.1.1.png" width = "150" height = "30" alt="重构误差" align="center" /></div>
+<div  align="center"><img src="imgs/math.1.1.png" width = "150" height = "30" alt="重构误差" align="center" /></div><br>
 
 &emsp;&emsp;后面的章节我们将从原理上讲解spark中实现的ALS模型。
 
@@ -51,27 +51,27 @@
 &emsp;&emsp;潜在因素模型由一个针对协同过滤的交替方法组成，它以一个更加全面的方式发现潜在特征来解释观察的`ratings`数据。我们关注的模型由奇异值分解（`SVD`）推演而来。一个典型的模型将每个用户`u`（包含一个用户-因素向量`ui`）和每个商品`v`（包含一个用户-因素向量`vj`）联系起来。
 预测通过内积<img src="http://www.forkosh.com/mathtex.cgi?{r}_{ij}={{u}_{i}}^{T}{v}_{j}">来实现。另一个需要关注的地方是参数估计。许多当前的工作都应用到了显式反馈数据集中，这些模型仅仅基于观察到的`rating`数据直接建模，同时通过一个适当的正则化来避免过拟合。公式如下：
 
-<div  align="center"><img src="imgs/math.2.1.png" width = "425" height = "50" alt="重构误差" align="center" /></div>
+<div  align="center"><img src="imgs/math.2.1.png" width = "425" height = "50" alt="重构误差" align="center" /></div><br>
 
-&emsp;&emsp;在公式(2.1)中，λ是正则化的参数。就这样，我们用最小化重构误差来解决协同推荐问题。我们也成功将推荐问题转换为了最优化问题。
+&emsp;&emsp;在公式(2.1)中，`lambda`是正则化的参数。就这样，我们用最小化重构误差来解决协同推荐问题。我们也成功将推荐问题转换为了最优化问题。
 
 ## 2.3 隐式反馈模型
 
 &emsp;&emsp;在显式反馈的基础上，我们需要做一些改动得到我们的隐式反馈模型。首先，我们需要形式化由<img src="http://www.forkosh.com/mathtex.cgi?{r}_{ij}">变量衡量的信任度的概念。我们引入了一组二元变量<img src="http://www.forkosh.com/mathtex.cgi?{p}_{ij}">，它表示用户u对商品v的偏好。<img src="http://www.forkosh.com/mathtex.cgi?{p}_{ij}">的公式如下：
 
-<div  align="center"><img src="imgs/math.2.2.png" width = "325" height = "50" alt="p形式" align="center" /></div>
+<div  align="center"><img src="imgs/math.2.2.png" width = "325" height = "50" alt="p形式" align="center" /></div><br>
 
 &emsp;&emsp;换句话说，如果用户购买了商品，我们认为用户喜欢该商品，否则我们认为用户不喜欢该商品。然而我们的信念（`beliefs`）与变化的信任（`confidence`）等级息息相关。首先，很自然的，<img src="http://www.forkosh.com/mathtex.cgi?{p}_{ij}">的值为0和低信任有关。用户对一个商品没有得到一个正的偏好可能源于多方面的原因，并不一定是不喜欢该商品。例如，用户可能并不知道该商品的存在。
 另外，用户购买一个商品也并不一定是用户喜欢它。因此我们需要一个新的信任等级来显示用户偏爱某个商品。一般情况下，<img src="http://www.forkosh.com/mathtex.cgi?{r}_{ij}">越大，越能暗示用户喜欢某个商品。因此，我们引入了一组变量<img src="http://www.forkosh.com/mathtex.cgi?{c}_{ij}">，它衡量了我们观察到<img src="http://www.forkosh.com/mathtex.cgi?{p}_{ij}">的信任度。<img src="http://www.forkosh.com/mathtex.cgi?{c}_{ij}">一个合理的选择如下所示：
 
-<div  align="center"><img src="imgs/math.2.3.png" width = "280" height = "25" alt="信任度" align="center" /></div>
+<div  align="center"><img src="imgs/math.2.3.png" width = "280" height = "25" alt="信任度" align="center" /></div><br>
 
 &emsp;&emsp;按照这种方式，我们存在最小限度的信任度，并且随着我们观察到的正偏向的证据越来越多，信任度也会越来越大。
 
 &emsp;&emsp;我们的目的是找到用户向量`ui`以及商品向量`vj`来表明用户偏好。这些向量分别是用户因素向量和商品因素向量。本质上，这些向量将用户和商品映射到一个公用的隐式因素空间，从而使它们可以直接比较。这和用于显式数据集的矩阵分解技术类似，但是包含两点不一样的地方：
 （1）我们需要考虑不同的信任度，（2）最优化需要考虑所有可能的u，v对，而不仅仅是和观察数据相关的u，v对。因此，通过最小化下面的损失函数来计算相关因素（`factors`）。
 
-<div  align="center"><img src="imgs/math.2.4.png" width = "450" height = "50" alt="信任度" align="center" /></div>
+<div  align="center"><img src="imgs/math.2.4.png" width = "450" height = "50" alt="信任度" align="center" /></div><br>
 
 ## 2.4 求解最小化损失函数
 
