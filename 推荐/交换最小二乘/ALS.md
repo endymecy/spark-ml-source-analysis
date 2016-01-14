@@ -19,7 +19,7 @@
 
 <div  align="center"><img src="imgs/math.1.1.png" width = "150" height = "30" alt="重构误差" align="center"/></div>
 
-&emsp;&emsp;后面的章节我们将从原理上讲解spark中实现的ALS模型。
+&emsp;&emsp;后面的章节我们将从原理上讲解`spark`中实现的`ALS`模型。
 
 # 2 spark中ALS的实现原理
 
@@ -133,6 +133,45 @@ val userPart = new ALSPartitioner(numUserBlocks)
 val itemPart = new ALSPartitioner(numItemBlocks)
 val userLocalIndexEncoder = new LocalIndexEncoder(userPart.numPartitions)
 val itemLocalIndexEncoder = new LocalIndexEncoder(itemPart.numPartitions)
+
+
+//ALSPartitioner即HashPartitioner
+class HashPartitioner(partitions: Int) extends Partitioner {
+  def numPartitions: Int = partitions
+  def getPartition(key: Any): Int = key match {
+    case null => 0
+    case _ => Utils.nonNegativeMod(key.hashCode, numPartitions)
+  }
+  override def equals(other: Any): Boolean = other match {
+    case h: HashPartitioner =>
+      h.numPartitions == numPartitions
+    case _ =>
+      false
+  }
+  override def hashCode: Int = numPartitions
+}
+
+//LocalIndexEncoder
+private[recommendation] class LocalIndexEncoder(numBlocks: Int) extends Serializable {
+
+    private[this] final val numLocalIndexBits =
+      math.min(java.lang.Integer.numberOfLeadingZeros(numBlocks - 1), 31)
+    //左移（<<,相当于乘2），右移（>>，相当于除2）和无符号右移（>>>，无符号右移，忽略符号位，空位都以0补齐）
+    private[this] final val localIndexMask = (1 << numLocalIndexBits) - 1
+    //encodeIndex高位存分区ID，在低位存对应分区的索引
+    def encode(blockId: Int, localIndex: Int): Int = {
+      (blockId << numLocalIndexBits) | localIndex
+    }
+    @inline
+    def blockId(encoded: Int): Int = {
+      encoded >>> numLocalIndexBits
+    }
+
+    @inline
+    def localIndex(encoded: Int): Int = {
+      encoded & localIndexMask
+    }
+  }
 ```
 
 - **(2)根据`nonnegative`参数选择解决矩阵分解的方法**。
