@@ -118,8 +118,8 @@ def train(
     seed: Long = 0L)
 ```
 
-&emsp;&emsp;在这段代码中，`ratings`指用户提供的训练数据，它包括用户id集、商品id集和打分集。`rank`表示隐含因素的数量，也即特征的数量。`numUserBlocks`和`numItemBlocks`分别指用户和商品的块数量，即分区数量。`maxIter`表示迭代次数。`regParam`表示最小二乘法中`lambda`值的大小。
-`implicitPrefs`表示我们的训练数据是否是隐式反馈数据。`Nonnegative`表示求解的最小二乘的值是否是非负,根据`Nonnegative`的值的不同，`spark`使用了不同的矩阵分解方法。
+&emsp;&emsp;以上定义中，`ratings`指用户提供的训练数据，它包括用户`id`集、商品`id`集以及相应的打分集。`rank`表示隐含因素的数量，也即特征的数量。`numUserBlocks`和`numItemBlocks`分别指用户和商品的块数量，即分区数量。`maxIter`表示迭代次数。`regParam`表示最小二乘法中`lambda`值的大小。
+`implicitPrefs`表示我们的训练数据是否是隐式反馈数据。`Nonnegative`表示求解的最小二乘的值是否是非负,根据`Nonnegative`的值的不同，`spark`使用了不同的求解方法。
 
 &emsp;&emsp;下面我们分步骤分析`train`方法的处理流程。
 
