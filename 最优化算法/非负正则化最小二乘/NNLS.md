@@ -103,7 +103,7 @@
 
 <div  align="center"><img src="imgs/math.1.17.png" width = "350" height = "30" alt="1.17" align="center" /></div><br />
 
-&emsp;&emsp;其中，`I`是n阶单位矩阵，`alpha`是一个正实数。当`alpha`为0时，<img src="http://www.forkosh.com/mathtex.cgi?{d}^{(k)}">就是`Gauss-Newton`方向，当`alpha`充分大时，这时<img src="http://www.forkosh.com/mathtex.cgi?{d}^{(k)}">接近`F(x)`在<img src="http://www.forkosh.com/mathtex.cgi?{x}^{(k)}">处的最速下降方向。算法的具体过程见参考文献【1】。
+&emsp;&emsp;其中，`I`是`n`阶单位矩阵，`alpha`是一个正实数。当`alpha`为0时，<img src="http://www.forkosh.com/mathtex.cgi?{d}^{(k)}">就是`Gauss-Newton`方向，当`alpha`充分大时，这时<img src="http://www.forkosh.com/mathtex.cgi?{d}^{(k)}">接近`F(x)`在<img src="http://www.forkosh.com/mathtex.cgi?{x}^{(k)}">处的最速下降方向。算法的具体过程见参考文献【1】。
 
 # 2 共轭梯度法
 
@@ -119,7 +119,7 @@
 
 <div  align="center"><img src="imgs/math.2.2.png" width = "340" height = "25" alt="2.2" align="center" /></div><br />
 
-在上述定义中，如果A是单位矩阵，那么两个方向关于A共轭等价于两个方向正交。如果A是一般的对称正定矩阵，<img src="http://www.forkosh.com/mathtex.cgi?{d}^{(i)}">与<img src="http://www.forkosh.com/mathtex.cgi?{d}^{(j)}">共轭，就是<img src="http://www.forkosh.com/mathtex.cgi?{d}^{(i)}">与<img src="http://www.forkosh.com/mathtex.cgi?{Ad}^{(j)}">正交。共轭方向有一些重要的性质。
+在上述定义中，如果`A`是单位矩阵，那么两个方向关于`A`共轭等价于两个方向正交。如果`A`是一般的对称正定矩阵，<img src="http://www.forkosh.com/mathtex.cgi?{d}^{(i)}">与<img src="http://www.forkosh.com/mathtex.cgi?{d}^{(j)}">共轭，就是<img src="http://www.forkosh.com/mathtex.cgi?{d}^{(i)}">与<img src="http://www.forkosh.com/mathtex.cgi?{Ad}^{(j)}">正交。共轭方向有一些重要的性质。
 
 **&emsp;&emsp;定理2.1** 设`A`是`n`阶对称正定矩阵，<img src="http://www.forkosh.com/mathtex.cgi?{d}^{(1)},{d}^{(2)},...,{d}^{(k)}">是`k`个`A`的共轭的非零向量，则这个向量组线性无关。
 
@@ -129,7 +129,7 @@
 
 &emsp;&emsp;其中，`A`是`n`阶对称正定矩阵，<img src="http://www.forkosh.com/mathtex.cgi?{d}^{(1)},{d}^{(2)},...,{d}^{(k)}">是`k`个`A`的共轭的非零向量，以任意的<img src="http://www.forkosh.com/mathtex.cgi?{x}^{(1)}">为初始点，
 沿<img src="http://www.forkosh.com/mathtex.cgi?{d}^{(1)},{d}^{(2)},...,{d}^{(k)}">进行一维搜索，得到<img src="http://www.forkosh.com/mathtex.cgi?{x}^{(2)},{x}^{(3)},...,{x}^{(k+1)}">，则<img src="http://www.forkosh.com/mathtex.cgi?{d}^{(k+1)}">是线性流型
-<img src="http://www.forkosh.com/mathtex.cgi?{x}^{(1)}+{H}_{k}">上的唯一极小点，特别的，当k=n时，<img src="http://www.forkosh.com/mathtex.cgi?{x}^{(n+1)}">是函数`1f(x)`的唯一极小点。其中，
+<img src="http://www.forkosh.com/mathtex.cgi?{x}^{(1)}+{H}_{k}">上的唯一极小点，特别的，当k=n时，<img src="http://www.forkosh.com/mathtex.cgi?{x}^{(n+1)}">是函数`f(x)`的唯一极小点。其中，
 
 <div  align="center"><img src="imgs/math.2.2.a2.png" width = "294" height = "58" alt="2.2.a2" align="center" /></div><br />
 
@@ -145,7 +145,7 @@
 
 <div  align="center"><img src="imgs/math.2.3.png" width = "340" height = "35" alt="2.3" align="center" /></div><br />
 
-&emsp;&emsp;其中A是对称正定矩阵，c是常数。
+&emsp;&emsp;其中`A`是对称正定矩阵，`c`是常数。
 
 &emsp;&emsp;具体求解方式如下：
 
@@ -253,7 +253,7 @@ val iterMax = math.max(400, 20 * n)
 ```
 - **（2）求梯度。**
 
-&emsp;&emsp;在每次迭代内部，第一步会求梯度res，代码如下
+&emsp;&emsp;在每次迭代内部，第一步会求梯度`res`，代码如下
 
 ```scala
 //y := alpha*A*x + beta*y 即  y:=1.0 * ata * x + 0.0 * res
@@ -290,7 +290,7 @@ while (i < n) {
 //在第一次迭代中，搜索方向dir即为梯度方向
 blas.dcopy(n, grad, 1, dir, 1)
 ```
-&emsp;&emsp;在第k次迭代中，搜索方向由梯度方向和前一步的搜索方向共同确定，计算依赖的公式是（2.9）。具体代码有两行
+&emsp;&emsp;在第`k`次迭代中，搜索方向由梯度方向和前一步的搜索方向共同确定，计算依赖的公式是（2.9）。具体代码有两行
 
 ```scala
 val alpha = ngrad / lastNorm
@@ -318,7 +318,7 @@ blas.dgemv("N", n, n, 1.0, ata, n, dir, 1, 0.0, scratch, 1)
 
 - **（6）调整步长并修改迭代值。**
 
-&emsp;&emsp;因为解是非负的，所以步长需要做一定的处理，如果步长与搜索方向的乘积大于x的值，那么重置步长。重置逻辑如下：
+&emsp;&emsp;因为解是非负的，所以步长需要做一定的处理，如果步长与搜索方向的乘积大于`x`的值，那么重置步长。重置逻辑如下：
 
 ```scala
 i = 0
@@ -330,7 +330,7 @@ while (i < n) {
    i = i + 1
 }
 ```
-&emsp;&emsp;最后，修改x的值，完成该次迭代。
+&emsp;&emsp;最后，修改`x`的值，完成该次迭代。
 
 ```scala
 i = 0
