@@ -176,7 +176,7 @@ private[recommendation] class LocalIndexEncoder(numBlocks: Int) extends Serializ
 
 - **(2)根据`nonnegative`参数选择解决矩阵分解的方法**。
 
-&emsp;&emsp;如果需要解的值为非负,即`nonnegative`为`true`，那么用非负正则化最小二乘来解，如果没有这个限制，用乔里斯基分解来解。这两个算法我们在最优化模块作了详细讲解。
+&emsp;&emsp;如果需要解的值为非负,即`nonnegative`为`true`，那么用非负正则化最小二乘来解，如果没有这个限制，用乔里斯基（`Cholesky`）分解来解。这两个算法我们在最优化模块作了详细讲解。
 
 ```scala
 val solver = if (nonnegative) new NNLSSolver else new CholeskySolver
