@@ -125,7 +125,7 @@ def train(
 
 - **(1) 初始化`ALSPartitioner`和`LocalIndexEncoder`**。
 
-&emsp;&emsp;`ALSPartitioner`实现了基于`hash`的分区，它根据用户或者商品`id`的`hash`值来进行分区。`LocalIndexEncoder`对`（blockid，localindex）`即`（分区id，分区内索引）`进行编码，并将其转换为一个整数，这个整数在高位存分区ID，在低位存对应分区的索引，在空间上尽量做到了不浪费。
+&emsp;&emsp;`ALSPartitioner`实现了基于`hash`的分区，它根据用户或者商品`id`的`hash`值来进行分区。`LocalIndexEncoder`对`（blockid，localindex）`即`（分区id，分区内索引）`进行编码，并将其转换为一个整数，这个整数在高位存分区`ID`，在低位存对应分区的索引，在空间上尽量做到了不浪费。
 同时也可以根据这个转换的整数分别获得`blockid`和`localindex`。这两个对象在后续的代码中会用到。
 
 ```scala
