@@ -123,7 +123,7 @@ def train(
 
 &emsp;&emsp;下面我们分步骤分析`train`方法的处理流程。
 
-- **(1)初始化`ALSPartitioner`和`LocalIndexEncoder`**。
+- **(1) 初始化`ALSPartitioner`和`LocalIndexEncoder`**。
 
 &emsp;&emsp;`ALSPartitioner`实现了基于`hash`的分区，它根据用户或者商品`id`的`hash`值来进行分区。`LocalIndexEncoder`对`（blockid，localindex）`即`（分区id，分区内索引）`进行编码，并将其转换为一个整数，这个整数在高位存分区ID，在低位存对应分区的索引，在空间上尽量做到了不浪费。
 同时也可以根据这个转换的整数分别获得`blockid`和`localindex`。这两个对象在后续的代码中会用到。
@@ -174,7 +174,7 @@ private[recommendation] class LocalIndexEncoder(numBlocks: Int) extends Serializ
   }
 ```
 
-- **(2)根据`nonnegative`参数选择解决矩阵分解的方法**。
+- **(2) 根据`nonnegative`参数选择解决矩阵分解的方法**。
 
 &emsp;&emsp;如果需要解的值为非负,即`nonnegative`为`true`，那么用非负正则化最小二乘来解，如果没有这个限制，用乔里斯基（`Cholesky`）分解来解。这两个算法我们在最优化模块作了详细讲解。
 
@@ -182,7 +182,7 @@ private[recommendation] class LocalIndexEncoder(numBlocks: Int) extends Serializ
 val solver = if (nonnegative) new NNLSSolver else new CholeskySolver
 ```
 
-- **(3)将`ratings`数据转换为分区的格式**。
+- **(3) 将`ratings`数据转换为分区的格式**。
 
 &emsp;&emsp;将`ratings`数据转换为分区的形式，即`（（用户分区id，商品分区id），分区数据集blocks））`的形式，并缓存到内存中。其中分区id的计算是通过`ALSPartitioner`的`getPartitions`方法获得的，分区数据集由`RatingBlock`组成，
 它表示`（用户分区id，商品分区id ）`对所对应的用户id集，商品id集，以及打分集，即`（用户id集，商品id集，打分集）`。
