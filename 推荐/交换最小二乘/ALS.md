@@ -58,7 +58,7 @@
 &emsp;&emsp;在公式(2.1)中，`lambda`是正则化的参数。正规化是为了防止过拟合的情况发生，具体参见文献【3】。这样，我们用最小化重构误差来解决协同推荐问题。我们也成功将推荐问题转换为了最优化问题。
 
 
-## 2.3 隐式反馈模型
+### 2.3 隐式反馈模型
 
 &emsp;&emsp;在显式反馈的基础上，我们需要做一些改动得到我们的隐式反馈模型。首先，我们需要形式化由<img src="http://www.forkosh.com/mathtex.cgi?{r}_{ij}">变量衡量的信任度的概念。我们引入了一组二元变量<img src="http://www.forkosh.com/mathtex.cgi?{p}_{ij}">，它表示用户`u`对商品`v`的偏好。<img src="http://www.forkosh.com/mathtex.cgi?{p}_{ij}">的公式如下：
 
