@@ -4,7 +4,7 @@
 
 ## 本项目支持的spark版本
 
-&emsp;&emsp;**spark1.6**
+- **spark1.6**
 
 ## 本项目支持的spark版本
 
