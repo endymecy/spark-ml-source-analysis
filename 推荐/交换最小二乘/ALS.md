@@ -1,4 +1,6 @@
-# 1 什么是ALS
+# 交换最小二乘
+
+## 1 什么是ALS
 
 &emsp;&emsp;`ALS`是交替最小二乘（`alternating least squares`）的简称。在机器学习中，`ALS`特指使用交替最小二乘求解的一个协同推荐算法。它通过观察到的所有用户给商品的打分，来推断每个用户的喜好并向用户推荐适合的商品。举个例子，我们看下面一个`8*8`的用户打分矩阵。
 
@@ -21,12 +23,12 @@
 
 &emsp;&emsp;后面的章节我们将从原理上讲解`spark`中实现的`ALS`模型。
 
-# 2 spark中ALS的实现原理
+## 2 spark中ALS的实现原理
 
 &emsp;&emsp;`Spark`利用交换最小二乘解决矩阵分解问题分两种情况：数据集是显式反馈和数据集是隐式反馈。由于隐式反馈算法的原理是在显示反馈算法原理的基础上作的修改，所以我们在此只会具体讲解数据集为隐式反馈的算法。
 算法实现所依据的文献见参考文献【1】。
 
-## 2.1 介绍
+### 2.1 介绍
 
 &emsp;&emsp;从广义上讲，推荐系统基于两种不同的策略：基于内容的方法和基于协同过滤的方法。`Spark`中使用协同过滤的方式。协同过滤分析用户以及用户相关的产品的相关性，用以识别新的用户-产品相关性。协同过滤系统需要的唯一信息是用户过去的行为信息，比如对产品的评价信息。协同过滤是领域无关的，所以它可以方便解决基于内容方法难以解决的许多问题。
 
@@ -46,7 +48,7 @@
 
 - （4）	评价隐式反馈推荐系统需要合适的手段。
 
-## 2.2 显式反馈模型
+### 2.2 显式反馈模型
 
 &emsp;&emsp;潜在因素模型由一个针对协同过滤的交替方法组成，它以一个更加全面的方式发现潜在特征来解释观察的`ratings`数据。我们关注的模型由奇异值分解（`SVD`）推演而来。一个典型的模型将每个用户`u`（包含一个用户-因素向量`ui`）和每个商品`v`（包含一个用户-因素向量`vj`）联系起来。
 预测通过内积<img src="http://www.forkosh.com/mathtex.cgi?{r}_{ij}={{u}_{i}}^{T}{v}_{j}">来实现。另一个需要关注的地方是参数估计。许多当前的工作都应用到了显式反馈数据集中，这些模型仅仅基于观察到的`rating`数据直接建模，同时通过一个适当的正则化来避免过拟合。公式如下：
@@ -74,7 +76,7 @@
 
 <div  align="center"><img src="imgs/math.2.4.png" width = "450" height = "50" alt="信任度" align="center" /></div>
 
-## 2.4 求解最小化损失函数
+### 2.4 求解最小化损失函数
 
 &emsp;&emsp;考虑到损失函数包含`m*n`个元素，`m`是用户的数量，`n`是商品的数量。一般情况下，`m*n`可以到达几百亿。这么多的元素应该避免使用随机梯度下降法来求解，因此，spark选择使用交替最优化方式求解。
 
@@ -83,7 +85,7 @@
 
 <div  align="center"><img src="imgs/ALS.2.1.png" width = "400" height = "100" alt="交替最小二乘法处理流程" align="center" /></div>
 
-# 3 ALS在spark中的实现
+## 3 ALS在spark中的实现
 
 &emsp;&emsp;在`spark`的源代码中，`ALS`算法实现于`org.apache.spark.ml.recommendation.ALS.scala`文件中。我们以官方文档中的例子为起点，来分析`ALS`算法的分布式实现。下面是官方的例子：
 
@@ -474,7 +476,7 @@ if (implicitPrefs) {
 
 &emsp;&emsp;后面的问题就如何求解最小二乘了。我们会在最优化章节介绍`spark`版本的[NNLS](最优化算法/非负正则化最小二乘/NNLS.md)。
 
-# 4 参考文献
+## 4 参考文献
 
 [【1】 Yifan Hu，Yehuda Koren∗，Chris Volinsky. Collaborative Filtering for Implicit Feedback Datasets](papers/Collaborative Filtering for Implicit Feedback Datasets.pdf)
 
