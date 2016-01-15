@@ -1,10 +1,14 @@
-# spark-ml-source-analysis
+# spark机器学习算法研究和源码分析
+
 &emsp;&emsp;本项目对`spark`机器学习包中各种算法的原理加以介绍并且对算法的代码实现进行详细分析，旨在加深自己对机器学习算法的理解，熟悉这些算法的分布式实现方式。
 
-# 本项目支持的spark版本
+## 本项目支持的spark版本
+
 &emsp;&emsp;**spark1.6**
 
-目录如下：
+## 本项目支持的spark版本
+
+&emsp;&emsp;本系列目录如下：
 
 * [协同过滤](推荐/交换最小二乘/ALS.md)
     * [交换最小二乘](推荐/交换最小二乘/ALS.md)
@@ -33,6 +37,6 @@
     * ElementwiseProduct
     * PCA(主成分分析)
     
-# License
+## License
 
 &emsp;&emsp;本文使用的许可见[LICENSE](LICENSE)
