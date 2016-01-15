@@ -12,15 +12,15 @@
     * 决策树
     * 随机森林
 * 聚类
-    * k-means
+    * [k-means||](聚类/k-means/k-means.md)
     * 高斯混合
-    * PIC
-    * LDA
+    * PIC（快速迭代算法）
+    * LDA（隐式狄利克雷分布）
     * 流式k-means
 * [最优化算法]
     * 梯度下降算法
     * L-BFGS
-    * [NNLS(非负正则化最小二乘)](最优化算法/非负正则化最小二乘/NNLS.md)
+    * [NNLS(非负最小二乘)](最优化算法/非负正则化最小二乘/NNLS.md)
 * 特征抽取和转换
     * TF-IDF
     * Word2Vec
@@ -28,4 +28,4 @@
     * Normalizer
     * ChiSqSelector
     * ElementwiseProduct
-    * PCA
+    * PCA(主成分分析)
