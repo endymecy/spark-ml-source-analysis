@@ -19,7 +19,7 @@
     * 决策树
     * 随机森林
 * 聚类
-    * [k-means||](聚类/k-means/k-means.md)
+    * [k-means](聚类/k-means/k-means.md)
     * 高斯混合
     * PIC（快速迭代算法）
     * LDA（隐式狄利克雷分布）
