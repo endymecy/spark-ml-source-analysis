@@ -1,9 +1,11 @@
-> &emsp;&emsp;`spark`中的非负正则化最小二乘法并不是`wiki`中介绍的[NNLS](https://en.wikipedia.org/wiki/Non-negative_least_squares)的实现，而是做了相应的优化。它使用改进投影梯度法结合共轭梯度法来求解非负最小二乘。
+# 非负最小二乘
+
+&emsp;&emsp;`spark`中的非负正则化最小二乘法并不是`wiki`中介绍的[NNLS](https://en.wikipedia.org/wiki/Non-negative_least_squares)的实现，而是做了相应的优化。它使用改进投影梯度法结合共轭梯度法来求解非负最小二乘。
 在介绍`spark`的源码之前，我们要先了解什么是最小二乘法以及共轭梯度法。
 
-# 1 最小二乘法
+## 1 最小二乘法
 
-## 1.1 最小二乘问题
+### 1.1 最小二乘问题
 
 &emsp;&emsp;在某些最优化问题中，目标函数由若干个函数的平方和构成，它的一般形式如下所示：
 
@@ -15,7 +17,7 @@
 
 &emsp;&emsp;当<img src="http://www.forkosh.com/mathtex.cgi?{f}_{i}(x)">为`x`的线性函数时，称（1.2）为线性最小二乘问题，当<img src="http://www.forkosh.com/mathtex.cgi?{f}_{i}(x)">为`x`的非线性函数时，称（1.2）为非线性最小二乘问题。
 
-## 1.2 线性最小二乘问题
+### 1.2 线性最小二乘问题
 
 &emsp;&emsp;在公式（1.1）中，假设
 
@@ -37,7 +39,7 @@
 
 <div  align="center"><img src="imgs/math.1.6.png" width = "235" height = "25" alt="1.6" align="center" /></div><br />
 
-## 1.3 非线性最小二乘问题
+### 1.3 非线性最小二乘问题
 
 &emsp;&emsp;假设在（1.1）中，<img src="http://www.forkosh.com/mathtex.cgi?{f}_{i}(x)">为非线性函数，且`F(x)`有连续偏导数。由于<img src="http://www.forkosh.com/mathtex.cgi?{f}_{i}(x)">为非线性函数，所以（1.2）中的非线性最小二乘无法套用（1.6）中的公式求得。
 解这类问题的基本思想是，通过解一系列线性最小二乘问题求非线性最小二乘问题的解。设<img src="http://www.forkosh.com/mathtex.cgi?{x}^{(k)}">是解的第`k`次近似。在<img src="http://www.forkosh.com/mathtex.cgi?{x}^{(k)}">时，将函数<img src="http://www.forkosh.com/mathtex.cgi?{f}_{i}(x)">线性化，从而将非线性最小二乘转换为线性最小二乘问题，
@@ -105,9 +107,9 @@
 
 &emsp;&emsp;其中，`I`是`n`阶单位矩阵，`alpha`是一个正实数。当`alpha`为0时，<img src="http://www.forkosh.com/mathtex.cgi?{d}^{(k)}">就是`Gauss-Newton`方向，当`alpha`充分大时，这时<img src="http://www.forkosh.com/mathtex.cgi?{d}^{(k)}">接近`F(x)`在<img src="http://www.forkosh.com/mathtex.cgi?{x}^{(k)}">处的最速下降方向。算法的具体过程见参考文献【1】。
 
-# 2 共轭梯度法
+## 2 共轭梯度法
 
-## 2.1 共轭方向
+### 2.1 共轭方向
 
 &emsp;&emsp;在讲解共轭梯度法之前，我们需要先知道什么是共轭方向，下面的定义给出了答案。
 
@@ -137,7 +139,7 @@
 
 &emsp;&emsp;这两个定理在文献【1】中有详细证明。
 
-## 2.2 共轭梯度法
+### 2.2 共轭梯度法
 
 &emsp;&emsp;共轭梯度法的基本思想是把共轭性与最速下降方法相结合，利用已知点处的梯度构造一组共轭方向，并沿这组方向进行搜索，求出目标函数的极小点。这里我们仅仅讨论二次凸函数的共轭梯度法。
 
@@ -210,7 +212,7 @@
 
 <div  align="center"><img src="imgs/NNLS.2.1.png" width = "560" height = "210" alt="NNLS.2.1" align="center" /></div><br />
 
-# 3 最小二乘法在spark中的具体实现
+## 3 最小二乘法在spark中的具体实现
 
 &emsp;&emsp;`Spark ml`中解决最小二乘可以选择两种方式，一种是非负正则化最小二乘，一种是乔里斯基分解（`Cholesky`）。
 
@@ -346,7 +348,7 @@ while (i < n) {
 }
 ```
 
-# 4 参考文献
+## 4 参考文献
 
 【1】陈宝林，最优化理论和算法
 
