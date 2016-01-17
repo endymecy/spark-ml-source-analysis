@@ -346,9 +346,9 @@ for ((run, i) <- activeRuns.zipWithIndex) {
 
 ## 5 参考文献
 
-[【1】Bahman Bahmani,Benjamin Moseley,Andrea Vattani.Scalable K-Means++](papers/Scalable K-Means++.pdf)
+* [【1】Bahman Bahmani,Benjamin Moseley,Andrea Vattani.Scalable K-Means++](papers/Scalable K-Means++.pdf)
 
-[【2】David Arthur and Sergei Vassilvitskii.k-means++: The Advantages of Careful Seeding](papers/k-means++: The Advantages of Careful Seeding.pdf)
+* [【2】David Arthur and Sergei Vassilvitskii.k-means++: The Advantages of Careful Seeding](papers/k-means++: The Advantages of Careful Seeding.pdf)
 
 
 
