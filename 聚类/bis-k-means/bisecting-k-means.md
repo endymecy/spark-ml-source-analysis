@@ -19,9 +19,9 @@
 
 - （1）把所有数据初始化为一个簇，将这个簇分为两个簇。
 
-- （2）选择能最大程度降低聚类代价函数（也就是误差平方和`SSE`）的簇用`k-means`算法划分为两个簇。误差平方和的公式如下所示
+- （2）选择能最大程度降低聚类代价函数（也就是误差平方和`SSE`）的簇用`k-means`算法划分为两个簇。误差平方和的公式如下所示，其中<img src="http://www.forkosh.com/mathtex.cgi?{w}_{i}">表示权重值，<img src="http://www.forkosh.com/mathtex.cgi?{y}^{*}">表示该簇所有点的平均值。
 
-<div  align="center"><img src="imgs/dis-k-means.1.1.png" width = "150" height = "60" alt="1.1" align="center" /></div><br />
+<div  align="center"><img src="imgs/dis-k-means.1.1.png" width = "130" height = "40" alt="1.1" align="center" /></div><br />
 
 - （3）一直重复（2）步，直到满足我们给定的聚类数
 
