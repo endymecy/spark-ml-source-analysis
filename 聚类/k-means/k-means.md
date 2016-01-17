@@ -86,7 +86,7 @@ class KMeans private (
 
 &emsp;&emsp;下面将分步骤分析`k-means`算法、`k-means||`算法的实现过程。
 
-- **（1）处理数据，转换为`VectorWithNorm`集**。
+### 4.1 处理数据，转换为`VectorWithNorm`集。
 
 ```scala
 //求向量的二范式，返回double值
@@ -97,7 +97,7 @@ val zippedData = data.zip(norms).map { case (v, norm) =>
 }
 ```
 
-- **（2）初始化中心点。**
+### 4.2初始化中心点。
 
 &emsp;&emsp;初始化中心点根据`initializationMode`的值来判断，如果`initializationMode`等于`KMeans.RANDOM`，那么随机初始化`k`个中心点，否则使用`k-means||`初始化`k`个中心点。
 
@@ -116,7 +116,7 @@ val centers = initialModel match {
     }
 ```
 
-- **（2.1）随机初始化中心点。**
+- **（1）随机初始化中心点。**
 
 &emsp;&emsp;随机初始化`k`个中心点很简单，具体代码如下：
 
@@ -133,7 +133,7 @@ private def initRandom(data: RDD[VectorWithNorm])
   }
 ```
 
-- **（2.2）通过`k-means||`初始化中心点。**
+- **（2）通过`k-means||`初始化中心点。**
 
 &emsp;&emsp;相比于随机初始化中心点，通过`k-means||`初始化`k`个中心点会麻烦很多，它需要依赖第三章的原理来实现。它的实现方法是`initKMeansParallel`。
 按照第三章的实现步骤。
