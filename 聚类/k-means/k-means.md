@@ -133,7 +133,7 @@ private def initRandom(data: RDD[VectorWithNorm])
   }
 ```
 
-- **（2.1）随机初始化中心点。**
+- **（2.2）通过`k-means||`初始化中心点。**
 
 &emsp;&emsp;相比于随机初始化中心点，通过`k-means||`初始化`k`个中心点会麻烦很多，它需要依赖第三章的原理来实现。它的实现方法是`initKMeansParallel`。
 按照第三章的实现步骤，第一步，我们要初始化一个中心点。
@@ -209,6 +209,8 @@ while (step < initializationSteps) {
 
 来计算满足要求的点，其中，`l=2k`。公式的实现如代码`rand.nextDouble() < 2.0 * c(r) * k / sumCosts(r)`。`sumCosts`表示所有点距离它所属类别的中心点的欧式距离之和。
 上述代码通过`aggregate`方法并行计算获得该值。
+
+
 
 
 
