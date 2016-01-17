@@ -51,9 +51,13 @@
 ## 3 `k-means||`算法原理分析
 
 &emsp;&emsp;`k-means||`算法是在`k-means++`算法的基础上做的改进，和`k-means++`算法不同的是，它采用了一个采样因子`l`，并且`l=A(k)`。这个算法首先如`k-means++`算法一样，随机选择一个初始中心，
-然后计算选定初始中心确定之后的初始花费（`cost`）`phi`。之后处理`log(phi)`次迭代，在每次迭代中，选择合适的点加入到初始化中心中。具体的算法步骤如下所示：
+然后计算选定初始中心确定之后的初始花费（`cost`）`phi`。之后处理`log(phi)`次迭代，在每次迭代中，给定当前中心集，通过概率<img src="http://www.forkosh.com/mathtex.cgi?l{d}^{2}(x,C)/{phi}_{X}(C)">来
+抽样`x`，将选定的`x`添加到初始化中心集中，并且更新<img src="http://www.forkosh.com/mathtex.cgi?{phi}_{X}(C)">。该算法的步骤如下图所示：
 
-- （1）
+<div  align="center"><img src="imgs/1.1.png" width = "450" height = "200" alt="1.1" align="center" /></div><br />
+
+
+
 
 
 
