@@ -42,6 +42,15 @@
 
 - （3）重复过程（2）直到找到k个聚类中心。
 
+&emsp;&emsp;第(2)步中，依次计算每个数据点与最近的种子点（聚类中心）的距离，依次得到`D(1)、D(2)、...、D(n)`构成的集合`D`。在`D`中，为了避免噪声，不能直接选取值最大的元素，应该选择值较大的元素，然后将其对应的数据点作为种子点。
+如何选择值较大的元素呢，下面是`spark`中实现的思路。
+
+- 求所有的距离和`Sum(D(x))`
+
+- 取一个随机值，用权重的方式来取计算下一个“种子点”。这个算法的实现是，先用`Sum(D(x))`乘以随机值`Random`得到值`r`，然后用`currSum += D(x)`，直到其`currSum>r`，此时的点就是下一个“种子点”。
+
+&emsp;&emsp;为什么用这样的方式呢？我们换一种比较好理解的方式来说明。把集合`D`中的每个元素`D(x)`想象为一根线`L(x)`，线的长度就是元素的值。将这些线依次按照`L(1)、L(2)、...、L(n)`的顺序连接起来，组成长线`L`。`L(1)、L(2)、…、L(n)`称为`L`的子线。
+根据概率的相关知识，如果我们在`L`上随机选择一个点，那么这个点所在的子线很有可能是比较长的子线，而这个子线对应的数据点就可以作为种子点。
 
 ### 2.1 `k-means++`算法的缺点
 
@@ -97,7 +106,7 @@ val zippedData = data.zip(norms).map { case (v, norm) =>
 }
 ```
 
-### 4.2初始化中心点。
+### 4.2 初始化中心点。
 
 &emsp;&emsp;初始化中心点根据`initializationMode`的值来判断，如果`initializationMode`等于`KMeans.RANDOM`，那么随机初始化`k`个中心点，否则使用`k-means||`初始化`k`个中心点。
 
@@ -136,7 +145,7 @@ private def initRandom(data: RDD[VectorWithNorm])
 - **（2）通过`k-means||`初始化中心点。**
 
 &emsp;&emsp;相比于随机初始化中心点，通过`k-means||`初始化`k`个中心点会麻烦很多，它需要依赖第三章的原理来实现。它的实现方法是`initKMeansParallel`。
-按照第三章的实现步骤。
+下面按照第三章的实现步骤来分析。
 
 - 第一步，我们要初始化一个中心点。
 
@@ -147,7 +156,7 @@ val sample = data.takeSample(true, runs, seed).toSeq
 val newCenters = Array.tabulate(runs)(r => ArrayBuffer(sample(r).toDense))
 ```
 
-- 第二步，通过已知的中心店，循环迭代求得其它的中心点。
+- 第二步，通过已知的中心点，循环迭代求得其它的中心点。
 
 ```scala
 var step = 0
@@ -232,6 +241,113 @@ val bcCenters = data.context.broadcast(centers)
       LocalKMeans.kMeansPlusPlus(r, myCenters, myWeights, k, 30)
     }
 ```
+
+&emsp;&emsp;上述代码的关键点时通过本地`k-means++`算法求最终的初始化点。它是通过`LocalKMeans.kMeansPlusPlus`来实现的。它使用`k-means++`来处理。
+
+```scala
+// 初始化一个中心点
+centers(0) = pickWeighted(rand, points, weights).toDense
+//
+for (i <- 1 until k) {
+      // 根据概率比例选择下一个中心点
+      val curCenters = centers.view.take(i)
+      //每个点的权重与距离的乘积和
+      val sum = points.view.zip(weights).map { case (p, w) =>
+        w * KMeans.pointCost(curCenters, p)
+      }.sum
+      //取随机值
+      val r = rand.nextDouble() * sum
+      var cumulativeScore = 0.0
+      var j = 0
+      //寻找概率最大的点
+      while (j < points.length && cumulativeScore < r) {
+        cumulativeScore += weights(j) * KMeans.pointCost(curCenters, points(j))
+        j += 1
+      }
+      if (j == 0) {
+        centers(i) = points(0).toDense
+      } else {
+        centers(i) = points(j - 1).toDense
+      }
+}
+```
+
+&emsp;&emsp;上述代码中，`points`指的是候选的中心点，`weights`指这些点相应地权重。寻找概率最大的点的方式就是第二章提到的方式。初始化`k`个中心点后，
+就可以通过一般的`k-means`流程来求最终的`k`个中心点了。具体的过程4.3会讲到。
+
+### 4.3 确定数据点所属类别
+
+&emsp;&emsp;找到中心点后，我们就需要根据距离确定数据点的聚类，即数据点和哪个中心点最近。具体代码如下：
+
+```scala
+      // 找到每个聚类中包含的点距离中心点的距离和以及这些点的个数
+      val totalContribs = data.mapPartitions { points =>
+        val thisActiveCenters = bcActiveCenters.value
+        val runs = thisActiveCenters.length
+        val k = thisActiveCenters(0).length
+        val dims = thisActiveCenters(0)(0).vector.size
+
+        val sums = Array.fill(runs, k)(Vectors.zeros(dims))
+        val counts = Array.fill(runs, k)(0L)
+
+        points.foreach { point =>
+          (0 until runs).foreach { i =>
+            //找到离给定点最近的中心以及相应的欧几里得距离
+            val (bestCenter, cost) = KMeans.findClosest(thisActiveCenters(i), point)
+            costAccums(i) += cost
+            //距离和
+            val sum = sums(i)(bestCenter)
+            //y += a * x
+            axpy(1.0, point.vector, sum)
+            //点数量
+            counts(i)(bestCenter) += 1
+          }
+        }
+
+        val contribs = for (i <- 0 until runs; j <- 0 until k) yield {
+          ((i, j), (sums(i)(j), counts(i)(j)))
+        }
+        contribs.iterator
+      }.reduceByKey(mergeContribs).collectAsMap()
+```
+
+### 4.4 重新确定中心点
+
+&emsp;&emsp;找到类别中包含的数据点以及它们距离中心点的距离，我们可以重新计算中心点。代码如下：
+
+```scala
+//更新中心点
+for ((run, i) <- activeRuns.zipWithIndex) {
+    var changed = false
+    var j = 0
+    while (j < k) {
+        val (sum, count) = totalContribs((i, j))
+        if (count != 0) {
+        
+            //x = a * x，求平均距离即sum/count
+            scal(1.0 / count, sum)
+            
+            val newCenter = new VectorWithNorm(sum)
+            //如果新旧两个中心点的欧式距离大于阈值
+            if (KMeans.fastSquaredDistance(newCenter, centers(run)(j)) > epsilon * epsilon) {
+              changed = true
+            }
+            centers(run)(j) = newCenter
+        }
+        j += 1
+    }
+    if (!changed) {
+        active(run) = false
+        logInfo("Run " + run + " finished in " + (iteration + 1) + " iterations")
+    }
+    costs(run) = costAccums(i).value
+}
+```
+
+## 5 参考文献
+
+[【1】Bahman Bahmani,Benjamin Moseley,Andrea Vattani.Scalable K-Means++](papers/Scalable K-Means++.pdf)
+[【2】David Arthur and Sergei Vassilvitskii.k-means++: The Advantages of Careful Seeding](papers/k-means++: The Advantages of Careful Seeding.pdf)
 
 
 
