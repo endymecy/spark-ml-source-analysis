@@ -147,8 +147,41 @@ val newCenters = Array.tabulate(runs)(r => ArrayBuffer(sample(r).toDense))
 ```scala
 var step = 0
 while (step < initializationSteps) {
-      //选择满足概率条件的点
-      val chosen = data.zip(costs).mapPartitionsWithIndex { (index, pointsWithCosts) =>
+    val bcNewCenters = data.context.broadcast(newCenters)
+    val preCosts = costs
+    costs = data.zip(preCosts).map { case (point, cost) =>
+          Array.tabulate(runs) { r =>
+            //pointCost获得与最近中心点的距离
+            //并与前一次迭代的距离对比取更小的那个
+            math.min(KMeans.pointCost(bcNewCenters.value(r), point), cost(r))
+          }
+        }.persist(StorageLevel.MEMORY_AND_DISK)
+        
+    //所有已选中心点的欧式距离之和
+    val sumCosts = costs.aggregate(new Array[Double](runs))(
+          //分区内迭代
+          seqOp = (s, v) => {
+            // s += v
+            var r = 0
+            while (r < runs) {
+              s(r) += v(r)
+              r += 1
+            }
+            s
+          },
+          //分区间合并
+          combOp = (s0, s1) => {
+            // s0 += s1
+            var r = 0
+            while (r < runs) {
+              s0(r) += s1(r)
+              r += 1
+            }
+            s0
+          }
+        )
+    //选择满足概率条件的点
+    val chosen = data.zip(costs).mapPartitionsWithIndex { (index, pointsWithCosts) =>
         val rand = new XORShiftRandom(seed ^ (step << 16) ^ index)
         pointsWithCosts.flatMap { case (p, c) =>
           val rs = (0 until runs).filter { r =>
@@ -171,7 +204,11 @@ while (step < initializationSteps) {
 
 <div  align="center"><img src="imgs/math.1.3.png" width = "110" height = "30" alt="1.3" align="center" /></div><br />
 
-来计算满足要求的随机点，其中，`l=2k`。公式的实现如代码`rand.nextDouble() < 2.0 * c(r) * k / sumCosts(r)`。
+来计算满足要求的点，其中，`l=2k`。公式的实现如代码`rand.nextDouble() < 2.0 * c(r) * k / sumCosts(r)`。`sumCosts`表示所有点距离它所属类别的中心点的欧式距离之和。
+上述代码通过`aggregate`方法并行计算获得该值。
+
+
+
 
 
 
