@@ -57,10 +57,10 @@
 <div  align="center"><img src="imgs/1.1.png" width = "450" height = "200" alt="1.1" align="center" /></div><br />
 
 &emsp;&emsp;通过`1-6`步产生出的中心点集`C`的元素个数一般情况下大于`k`，所以第7步给`C`中所有点赋予一个权重值<img src="http://www.forkosh.com/mathtex.cgi?{w}_{x}">，它表示距离`x`点最近的点得个数。
-第8步使用`k-means++`算法聚类出`k`个初始化点。
+第8步使用本地`k-means++`算法聚类出`k`个初始化点。
 
 &emsp;&emsp;该算法与`k-means++`算法不同的地方是它每次迭代都会抽样出多个中心点而不是一个中心点，且每次迭代不互相依赖，这样我们可以并行的处理这个迭代过程。由于该过程产生出来的中心点的数量远远小于输入数据点的数量，
-所以第8步可以通过`k-means++`算法很快的找出`k`个初始化中心点。
+所以第8步可以通过本地`k-means++`算法很快的找出`k`个初始化中心点。何为本地`k-means++`算法？就是运行在单个机器节点上的`k-means++`。
 
 &emsp;&emsp;下面我们详细分析上述三个算法的代码实现。
 
@@ -136,7 +136,9 @@ private def initRandom(data: RDD[VectorWithNorm])
 - **（2.2）通过`k-means||`初始化中心点。**
 
 &emsp;&emsp;相比于随机初始化中心点，通过`k-means||`初始化`k`个中心点会麻烦很多，它需要依赖第三章的原理来实现。它的实现方法是`initKMeansParallel`。
-按照第三章的实现步骤，第一步，我们要初始化一个中心点。
+按照第三章的实现步骤。
+
+- 第一步，我们要初始化一个中心点。
 
 ```scala
 //初始化第一个中心点
@@ -145,7 +147,7 @@ val sample = data.takeSample(true, runs, seed).toSeq
 val newCenters = Array.tabulate(runs)(r => ArrayBuffer(sample(r).toDense))
 ```
 
-&emsp;&emsp;第二步，通过已知的中心店，循环迭代求得其它的中心点。
+- 第二步，通过已知的中心店，循环迭代求得其它的中心点。
 
 ```scala
 var step = 0
@@ -209,6 +211,14 @@ while (step < initializationSteps) {
 
 来计算满足要求的点，其中，`l=2k`。公式的实现如代码`rand.nextDouble() < 2.0 * c(r) * k / sumCosts(r)`。`sumCosts`表示所有点距离它所属类别的中心点的欧式距离之和。
 上述代码通过`aggregate`方法并行计算获得该值。
+
+- 第三步，求最终的k个点。
+
+&emsp;&emsp;通过以上步骤求得的候选中心点的个数可能会多于`k`个，这样怎么办呢？我们给每个中心点赋一个权重，权重值是数据集中属于该中心点所在类别的点的数目。
+然后我们使用本地`k-means++`来得到这`k`个初始化点。具体的实现代码如下：
+
+
+
 
 
 
