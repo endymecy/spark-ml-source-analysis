@@ -23,7 +23,7 @@
     * 高斯混合算法
     * PIC（快速迭代算法）
     * LDA（隐式狄利克雷分布）
-    * [二分k-means算法](聚类/bs-k-means/bisecting-k-means.md)
+    * [二分k-means算法](聚类/bis-k-means/bisecting-k-means.md)
     * 流式k-means
 * 最优化算法
     * 梯度下降算法
