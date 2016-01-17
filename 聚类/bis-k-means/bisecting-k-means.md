@@ -40,7 +40,7 @@ class BisectingKMeans private (
     private var seed: Long)
 ```
 
-&emsp;&emsp;上面代码中，`k`表示叶子簇的期望数，默认情况下为4。如果没有可被切分的叶子簇，实际值会更小。`maxIterations`表示切分簇的`k-means`算法的最大迭代次数。
+&emsp;&emsp;上面代码中，`k`表示叶子簇的期望数，默认情况下为4。如果没有可被切分的叶子簇，实际值会更小。`maxIterations`表示切分簇的`k-means`算法的最大迭代次数，默认为20。
 `minDivisibleClusterSize`的值如果大于等于1，它表示一个可切分簇的点数量；如果值小于1，它表示可切分簇的点数量占总数的比例。
 
 
