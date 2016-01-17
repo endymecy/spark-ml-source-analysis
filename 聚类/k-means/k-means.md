@@ -77,10 +77,11 @@ class KMeans private (
     private var seed: Long)
 ```
 
-&emsp;&emsp;在上面的定义中，`k`表示聚类的个数，`maxIterations`表示最大的迭代次数，`runs`表示一次运行的`KMeans`算法的次数，在`spark 1.6`版本中，该参数已经过期，在将来的版本中，它不会被提供了。为了更清楚的理解算法我们可以认为它为1。
+&emsp;&emsp;在上面的定义中，`k`表示聚类的个数，`maxIterations`表示最大的迭代次数，`runs`表示运行`KMeans`算法的次数，在`spark 1.6`版本中，该参数已经过期，在将来的版本中，它不会被提供了。为了更清楚的理解算法我们可以认为它为1。
 `initializationMode`表示初始化模式，有两种选择：随机初始化和通过`k-means||`初始化，默认是通过`k-means||`初始化。`initializationSteps`表示通过`k-means||`初始化时的迭代步骤，默认是5，这是`spark`实现与第三章的算法步骤不一样的地方，这里迭代次数人为指定，
 而第三章的算法是根据距离得到的迭代次数，为`log(phi)`。`epsilon`是判断算法是否已经收敛的阈值。
 
+&emsp;&emsp;下面将分步骤分析`k-means`算法、`k-means||`算法的实现过程。
 
 - （1）
 
