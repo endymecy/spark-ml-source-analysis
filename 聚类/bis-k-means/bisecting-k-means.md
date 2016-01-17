@@ -7,7 +7,7 @@
 
 - 分裂。这是一种`自顶向下`的方法，所有观察者同为一类，然后递归地分裂它们
 
-&emsp;&emsp;二分`k-means`算法使用分裂法。
+&emsp;&emsp;二分`k-means`算法是分裂法的一种。
 
 ## 二分`k-means`的步骤
 
@@ -21,7 +21,29 @@
 
 - （1）把所有数据初始化为一个簇，将这个簇分为两个簇
 
-- （2）选择能最大程度降低聚类代价函数（也就是误差平方和`SSE`）的簇划分为两个簇
+- （2）选择能最大程度降低聚类代价函数（也就是误差平方和`SSE`）的簇用`k-means`算法划分为两个簇。
 
 - （3）一直重复（2）步，直到满足我们给定的聚类数
+
+&emsp;&emsp;以上过程隐含着一个原则是：因为聚类的误差平方和能够衡量聚类性能，该值越小表示数据点越接近于它们的质心，聚类效果就越好。
+所以我们就需要对误差平方和最大的簇进行再一次的划分，因为误差平方和越大，表示该簇聚类越不好，越有可能是多个簇被当成一个簇了，所以我们首先需要对这个簇进行划分。
+
+## 二分`k-means`的源码分析
+
+&emsp;&emsp;`spark`在文件`org.apache.spark.mllib.clustering.BisectingKMeans`中实现了二分`k-means`算法。在分步骤分析算法实现之前，我们先来了解`BisectingKMeans`类中参数代表的含义。
+
+```scala
+class BisectingKMeans private (
+    private var k: Int,
+    private var maxIterations: Int,
+    private var minDivisibleClusterSize: Double,
+    private var seed: Long)
+```
+
+&emsp;&emsp;上面代码中，`k`表示叶子簇的期望数，默认情况下为4。如果没有可被切分的叶子簇，实际值会更小。`maxIterations`表示切分簇的`k-means`算法的最大迭代次数。
+`minDivisibleClusterSize`的值如果大于等于1，它表示一个可切分簇的点数量；如果值小于1，它表示可切分簇的点数量占总数的比例。
+
+
+
+
 
