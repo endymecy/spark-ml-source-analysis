@@ -9,7 +9,7 @@
 
 &emsp;&emsp;`k-means`算法的基本过程如下所示：
 
-- （1）任意选择`k`个初始中心<img src="http://www.forkosh.com/mathtex.cgi?C=\{{c}_{1},{c}_{2},...,{c}_{k}\}">。
+- （1）任意选择`k`个初始中心<img src="http://www.forkosh.com/mathtex.cgi?C=({c}_{1},{c}_{2},...,{c}_{k})">。
 - （2）计算`X`中的每个对象与这些中心对象的距离；并根据最小距离重新对相应对象进行划分；
 - （3）重新计算每个中心对象<img src="http://www.forkosh.com/mathtex.cgi?{C}_{i}">的值
 
