@@ -10,11 +10,31 @@
 &emsp;&emsp;`k-means`算法的基本过程如下所示：
 
 - （1）任意选择`k`个初始中心<img src="http://www.forkosh.com/mathtex.cgi?C=({c}_{1},{c}_{2},...,{c}_{k})">。
+
 - （2）计算`X`中的每个对象与这些中心对象的距离；并根据最小距离重新对相应对象进行划分；
+
 - （3）重新计算每个中心对象<img src="http://www.forkosh.com/mathtex.cgi?{C}_{i}">的值
 
     <div  align="center"><img src="imgs/math.1.1.png" width = "200" height = "40" alt="1.1" align="center" /></div><br />
 
 - （4）计算标准测度函数，当满足一定条件，如函数收敛时，则算法终止；如果条件不满足则重复步骤（2），（3）。
+
+
+&emsp;&emsp;`k-means`算法虽然简单快速，但是存在下面的缺点：
+
+- 聚类中心的个数`K`需要事先给定，但在实际中`K`值的选定是非常困难的，很多时候我们并不知道给定的数据集应该分成多少个类别才最合适。
+- `k-means`算法需要随机地确定初始聚类中心，不同的初始聚类中心可能导致完全不同的聚类结果。
+
+&emsp;&emsp;第一个缺陷我们很难在`k-means`算法以及其改进算法中解决，但是我们可以通过`k-means++`算法来解决第二个缺陷。
+
+## k-means++算法原理分析
+
+&emsp;&emsp;`k-means++`算法选择初始聚类中心的基本原则是：初始的聚类中心之间的相互距离要尽可能的远。它选择初始聚类中心的步骤是：
+
+- （1）从输入的数据点集合中随机选择一个点作为第一个聚类中心<img src="http://www.forkosh.com/mathtex.cgi?{c}_{1}">；
+
+- （2）对于数据集中的每一个点`x`，计算它与最近聚类中心(指已选择的聚类中心)的距离`D(x)`，并根据概率选择新的聚类中心<img src="http://www.forkosh.com/mathtex.cgi?{c}_{i}">。概率的计算公式如下所示：
+
+    <div  align="center"><img src="imgs/math.1.2.png" width = "100" height = "40" alt="1.2" align="center" /></div><br />
 
 
