@@ -13,7 +13,7 @@
 - （2）计算`X`中的每个对象与这些中心对象的距离；并根据最小距离重新对相应对象进行划分；
 - （3）重新计算每个中心对象<img src="http://www.forkosh.com/mathtex.cgi?{C}_{i}">的值
 
-    <div  align="center"><img src="imgs/math.1.1.png" width = "200" height = "50" alt="1.1" align="center" /></div><br />
+    <div  align="center"><img src="imgs/math.1.1.png" width = "200" height = "40" alt="1.1" align="center" /></div><br />
 
 - （4）计算标准测度函数，当满足一定条件，如函数收敛时，则算法终止；如果条件不满足则重复步骤（2），（3）。
 
