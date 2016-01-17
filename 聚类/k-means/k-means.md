@@ -57,7 +57,13 @@
 <div  align="center"><img src="imgs/1.1.png" width = "450" height = "200" alt="1.1" align="center" /></div><br />
 
 &emsp;&emsp;通过`1-6`步产生出的中心点集`C`的元素个数一般情况下大于`k`，所以第7步给`C`中所有点赋予一个权重值<img src="http://www.forkosh.com/mathtex.cgi?{w}_{x}">，它表示距离`x`点最近的点得个数。
-第8步根据权重值选择最终的`k`个点。
+第8步使用`k-means++`算法聚类出`k`个初始化点。
+
+&emsp;&emsp;下面我们详细分析上述三个算法的代码实现。
+
+## 4 源代码分析
+
+&emsp;&emsp;
 
 
 
