@@ -83,7 +83,95 @@ class KMeans private (
 
 &emsp;&emsp;下面将分步骤分析`k-means`算法、`k-means||`算法的实现过程。
 
-- （1）
+- **（1）处理数据，转换为`VectorWithNorm`集**。
+
+```scala
+//求向量的二范式，返回double值
+val norms = data.map(Vectors.norm(_, 2.0))
+norms.persist()
+val zippedData = data.zip(norms).map { case (v, norm) =>
+   new VectorWithNorm(v, norm)
+}
+```
+
+- **（2）初始化中心点。**
+
+&emsp;&emsp;初始化中心点根据`initializationMode`的值来判断，如果`initializationMode`等于`KMeans.RANDOM`，那么随机初始化`k`个中心点，否则使用`k-means||`初始化`k`个中心点。
+
+```scala
+val centers = initialModel match {
+      case Some(kMeansCenters) => {
+        Array(kMeansCenters.clusterCenters.map(s => new VectorWithNorm(s)))
+      }
+      case None => {
+        if (initializationMode == KMeans.RANDOM) {
+          initRandom(data)
+        } else {
+          initKMeansParallel(data)
+        }
+      }
+    }
+```
+
+- **（2.1）随机初始化中心点。**
+
+&emsp;&emsp;随机初始化`k`个中心点很简单，具体代码如下：
+
+```scala
+private def initRandom(data: RDD[VectorWithNorm])
+  : Array[Array[VectorWithNorm]] = {
+    //采样固定大小为k的子集
+    //这里run表示我们运行的KMeans算法的次数，默认为1，以后将停止提供该参数
+    val sample = data.takeSample(true, runs * k, new XORShiftRandom(this.seed).nextInt()).toSeq
+    //选取k个初始化中心点
+    Array.tabulate(runs)(r => sample.slice(r * k, (r + 1) * k).map { v =>
+      new VectorWithNorm(Vectors.dense(v.vector.toArray), v.norm)
+    }.toArray)
+  }
+```
+
+- **（2.1）随机初始化中心点。**
+
+&emsp;&emsp;相比于随机初始化中心点，通过`k-means||`初始化`k`个中心点会麻烦很多，它需要依赖第三章的原理来实现。它的实现方法是`initKMeansParallel`。
+按照第三章的实现步骤，第一步，我们要初始化一个中心点。
+
+```scala
+//初始化第一个中心点
+val seed = new XORShiftRandom(this.seed).nextInt()
+val sample = data.takeSample(true, runs, seed).toSeq
+val newCenters = Array.tabulate(runs)(r => ArrayBuffer(sample(r).toDense))
+```
+
+&emsp;&emsp;第二步，通过已知的中心店，循环迭代求得其它的中心点。
+
+```scala
+var step = 0
+while (step < initializationSteps) {
+      //选择满足概率条件的点
+      val chosen = data.zip(costs).mapPartitionsWithIndex { (index, pointsWithCosts) =>
+        val rand = new XORShiftRandom(seed ^ (step << 16) ^ index)
+        pointsWithCosts.flatMap { case (p, c) =>
+          val rs = (0 until runs).filter { r =>
+            //此处设置l=2k
+            rand.nextDouble() < 2.0 * c(r) * k / sumCosts(r)
+          }
+          if (rs.length > 0) Some(p, rs) else None
+        }
+      }.collect()
+      mergeNewCenters()
+      chosen.foreach { case (p, rs) =>
+        rs.foreach(newCenters(_) += p.toDense)
+      }
+      step += 1
+}
+```
+
+&emsp;&emsp;在这段代码中，我们并没有选择使用`log(pha)`的大小作为迭代的次数，而是直接使用了人为确定的`initializationSteps`，这是与论文中不一致的地方。
+在迭代内部我们使用概率公式
+
+<div  align="center"><img src="imgs/math.1.3.png" width = "110" height = "30" alt="1.3" align="center" /></div><br />
+
+来计算满足要求的随机点，其中，`l=2k`。公式的实现如代码`rand.nextDouble() < 2.0 * c(r) * k / sumCosts(r)`。
 
 
 
