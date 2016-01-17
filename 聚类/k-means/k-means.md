@@ -217,6 +217,22 @@ while (step < initializationSteps) {
 &emsp;&emsp;通过以上步骤求得的候选中心点的个数可能会多于`k`个，这样怎么办呢？我们给每个中心点赋一个权重，权重值是数据集中属于该中心点所在类别的点的数目。
 然后我们使用本地`k-means++`来得到这`k`个初始化点。具体的实现代码如下：
 
+```scala
+val bcCenters = data.context.broadcast(centers)
+    //计算权重值，即各中心点所在类别的个数
+    val weightMap = data.flatMap { p =>
+      Iterator.tabulate(runs) { r =>
+        ((r, KMeans.findClosest(bcCenters.value(r), p)._1), 1.0)
+      }
+    }.reduceByKey(_ + _).collectAsMap()
+    //最终的初始化中心
+    val finalCenters = (0 until runs).par.map { r =>
+      val myCenters = centers(r).toArray
+      val myWeights = (0 until myCenters.length).map(i => weightMap.getOrElse((r, i), 0.0)).toArray
+      LocalKMeans.kMeansPlusPlus(r, myCenters, myWeights, k, 30)
+    }
+```
+
 
 
 
