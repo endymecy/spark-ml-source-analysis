@@ -40,4 +40,4 @@
     
 ## License
 
-&emsp;&emsp;本文使用的许可见[LICENSE](LICENSE)
+&emsp;&emsp;本文使用的许可见 [LICENSE](LICENSE)
