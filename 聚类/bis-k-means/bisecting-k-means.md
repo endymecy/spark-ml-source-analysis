@@ -21,7 +21,7 @@
 
 - （2）选择能最大程度降低聚类代价函数（也就是误差平方和`SSE`）的簇用`k-means`算法划分为两个簇。误差平方和的公式如下所示
 
-<div  align="center"><img src="imgs/dis-k-means.1.1.png" width = "80" height = "40" alt="1.1" align="center" /></div><br />
+<div  align="center"><img src="imgs/dis-k-means.1.1.png" width = "100" height = "40" alt="1.1" align="center" /></div><br />
 
 - （3）一直重复（2）步，直到满足我们给定的聚类数
 
