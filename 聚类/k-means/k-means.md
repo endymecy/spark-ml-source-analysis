@@ -56,7 +56,7 @@
 
 <div  align="center"><img src="imgs/1.1.png" width = "450" height = "200" alt="1.1" align="center" /></div><br />
 
-通过步骤`1-6`产生出的中心点集`C`的元素个数一般情况下大于`k`，所以第7步给`C`中所有点赋予一个权重值<img src="http://www.forkosh.com/mathtex.cgi?{phi}_{w}(x)">，它表示距离`x`点最近的点得个数。
+&emsp;&emsp;通过`1-6`步产生出的中心点集`C`的元素个数一般情况下大于`k`，所以第7步给`C`中所有点赋予一个权重值<img src="http://www.forkosh.com/mathtex.cgi?{w}_{x}">，它表示距离`x`点最近的点得个数。
 第8步根据权重值选择最终的`k`个点。
 
 
