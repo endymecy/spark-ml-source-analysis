@@ -25,7 +25,7 @@
     * PIC（快速迭代算法）
     * LDA（隐式狄利克雷分布）
     * [二分k-means算法](聚类/bis-k-means/bisecting-k-means.md)
-    * 流式k-means
+    * [流式k-means算法](聚类/streaming-k-means/streaming-k-means.md)
 * 最优化算法
     * 梯度下降算法
     * L-BFGS
