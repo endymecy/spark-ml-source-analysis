@@ -8,7 +8,7 @@
 
 &emsp;&emsp;二分`k-means`算法是分裂法的一种。
 
-## 二分`k-means`的步骤
+## 1 二分`k-means`的步骤
 
 &emsp;&emsp;二分`k-means`算法是`k-means`算法的改进算法，相比`k-means`算法，它有如下优点：
 
@@ -28,7 +28,7 @@
 &emsp;&emsp;以上过程隐含着一个原则是：因为聚类的误差平方和能够衡量聚类性能，该值越小表示数据点越接近于它们的质心，聚类效果就越好。
 所以我们就需要对误差平方和最大的簇进行再一次的划分，因为误差平方和越大，表示该簇聚类越不好，越有可能是多个簇被当成一个簇了，所以我们首先需要对这个簇进行划分。
 
-## 二分`k-means`的源码分析
+## 2 二分`k-means`的源码分析
 
 &emsp;&emsp;`spark`在文件`org.apache.spark.mllib.clustering.BisectingKMeans`中实现了二分`k-means`算法。在分步骤分析算法实现之前，我们先来了解`BisectingKMeans`类中参数代表的含义。
 
@@ -47,7 +47,76 @@ class BisectingKMeans private (
 
 - （1）初始化数据
 
-&emsp;&emsp;
+```scala
+//计算输入数据的二范式并转化为VectorWithNorm
+val norms = input.map(v => Vectors.norm(v, 2.0)).persist(StorageLevel.MEMORY_AND_DISK)
+val vectors = input.zip(norms).map { case (x, norm) => new VectorWithNorm(x, norm) }
+```
+- （2）将所有数据初始化为一个簇
+
+```scala
+var assignments = vectors.map(v => (ROOT_INDEX, v))
+var activeClusters = summarize(d, assignments)
+val rootSummary = activeClusters(ROOT_INDEX)
+```
+&emsp;&emsp;在上述代码中，第一行给每个向量加上一个索引，用以标明簇在最终生成的树上的深度，`ROOT_INDEX`的值为1。`summarize`方法计算误差平方和，我们来看看它的实现。
+
+```scala
+private def summarize(
+      d: Int,
+      assignments: RDD[(Long, VectorWithNorm)]): Map[Long, ClusterSummary] = {
+    assignments.aggregateByKey(new ClusterSummaryAggregator(d))(
+        //分区内循环添加
+        seqOp = (agg, v) => agg.add(v),
+        //分区间合并
+        combOp = (agg1, agg2) => agg1.merge(agg2)
+      ).mapValues(_.summary)
+      .collect().toMap
+}
+```
+
+&emsp;&emsp;这里的`d`表示特征维度，代码对`assignments`使用`aggregateByKey`操作，根据`key`值在分区内循环添加（`add`）数据，在分区间合并（`merge`）数据集，转换成最终`ClusterSummaryAggregator`对象，然后针对每个`key`，调用`summary`方法，计算。
+`ClusterSummaryAggregator`包含三个很简单的方法，分别是`add`，`merge`以及`summary`。
+
+```scala
+private class ClusterSummaryAggregator(val d: Int) extends Serializable {
+    private var n: Long = 0L
+    private val sum: Vector = Vectors.zeros(d) //向量和
+    private var sumSq: Double = 0.0  //向量的范数平方和
+    //添加一个VectorWithNorm对象到ClusterSummaryAggregator对象中
+    def add(v: VectorWithNorm): this.type = {
+      n += 1L
+      sumSq += v.norm * v.norm
+      BLAS.axpy(1.0, v.vector, sum)
+      this
+    }
+    //合并两个ClusterSummaryAggregator对象
+    def merge(other: ClusterSummaryAggregator): this.type = {
+      n += other.n
+      sumSq += other.sumSq
+      //y += a * x
+      BLAS.axpy(1.0, other.sum, sum)
+      this
+    }
+    def summary: ClusterSummary = {
+      //求平均值
+      val mean = sum.copy
+      if (n > 0L) {
+        //x = a * x
+        BLAS.scal(1.0 / n, mean)
+      }
+      val center = new VectorWithNorm(mean)
+      //所有点的范数平方和减去n乘以中心点范数平方，得到误差平方和
+      val cost = math.max(sumSq - n * center.norm * center.norm, 0.0)
+      new ClusterSummary(n, center, cost)
+    }
+  }
+```
+&emsp;&emsp;这里计算误差平方和与第一章的公式有所不同，但是效果一致。这里计算聚类代价函数的公式如下所示：
+
+<div  align="center"><img src="imgs/dis-k-means.1.2.png" width = "130" height = "45" alt="1.2" align="center" /></div><br />
+
+
 
 
 
