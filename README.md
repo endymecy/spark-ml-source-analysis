@@ -18,6 +18,7 @@
     * 朴素贝叶斯
     * 决策树
     * 随机森林
+    * 保序回归
 * 聚类
     * [k-means算法](聚类/k-means/k-means.md)
     * 高斯混合算法
@@ -29,6 +30,9 @@
     * 梯度下降算法
     * L-BFGS
     * [NNLS(非负最小二乘)](最优化算法/非负最小二乘/NNLS.md)
+* 降维
+    * 奇异值分解（SVD）
+    * 主成分分析（PCA）
 * 特征抽取和转换
     * TF-IDF
     * Word2Vec
@@ -36,7 +40,6 @@
     * Normalizer
     * ChiSqSelector
     * ElementwiseProduct
-    * PCA(主成分分析)
     
 ## License
 
