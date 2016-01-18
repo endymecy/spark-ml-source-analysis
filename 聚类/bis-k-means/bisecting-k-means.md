@@ -19,11 +19,13 @@
 
 - （1）把所有数据初始化为一个簇，将这个簇分为两个簇。
 
-- （2）选择能最大程度降低聚类代价函数（也就是误差平方和`SSE`）的簇用`k-means`算法划分为两个簇。误差平方和的公式如下所示，其中<img src="http://www.forkosh.com/mathtex.cgi?{w}_{i}">表示权重值，<img src="http://www.forkosh.com/mathtex.cgi?{y}^{*}">表示该簇所有点的平均值。
+- （2）选择满足条件的可以分解的簇。选择条件综合考虑簇的元素个数以及聚类代价（也就是误差平方和`SSE`），误差平方和的公式如下所示，其中<img src="http://www.forkosh.com/mathtex.cgi?{w}_{i}">表示权重值，<img src="http://www.forkosh.com/mathtex.cgi?{y}^{*}">表示该簇所有点的平均值。
 
 <div  align="center"><img src="imgs/dis-k-means.1.1.png" width = "195" height = "60" alt="1.1" align="center" /></div><br />
 
-- （3）一直重复（2）步，直到满足我们给定的聚类数
+- （3）使用`k-means`算法将可分裂的簇分为两簇。
+
+- （4）一直重复（2）（3）步，直到满足迭代结束条件。
 
 &emsp;&emsp;以上过程隐含着一个原则是：因为聚类的误差平方和能够衡量聚类性能，该值越小表示数据点越接近于它们的质心，聚类效果就越好。
 所以我们就需要对误差平方和最大的簇进行再一次的划分，因为误差平方和越大，表示该簇聚类越不好，越有可能是多个簇被当成一个簇了，所以我们首先需要对这个簇进行划分。
@@ -52,11 +54,11 @@ class BisectingKMeans private (
 val norms = input.map(v => Vectors.norm(v, 2.0)).persist(StorageLevel.MEMORY_AND_DISK)
 val vectors = input.zip(norms).map { case (x, norm) => new VectorWithNorm(x, norm) }
 ```
-- （2）将所有数据初始化为一个簇
+- （2）将所有数据初始化为一个簇，并计算代价
 
 ```scala
 var assignments = vectors.map(v => (ROOT_INDEX, v))
-var activeClusters = summarize(d, assignments)
+var activeClusters = summarize(d, assignments) //格式为Map[index,ClusterSummary]
 val rootSummary = activeClusters(ROOT_INDEX)
 ```
 &emsp;&emsp;在上述代码中，第一行给每个向量加上一个索引，用以标明簇在最终生成的树上的深度，`ROOT_INDEX`的值为1。`summarize`方法计算误差平方和，我们来看看它的实现。
@@ -115,6 +117,39 @@ private class ClusterSummaryAggregator(val d: Int) extends Serializable {
 &emsp;&emsp;这里计算误差平方和与第一章的公式有所不同，但是效果一致。这里计算聚类代价函数的公式如下所示：
 
 <div  align="center"><img src="imgs/dis-k-means.1.2.png" width = "260" height = "90" alt="1.2" align="center" /></div><br />
+
+&emsp;&emsp;获取第一个簇之后，我们需要做的就是迭代分裂可分裂的簇，直到满足我们的要求。迭代停止的条件是`activeClusters`为空，或者`numLeafClustersNeeded`为0（即没有分裂的叶子簇）,或者迭代深度大于`LEVEL_LIMIT`。
+
+```scala
+while (activeClusters.nonEmpty && numLeafClustersNeeded > 0 && level < LEVEL_LIMIT)
+```
+&emsp;&emsp;这里，`LEVEL_LIMIT`是一个较大的值，计算方法如下。
+
+```scala
+private val LEVEL_LIMIT = math.log10(Long.MaxValue) / math.log10(2)
+```
+
+- （3）获取需要分裂的簇
+
+&emsp;&emsp;在每一次迭代中，我们首先要做的是获取满足条件的可以分裂的簇。
+
+```scala
+ //选择需要分裂的簇
+ var divisibleClusters = activeClusters.filter { case (_, summary) =>
+    (summary.size >= minSize) && (summary.cost > MLUtils.EPSILON * summary.size)
+ }
+ // If we don't need all divisible clusters, take the larger ones.
+ if (divisibleClusters.size > numLeafClustersNeeded) {
+    divisibleClusters = divisibleClusters.toSeq.sortBy { case (_, summary) =>
+        -summary.size
+    }.take(numLeafClustersNeeded)
+     .toMap
+ }
+```
+&emsp;&emsp;这里选择分裂的簇用到了两个条件，即数据点的数量大于规定的最小数量以及代价小于等于`MLUtils.EPSILON * summary.size`。并且如果可分解的簇的个数多余我们规定的个数`numLeafClustersNeeded`即`(k-1)`，
+那么我们取包含数量最多的`numLeafClustersNeeded`个簇用于分裂。
+
+- （4）使用`k-means`算法将可分裂的簇分解为两簇
 
 
 
