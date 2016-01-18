@@ -114,7 +114,7 @@ private class ClusterSummaryAggregator(val d: Int) extends Serializable {
 ```
 &emsp;&emsp;这里计算误差平方和与第一章的公式有所不同，但是效果一致。这里计算聚类代价函数的公式如下所示：
 
-<div  align="center"><img src="imgs/dis-k-means.1.2.png" width = "130" height = "45" alt="1.2" align="center" /></div><br />
+<div  align="center"><img src="imgs/dis-k-means.1.2.png" width = "260" height = "90" alt="1.2" align="center" /></div><br />
 
 
 
