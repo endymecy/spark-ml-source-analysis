@@ -47,14 +47,14 @@ class BisectingKMeans private (
 
 &emsp;&emsp;`BisectingKMeans`的`run`方法实现了二分`k-means`算法，下面将一步步分析该方法的实现过程。
 
-- （1）初始化数据
+- **（1）初始化数据**
 
 ```scala
 //计算输入数据的二范式并转化为VectorWithNorm
 val norms = input.map(v => Vectors.norm(v, 2.0)).persist(StorageLevel.MEMORY_AND_DISK)
 val vectors = input.zip(norms).map { case (x, norm) => new VectorWithNorm(x, norm) }
 ```
-- （2）将所有数据初始化为一个簇，并计算代价
+- **（2）将所有数据初始化为一个簇，并计算代价**
 
 ```scala
 var assignments = vectors.map(v => (ROOT_INDEX, v))
@@ -129,7 +129,7 @@ while (activeClusters.nonEmpty && numLeafClustersNeeded > 0 && level < LEVEL_LIM
 private val LEVEL_LIMIT = math.log10(Long.MaxValue) / math.log10(2)
 ```
 
-- （3）获取需要分裂的簇
+- **（3）获取需要分裂的簇**
 
 &emsp;&emsp;在每一次迭代中，我们首先要做的是获取满足条件的可以分裂的簇。
 
@@ -149,9 +149,93 @@ private val LEVEL_LIMIT = math.log10(Long.MaxValue) / math.log10(2)
 &emsp;&emsp;这里选择分裂的簇用到了两个条件，即数据点的数量大于规定的最小数量以及代价小于等于`MLUtils.EPSILON * summary.size`。并且如果可分解的簇的个数多余我们规定的个数`numLeafClustersNeeded`即`(k-1)`，
 那么我们取包含数量最多的`numLeafClustersNeeded`个簇用于分裂。
 
-- （4）使用`k-means`算法将可分裂的簇分解为两簇
+- **（4）使用`k-means`算法将可分裂的簇分解为两簇**
 
+&emsp;&emsp;我们知道，`k-means`算法分为两步，第一步是初始化中心点，第二步是迭代更新中心点直至满足最大迭代数或者收敛。下面就分两步来说明。
 
+- 第一步，随机的选择中心点，将可分裂簇分为两簇
+
+```scala
+ //切分簇
+var newClusterCenters = divisibleClusters.flatMap { case (index, summary) =>
+    //随机切分簇为两簇，找到这两个簇的中心点
+    val (left, right) = splitCenter(summary.center, random)
+    Iterator((leftChildIndex(index), left), (rightChildIndex(index), right))
+}.map(identity)
+```
+&emsp;&emsp;在上面的代码中，用`splitCenter`方法将簇随机地分为了两簇，并返回相应的中心点，它的实现如下所示。
+
+```scala
+private def splitCenter(
+      center: VectorWithNorm,
+      random: Random): (VectorWithNorm, VectorWithNorm) = {
+    val d = center.vector.size
+    val norm = center.norm
+    val level = 1e-4 * norm
+    //随机的初始化一个点，并用这个点得到两个初始中心点
+    val noise = Vectors.dense(Array.fill(d)(random.nextDouble()))
+    val left = center.vector.copy
+    //y += a * x,left=left-level*noise
+    BLAS.axpy(-level, noise, left)
+    val right = center.vector.copy
+    //right=right+level*noise
+    BLAS.axpy(level, noise, right)
+    //返回中心点
+    (new VectorWithNorm(left), new VectorWithNorm(right))
+  }
+```
+- 第二步，迭代更新中心点
+
+```scala
+ var newClusters: Map[Long, ClusterSummary] = null
+ var newAssignments: RDD[(Long, VectorWithNorm)] = null
+ //迭代获得中心点，默认迭代次数为20
+ for (iter <- 0 until maxIterations) {
+    //根据更新的中心点，将数据点重新分类
+    newAssignments = updateAssignments(assignments, divisibleIndices, newClusterCenters)
+        .filter { case (index, _) =>
+            divisibleIndices.contains(parentIndex(index))
+    }
+    //计算中心点以及代价值
+    newClusters = summarize(d, newAssignments)
+    newClusterCenters = newClusters.mapValues(_.center).map(identity)
+ }
+ val indices = updateAssignments(assignments, divisibleIndices, newClusterCenters).keys
+     .persist(StorageLevel.MEMORY_AND_DISK)
+```
+&emsp;&emsp;这段代码中，`updateAssignments`会根据更新的中心点将数据分配给距离其最短的中心点所在的簇，即重新分配簇。代码如下
+
+```scala
+private def updateAssignments(assignments: RDD[(Long, VectorWithNorm)],divisibleIndices: Set[Long],
+      newClusterCenters: Map[Long, VectorWithNorm]): RDD[(Long, VectorWithNorm)] = {
+    assignments.map { case (index, v) =>
+      if (divisibleIndices.contains(index)) {
+        //leftChildIndex=2*index , rightChildIndex=2*index+1
+        val children = Seq(leftChildIndex(index), rightChildIndex(index))
+        //返回序列中第一个符合条件的最小的元素
+        val selected = children.minBy { child =>
+          KMeans.fastSquaredDistance(newClusterCenters(child), v)
+        }
+        //将v分配给中心点距离其最短的簇
+        (selected, v)
+      } else {
+        (index, v)
+      }
+    }
+  }
+```
+&emsp;&emsp;重新分配簇之后，利用`summarize`方法重新计算中心点以及代价值。
+
+- **（5）处理变量值为下次迭代作准备**
+
+```scala
+//数节点中簇的index以及包含的数据点
+ assignments = indices.zip(vectors)
+ inactiveClusters ++= activeClusters
+ activeClusters = newClusters
+ //调整所需簇的数量
+ numLeafClustersNeeded -= divisibleClusters.size
+```
 
 
 
