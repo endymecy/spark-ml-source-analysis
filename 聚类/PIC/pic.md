@@ -41,7 +41,7 @@
 
 &emsp;&emsp;快速迭代算法的一般步骤如下：
 
-<div  align="center"><img src="imgs/PIC.1.2.png" width = "720" height = "330" alt="1.2" align="center" /></div><br />
+<div  align="center"><img src="imgs/PIC.1.2.png" width = "480" height = "220" alt="1.2" align="center" /></div><br />
 
 
 
