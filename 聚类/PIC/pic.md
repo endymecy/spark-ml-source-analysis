@@ -68,11 +68,51 @@ model.assignments.foreach { a =>
   println(s"${a.id} -> ${a.cluster}")
 }
 ```
-&emsp;&emsp;在上面的例子中，我们知道数据分为三列，分别是起始id，目标id，以及两者的相似度。有了数据之后，我们通过`PowerIterationClustering`的`run`方法来训练模型。
+&emsp;&emsp;在上面的例子中，我们知道数据分为三列，分别是起始id，目标id，以及两者的相似度，这里的`similarities`代表前面章节提到的矩阵`A`。有了数据之后，我们通过`PowerIterationClustering`的`run`方法来训练模型。
 `PowerIterationClustering`类有三个参数：
 
 - `k`：聚类数
 - `maxIterations`：最大迭代数
 - `initMode`：初始化模式。初始化模式分为`Random`和`Degree`两种，针对不同的模式对数据做不同的初始化操作
+
+&emsp;&emsp;下面分步骤介绍`run`方法的实现。
+
+- （1）标准化相似度矩阵`A`到矩阵`W`
+
+```scala
+def normalize(similarities: RDD[(Long, Long, Double)]): Graph[Double, Double] = {
+    //获得所有的边
+    val edges = similarities.flatMap { case (i, j, s) =>
+      //相似度值必须非负
+      if (s < 0.0) {
+        throw new SparkException("Similarity must be nonnegative but found s($i, $j) = $s.")
+      }
+      if (i != j) {
+        Seq(Edge(i, j, s), Edge(j, i, s))
+      } else {
+        None
+      }
+    }
+    //构造图，顶点特征值默认为0
+    val gA = Graph.fromEdges(edges, 0.0)
+    //计算从顶点的出发的边的相似度之和，在这里成为度
+    val vD = gA.aggregateMessages[Double](
+      sendMsg = ctx => {
+        ctx.sendToSrc(ctx.attr)
+      },
+      mergeMsg = _ + _,
+      TripletFields.EdgeOnly)
+    //计算得到W , W=A/D
+    GraphImpl.fromExistingRDDs(vD, gA.edges)
+      .mapTriplets(
+        //gAi/vDi
+        e => e.attr / math.max(e.srcAttr, MLUtils.EPSILON),
+        TripletFields.Src)
+  }
+```
+&emsp;&emsp;上面的代码首先通过边集合构造图`gA`,然后使用`aggregateMessages`计算每个顶点的度（即所有从该顶点出发的边的相似度之和），构造出`VertexRDD`。最后使用现有的`VertexRDD`和`EdgeRDD`构造图，
+然后使用`mapTriplets`方法计算得到最终的图`W`。在`mapTriplets`方法中，对每一个`EdgeTriplet`，使用相似度除以出发顶点的度。
+
+
 
 
