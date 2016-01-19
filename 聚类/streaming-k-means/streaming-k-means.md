@@ -60,4 +60,90 @@ class StreamingKMeans(
 ```
 &emsp;&emsp;初始化中心点以及簇权重之后，对于新到的流数据，我们使用更新规则修改中心点和权重，调整聚类情况。更新过程在`update`方法中实现，下面我们分步骤分析该方法。
 
-- 
+- （1）分配新到的数据到离其最近的簇，并计算更新后的簇的向量和以及点数量
+
+```scala
+ //选择离数据点最近的簇
+ val closest = data.map(point => (this.predict(point), (point, 1L)))
+ def predict(point: Vector): Int = {
+     //返回和给定点相隔最近的中心
+     KMeans.findClosest(clusterCentersWithNorm, new VectorWithNorm(point))._1
+ }
+ // 获得更新的簇的向量和以及点数量
+ val mergeContribs: ((Vector, Long), (Vector, Long)) => (Vector, Long) = (p1, p2) => {
+   // y += a * x,向量相加
+   BLAS.axpy(1.0, p2._1, p1._1)
+   (p1._1, p1._2 + p2._2)
+ }
+ val pointStats: Array[(Int, (Vector, Long))] = closest
+    .aggregateByKey((Vectors.zeros(dim), 0L))(mergeContribs, mergeContribs)
+    .collect()
+```
+
+- （2）获取折扣值，并用折扣值作用到权重上
+
+```scala
+ // 折扣
+ val discount = timeUnit match {
+    case StreamingKMeans.BATCHES => decayFactor
+    case StreamingKMeans.POINTS =>
+      //所有新增点的数量和
+      val numNewPoints = pointStats.view.map { case (_, (_, n)) =>
+          n
+      }.sum
+    // x^y
+    math.pow(decayFactor, numNewPoints)
+ }
+ //将折扣应用到权重上
+ //x = a * x
+ BLAS.scal(discount, Vectors.dense(clusterWeights))
+```
+&emsp;&emsp;上面的代码更加时间单元的不同获得不同的折扣值。当时间单元为`StreamingKMeans.BATCHES`时，折扣就为衰减因子；当时间单元为`StreamingKMeans.POINTS`时，折扣由新增数据点的个数`n`和衰减因子`decay`共同决定。
+折扣值为`n`个`decay`相乘。
+
+- （3）实现更新规则
+
+```scala
+// 实现更新规则
+pointStats.foreach { case (label, (sum, count)) =>
+   //获取中心点
+   val centroid = clusterCenters(label)
+   //更新权重
+   val updatedWeight = clusterWeights(label) + count
+   val lambda = count / math.max(updatedWeight, 1e-16)
+   clusterWeights(label) = updatedWeight
+   //x = a * x,即（1-lambda）*centroid
+   BLAS.scal(1.0 - lambda, centroid)
+   // y += a * x，即centroid +=sum*lambda/count
+   BLAS.axpy(lambda / count, sum, centroid)
+}
+```
+&emsp;&emsp;上面的代码对每一个簇，首先更新簇的权重，权重值为原有的权重加上新增数据点的个数。然后计算`lambda`，通过`lambda`更新中心点。`lambda`为新增数据的个数和更新权重的商。
+假设更新之前的中心点为`c1`，更新之后的中心点为`c2`，那么`c2=(1-lambda)*c1+sum/count`，其中`sum/count`为所有点的平均值。
+
+- （4）调整权重最小和最大的簇
+
+```scala
+ val weightsWithIndex = clusterWeights.view.zipWithIndex
+ //获取权重值最大的簇
+ val (maxWeight, largest) = weightsWithIndex.maxBy(_._1)
+ //获取权重值最小的簇
+ val (minWeight, smallest) = weightsWithIndex.minBy(_._1)
+ //判断权重最小的簇是否过小，如果过小，就将这两个簇重新划分为两个新的簇，权重为两者的均值
+ if (minWeight < 1e-8 * maxWeight) {
+      logInfo(s"Cluster $smallest is dying. Split the largest cluster $largest into two.")
+      val weight = (maxWeight + minWeight) / 2.0
+      clusterWeights(largest) = weight
+      clusterWeights(smallest) = weight
+      val largestClusterCenter = clusterCenters(largest)
+      val smallestClusterCenter = clusterCenters(smallest)
+      var j = 0
+      while (j < dim) {
+        val x = largestClusterCenter(j)
+        val p = 1e-14 * math.max(math.abs(x), 1.0)
+        largestClusterCenter.toBreeze(j) = x + p
+        smallestClusterCenter.toBreeze(j) = x - p
+        j += 1
+      }
+    }
+```
