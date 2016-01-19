@@ -22,7 +22,7 @@
 * 聚类
     * [k-means算法](聚类/k-means/k-means.md)
     * 高斯混合算法
-    * PIC（快速迭代算法）
+    * [PIC（快速迭代聚类）](聚类/PIC/pic.md)
     * LDA（隐式狄利克雷分布）
     * [二分k-means算法](聚类/bis-k-means/bisecting-k-means.md)
     * [流式k-means算法](聚类/streaming-k-means/streaming-k-means.md)
