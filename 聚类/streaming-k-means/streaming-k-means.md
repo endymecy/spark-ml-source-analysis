@@ -27,3 +27,37 @@
 - （3）应用更新规则；
 
 - （4）应用更新规则后，有些簇可能消失了，那么切分最大的簇为两个簇。
+
+## 2 流式`k-means`算法源码分析
+
+&emsp;&emsp;在分步骤分析源码之前，我们先了解一下`StreamingKMeans`参数表达的含义。
+
+```scala
+class StreamingKMeans(
+    var k: Int, //簇个数
+    var decayFactor: Double,//衰减因子
+    var timeUnit: String //时间单元
+)
+```
+&emsp;&emsp;在上述定义中，`k`表示我们要聚类的个数，`decayFactor`表示衰减因子，用于计算折扣，`timeUnit`表示时间单元，时间单元既可以是一批数据（`StreamingKMeans.BATCHES`）也可以是单条数据（`StreamingKMeans.POINTS`）。
+
+&emsp;&emsp;由于我们处理的是流式数据，所以我们在流式数据来之前要先初始化模型。有两种初始化模型的方法，一种是直接指定初始化中心点及簇权重，一种是随机初始化中心点以及簇权重。
+
+```scala
+ //直接初始化中心点及簇权重
+ def setInitialCenters(centers: Array[Vector], weights: Array[Double]): this.type = {
+    model = new StreamingKMeansModel(centers, weights)
+    this
+ }
+ //随机初始化中心点以及簇权重
+ def setRandomCenters(dim: Int, weight: Double, seed: Long = Utils.random.nextLong): this.type = {
+     val random = new XORShiftRandom(seed)
+     val centers = Array.fill(k)(Vectors.dense(Array.fill(dim)(random.nextGaussian())))
+     val weights = Array.fill(k)(weight)
+     model = new StreamingKMeansModel(centers, weights)
+     this
+ } 
+```
+&emsp;&emsp;初始化中心点以及簇权重之后，对于新到的流数据，我们使用更新规则修改中心点和权重，调整聚类情况。更新过程在`update`方法中实现，下面我们分步骤分析该方法。
+
+- 
