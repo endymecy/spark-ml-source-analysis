@@ -111,7 +111,7 @@ def normalize(similarities: RDD[(Long, Long, Double)]): Graph[Double, Double] = 
   }
 ```
 &emsp;&emsp;上面的代码首先通过边集合构造图`gA`,然后使用`aggregateMessages`计算每个顶点的度（即所有从该顶点出发的边的相似度之和），构造出`VertexRDD`。最后使用现有的`VertexRDD`和`EdgeRDD`构造图，
-然后使用`mapTriplets`方法计算得到最终的图`W`。在`mapTriplets`方法中，对每一个`EdgeTriplet`，使用相似度除以出发顶点的度。
+通过`mapTriplets`方法计算得到最终的图`W`。在`mapTriplets`方法中，对每一个`EdgeTriplet`，使用相似度除以出发顶点的度。
 
 
 
