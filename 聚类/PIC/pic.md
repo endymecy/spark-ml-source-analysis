@@ -95,7 +95,7 @@ def normalize(similarities: RDD[(Long, Long, Double)]): Graph[Double, Double] = 
     }
     //构造图，顶点特征值默认为0
     val gA = Graph.fromEdges(edges, 0.0)
-    //计算从顶点的出发的边的相似度之和，在这里成为度
+    //计算从顶点的出发的边的相似度之和，在这里称为度
     val vD = gA.aggregateMessages[Double](
       sendMsg = ctx => {
         ctx.sendToSrc(ctx.attr)
