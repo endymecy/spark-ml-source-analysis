@@ -43,5 +43,36 @@
 
 <div  align="center"><img src="imgs/PIC.1.2.png" width = "480" height = "220" alt="1.2" align="center" /></div><br />
 
+&emsp;&emsp;在上面的公式中，输入矩阵`W`根据<img src="http://www.forkosh.com/mathtex.cgi?W={D}^{-1}A">来计算。
+
+## 3 快速迭代算法的源码实现
+
+&emsp;&emsp;在`spark`中，文件`org.apache.spark.mllib.clustering.PowerIterationClustering`实现了快速迭代算法。我们从官方给出的例子出发来分析快速迭代算法的实现。
+
+```scala
+import org.apache.spark.mllib.clustering.{PowerIterationClustering, PowerIterationClusteringModel}
+import org.apache.spark.mllib.linalg.Vectors
+// 加载和切分数据
+val data = sc.textFile("data/mllib/pic_data.txt")
+val similarities = data.map { line =>
+  val parts = line.split(' ')
+  (parts(0).toLong, parts(1).toLong, parts(2).toDouble)
+}
+// 使用快速迭代算法将数据分为两类
+val pic = new PowerIterationClustering()
+  .setK(2)
+  .setMaxIterations(10)
+val model = pic.run(similarities)
+//打印出所有的簇
+model.assignments.foreach { a =>
+  println(s"${a.id} -> ${a.cluster}")
+}
+```
+&emsp;&emsp;在上面的例子中，我们知道数据分为三列，分别是起始id，目标id，以及两者的相似度。有了数据之后，我们通过`PowerIterationClustering`的`run`方法来训练模型。
+`PowerIterationClustering`类有三个参数：
+
+- `k`：聚类数
+- `maxIterations`：最大迭代数
+- `initMode`：初始化模式。初始化模式分为`Random`和`Degree`两种，针对不同的模式对数据做不同的初始化操作
 
 
