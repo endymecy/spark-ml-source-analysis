@@ -34,7 +34,7 @@
 
 <div  align="center"><img src="imgs/PIC.1.1.png" width = "120" height = "23" alt="1.1" align="center" /></div><br />
 
-&emsp;&emsp;在上面的公式中，`c`是标准化常量，是为了避免<img src="http://www.forkosh.com/mathtex.cgi?{v}^{t}">产生过大的值。在大多数情况下，我们只关心第`k`（k不为1）大的特征向量，而不关注最大的特征向量。
+&emsp;&emsp;在上面的公式中，`c`是标准化常量，是为了避免<img src="http://www.forkosh.com/mathtex.cgi?{v}^{t}">产生过大的值，这里<img src="http://www.forkosh.com/mathtex.cgi?c=||W{v}^{t}{||}_{1}">。在大多数情况下，我们只关心第`k`（k不为1）大的特征向量，而不关注最大的特征向量。
 这是因为最大的特征向量是一个常向量：因为`W`每一行的和都为1。
 
 &emsp;&emsp;快速迭代的收敛性在文献【1】中有详细的证明，这里不再推导。
