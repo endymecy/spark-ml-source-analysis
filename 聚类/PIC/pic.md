@@ -93,7 +93,7 @@ def normalize(similarities: RDD[(Long, Long, Double)]): Graph[Double, Double] = 
         None
       }
     }
-    //构造图，顶点特征值默认为0
+    //根据edges信息构造图，顶点的特征值默认为0
     val gA = Graph.fromEdges(edges, 0.0)
     //计算从顶点的出发的边的相似度之和，在这里称为度
     val vD = gA.aggregateMessages[Double](
@@ -201,6 +201,16 @@ def kMeans(v: VertexRDD[Double], k: Int): VertexRDD[Int] = {
     points.mapValues(p => model.predict(p)).cache()
   }
 ```
+
+&emsp;&emsp;如果对`graphX`不太了解，可以参看文献【2,3】
+
+## 4 参考文献
+
+[【1】Frank Lin,William W. Cohen.Power Iteration Clustering](papers/Power Iteration Clustering.pdf)
+
+[【2】GraphX:基于Spark的弹性分布式图计算系统 ](http://lidrema.blog.163.com/blog/static/20970214820147199643788/)
+
+[【3】快刀初试：Spark GraphX在淘宝的实践](http://www.csdn.net/article/2014-08-07/2821097)
 
 
 
