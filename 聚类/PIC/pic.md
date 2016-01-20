@@ -77,7 +77,7 @@ model.assignments.foreach { a =>
 
 &emsp;&emsp;下面分步骤介绍`run`方法的实现。
 
-- （1）标准化相似度矩阵`A`到矩阵`W`
+- **（1）标准化相似度矩阵`A`到矩阵`W`**
 
 ```scala
 def normalize(similarities: RDD[(Long, Long, Double)]): Graph[Double, Double] = {
@@ -127,7 +127,48 @@ def normalize(similarities: RDD[(Long, Long, Double)]): Graph[Double, Double] = 
 
 <div  align="center"><img src="imgs/PIC.1.5.png" width = "480" height = "175" alt="1.5" align="center" /></div><br />
 
-&emsp;&emsp;这与第二章讲解的原理一致。
+&emsp;&emsp;通过代码计算的结果和通过矩阵运算得到的结果一致。因此该代码实现了第二章的原理。
+
+- **（2）初始化<img src="http://www.forkosh.com/mathtex.cgi?{v}^{0}">**
+
+&emsp;&emsp;根据选择的初始化模式的不同，我们可以使用不同的方法初始化<img src="http://www.forkosh.com/mathtex.cgi?{v}^{0}"。一种方式是随机初始化，一种方式是分级初始化，下面分布来介绍这两种方式。
+
+- 随机初始化
+
+```scala
+ def randomInit(g: Graph[Double, Double]): Graph[Double, Double] = {
+    //给每个顶点指定一个随机数
+    val r = g.vertices.mapPartitionsWithIndex(
+      (part, iter) => {
+        val random = new XORShiftRandom(part)
+        iter.map { case (id, _) =>
+          (id, random.nextGaussian())
+        }
+      }, preservesPartitioning = true).cache()
+    //所有顶点的随机值的绝对值之和
+    val sum = r.values.map(math.abs).sum()
+    //取平均值
+    val v0 = r.mapValues(x => x / sum)
+    GraphImpl.fromExistingRDDs(VertexRDD(v0), g.edges)
+  }
+```
+- 分级初始化
+
+```scala
+ def initDegreeVector(g: Graph[Double, Double]): Graph[Double, Double] = {
+    //所有顶点的相似度之和
+    val sum = g.vertices.values.sum()
+    //取平均值
+    val v0 = g.vertices.mapValues(_ / sum)
+    GraphImpl.fromExistingRDDs(VertexRDD(v0), g.edges)
+  }
+```
+
+- **（3）快速迭代求最终的v**
+
+
+
+
 
 
 
