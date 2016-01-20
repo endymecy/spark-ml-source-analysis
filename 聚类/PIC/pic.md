@@ -131,7 +131,7 @@ def normalize(similarities: RDD[(Long, Long, Double)]): Graph[Double, Double] = 
 
 - **（2）初始化<img src="http://www.forkosh.com/mathtex.cgi?{v}^{0}">**
 
-&emsp;&emsp;根据选择的初始化模式的不同，我们可以使用不同的方法初始化<img src="http://www.forkosh.com/mathtex.cgi?{v}^{0}">。一种方式是随机初始化，一种方式是等级（`degree`）初始化，下面分别来介绍这两种方式。
+&emsp;&emsp;根据选择的初始化模式的不同，我们可以使用不同的方法初始化<img src="http://www.forkosh.com/mathtex.cgi?{v}^{0}">。一种方式是随机初始化，一种方式是度（`degree`）初始化，下面分别来介绍这两种方式。
 
 - 随机初始化
 
@@ -152,18 +152,18 @@ def normalize(similarities: RDD[(Long, Long, Double)]): Graph[Double, Double] = 
     GraphImpl.fromExistingRDDs(VertexRDD(v0), g.edges)
   }
 ```
-- 等级初始化
+- 度初始化
 
 ```scala
  def initDegreeVector(g: Graph[Double, Double]): Graph[Double, Double] = {
-    //所有顶点的相似度之和
+    //所有顶点的度之和
     val sum = g.vertices.values.sum()
-    //取平均值
+    //取度的平均值
     val v0 = g.vertices.mapValues(_ / sum)
     GraphImpl.fromExistingRDDs(VertexRDD(v0), g.edges)
   }
 ```
-&emsp;&emsp;在这里，等级初始化的向量我们称为“等级向量”。等级向量会给图中高等级的节点分配更多的初始化权重，使其值可以更平均和快速的分布，从而更快的局部收敛。详细情况请参考文献【1】。
+&emsp;&emsp;在这里，度初始化的向量我们称为“度向量”。度向量会给图中度大的节点分配更多的初始化权重，使其值可以更平均和快速的分布，从而更快的局部收敛。详细情况请参考文献【1】。
 
 - **（3）快速迭代求最终的v**
 
