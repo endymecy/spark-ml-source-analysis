@@ -114,7 +114,7 @@ def normalize(similarities: RDD[(Long, Long, Double)]): Graph[Double, Double] = 
 &emsp;&emsp;上面的代码首先通过边集合构造图`gA`,然后使用`aggregateMessages`计算每个顶点的度（即所有从该顶点出发的边的相似度之和），构造出`VertexRDD`。最后使用现有的`VertexRDD`和`EdgeRDD`，
 相继通过`fromExistingRDDs`和`mapTriplets`方法计算得到最终的图`W`。在`mapTriplets`方法中，对每一个`EdgeTriplet`，使用相似度除以出发顶点的度（为什么相除？对角矩阵的逆矩阵是各元素取倒数，<img src="http://www.forkosh.com/mathtex.cgi?W={D}^{-1}A">就可以通过元素相除得到）。
 
-&emsp;&emsp;下面举个例子来说明这个步骤。假设有`v1,v2,v3,v4`四个点，它们之间的关系如下图所示，并且点与点之间的相似度均为1。
+&emsp;&emsp;下面举个例子来说明这个步骤。假设有`v1,v2,v3,v4`四个点，它们之间的关系如下图所示，并且假设点与点之间的相似度均设为1。
 
 <div  align="center"><img src="imgs/PIC.1.3.png" width = "330" height = "280" alt="1.3" align="center" /></div><br />
 
