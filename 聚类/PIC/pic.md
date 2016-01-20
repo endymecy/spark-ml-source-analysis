@@ -122,16 +122,16 @@ def normalize(similarities: RDD[(Long, Long, Double)]): Graph[Double, Double] = 
 
 <div  align="center"><img src="imgs/PIC.1.4.png" width = "350" height = "85" alt="1.4" align="center" /></div><br />
 
-&emsp;&emsp;通过上面的代码计算，我们可以得到从点`v1`到`v2,v3,v4`的边的权重分别为`1/3,1/3,1/3`;从点`v2`到`v1,v3,v4`的权重分别为`1/3,1/3,1/3`;从点`v3`到`v1,v2`的权重分别为`1/2,1/2`;从点`v4`到`v1,v2`的权重分别为`1/2,1/2`。
+&emsp;&emsp;通过`mapTriplets`的计算，我们可以得到从点`v1`到`v2,v3,v4`的边的权重分别为`1/3,1/3,1/3`;从点`v2`到`v1,v3,v4`的权重分别为`1/3,1/3,1/3`;从点`v3`到`v1,v2`的权重分别为`1/2,1/2`;从点`v4`到`v1,v2`的权重分别为`1/2,1/2`。
 将这个图转换为矩阵的形式，可以得到如下矩阵`W`。
 
 <div  align="center"><img src="imgs/PIC.1.5.png" width = "480" height = "175" alt="1.5" align="center" /></div><br />
 
-&emsp;&emsp;通过代码计算的结果和通过矩阵运算得到的结果一致。因此该代码实现了第二章的原理。
+&emsp;&emsp;通过代码计算的结果和通过矩阵运算得到的结果一致。因此该代码实现了<img src="http://www.forkosh.com/mathtex.cgi?W={D}^{-1}A">。
 
 - **（2）初始化<img src="http://www.forkosh.com/mathtex.cgi?{v}^{0}">**
 
-&emsp;&emsp;根据选择的初始化模式的不同，我们可以使用不同的方法初始化<img src="http://www.forkosh.com/mathtex.cgi?{v}^{0}">"。一种方式是随机初始化，一种方式是分级初始化，下面分布来介绍这两种方式。
+&emsp;&emsp;根据选择的初始化模式的不同，我们可以使用不同的方法初始化<img src="http://www.forkosh.com/mathtex.cgi?{v}^{0}">。一种方式是随机初始化，一种方式是等级（`degree`）初始化，下面分别来介绍这两种方式。
 
 - 随机初始化
 
@@ -152,7 +152,7 @@ def normalize(similarities: RDD[(Long, Long, Double)]): Graph[Double, Double] = 
     GraphImpl.fromExistingRDDs(VertexRDD(v0), g.edges)
   }
 ```
-- 分级初始化
+- 等级初始化
 
 ```scala
  def initDegreeVector(g: Graph[Double, Double]): Graph[Double, Double] = {
@@ -163,12 +163,44 @@ def normalize(similarities: RDD[(Long, Long, Double)]): Graph[Double, Double] = 
     GraphImpl.fromExistingRDDs(VertexRDD(v0), g.edges)
   }
 ```
+&emsp;&emsp;在这里，等级初始化的向量我们称为“等级向量”。等级向量会给图中高等级的节点分配更多的初始化权重，使其值可以更平均和快速的分布，从而更快的局部收敛。详细情况请参考文献【1】。
 
 - **（3）快速迭代求最终的v**
 
+```scala
+for (iter <- 0 until maxIterations if math.abs(diffDelta) > tol) {
+      val msgPrefix = s"Iteration $iter"
+      // 计算w*vt
+      val v = curG.aggregateMessages[Double](
+        sendMsg = ctx => ctx.sendToSrc(ctx.attr * ctx.dstAttr),
+        mergeMsg = _ + _,
+        TripletFields.Dst).cache()
+      // 计算||Wvt||_1
+      val norm = v.values.map(math.abs).sum()
+      val v1 = v.mapValues(x => x / norm)
+      // 计算v_t+1和v_t的不同
+      val delta = curG.joinVertices(v1) { case (_, x, y) =>
+        math.abs(x - y)
+      }.vertices.values.sum()
+      diffDelta = math.abs(delta - prevDelta)
+      // 更新v
+      curG = GraphImpl.fromExistingRDDs(VertexRDD(v1), g.edges)
+      prevDelta = delta
+    }
+```
+- **（4）使用`k-means`算法对v进行聚类**
 
-
-
+```scala
+def kMeans(v: VertexRDD[Double], k: Int): VertexRDD[Int] = {
+    val points = v.mapValues(x => Vectors.dense(x)).cache()
+    val model = new KMeans()
+      .setK(k)
+      .setRuns(5)
+      .setSeed(0L)
+      .run(points.values)
+    points.mapValues(p => model.predict(p)).cache()
+  }
+```
 
 
 
