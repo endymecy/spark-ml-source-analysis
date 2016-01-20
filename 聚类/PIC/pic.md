@@ -131,7 +131,7 @@ def normalize(similarities: RDD[(Long, Long, Double)]): Graph[Double, Double] = 
 
 - **（2）初始化<img src="http://www.forkosh.com/mathtex.cgi?{v}^{0}">**
 
-&emsp;&emsp;根据选择的初始化模式的不同，我们可以使用不同的方法初始化<img src="http://www.forkosh.com/mathtex.cgi?{v}^{0}"。一种方式是随机初始化，一种方式是分级初始化，下面分布来介绍这两种方式。
+&emsp;&emsp;根据选择的初始化模式的不同，我们可以使用不同的方法初始化<img src="http://www.forkosh.com/mathtex.cgi?{v}^{0}">"。一种方式是随机初始化，一种方式是分级初始化，下面分布来介绍这两种方式。
 
 - 随机初始化
 
