@@ -163,6 +163,8 @@ def normalize(similarities: RDD[(Long, Long, Double)]): Graph[Double, Double] = 
     GraphImpl.fromExistingRDDs(VertexRDD(v0), g.edges)
   }
 ```
+&emsp;&emsp;通过初始化之后，我们获得了向量<img src="http://www.forkosh.com/mathtex.cgi?{v}^{0}">。它包含所有的顶点，但是顶点特征值发生了改变。随机初始化后，特征值为随机值；度初始化后，特征为度的平均值。
+
 &emsp;&emsp;在这里，度初始化的向量我们称为“度向量”。度向量会给图中度大的节点分配更多的初始化权重，使其值可以更平均和快速的分布，从而更快的局部收敛。详细情况请参考文献【1】。
 
 - **（3）快速迭代求最终的v**
@@ -172,10 +174,11 @@ for (iter <- 0 until maxIterations if math.abs(diffDelta) > tol) {
       val msgPrefix = s"Iteration $iter"
       // 计算w*vt
       val v = curG.aggregateMessages[Double](
+        //相似度与目标点的度相乘
         sendMsg = ctx => ctx.sendToSrc(ctx.attr * ctx.dstAttr),
         mergeMsg = _ + _,
         TripletFields.Dst).cache()
-      // 计算||Wvt||_1
+      // 计算||Wvt||_1，即第二章公式中的c
       val norm = v.values.map(math.abs).sum()
       val v1 = v.mapValues(x => x / norm)
       // 计算v_t+1和v_t的不同
@@ -188,6 +191,11 @@ for (iter <- 0 until maxIterations if math.abs(diffDelta) > tol) {
       prevDelta = delta
     }
 ```
+&emsp;&emsp;在上述代码中，我们通过`aggregateMessages`方法计算<img src="http://www.forkosh.com/mathtex.cgi?W{v}^{t}">。我们仍然以第（1）步的举例来说明这个方法。假设我们以度来初始化<img src="http://www.forkosh.com/mathtex.cgi?{v}^{0}">，
+在第一次迭代中，我们可以得到`v1`的特征值为`(1/3)*(3/10)+(1/3)*(1/5)+(1/3)*(1/5)=7/30`，`v2`的特征值为`7/30`，`v3`的特征值为`3/10`,`v4`的特征值为`3/10`。即满足下面的公式。
+
+<div  align="center"><img src="imgs/PIC.1.6.png" width = "340" height = "180" alt="1.6" align="center" /></div><br />
+
 - **（4）使用`k-means`算法对v进行聚类**
 
 ```scala
