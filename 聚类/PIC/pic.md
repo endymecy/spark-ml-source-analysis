@@ -118,5 +118,20 @@ def normalize(similarities: RDD[(Long, Long, Double)]): Graph[Double, Double] = 
 
 <div  align="center"><img src="imgs/PIC.1.3.png" width = "330" height = "280" alt="1.3" align="center" /></div><br />
 
+&emsp;&emsp;通过该图，我们可以得到相似度矩阵`A`和度矩阵`D`，他们分别如下所示。
+
+<div  align="center"><img src="imgs/PIC.1.4.png" width = "350" height = "85" alt="1.4" align="center" /></div><br />
+
+&emsp;&emsp;通过上面的代码计算，我们可以得到从点`v1`到`v2,v3,v4`的边的权重分别为`1/3,1/3,1/3`;从点`v2`到`v1,v3,v4`的权重分别为`1/3,1/3,1/3`;从点`v3`到`v1,v2`的权重分别为`1/2,1/2`;从点`v4`到`v1,v2`的权重分别为`1/2,1/2`。
+将这个图转换为矩阵的形式，可以得到如下矩阵`W`。
+
+<div  align="center"><img src="imgs/PIC.1.5.png" width = "480" height = "175" alt="1.5" align="center" /></div><br />
+
+&emsp;&emsp;这与第二章讲解的原理一致。
+
+
+
+
+
 
 
