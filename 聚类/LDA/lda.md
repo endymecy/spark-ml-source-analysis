@@ -39,9 +39,16 @@
 
 <div  align="center"><img src="imgs/1.1.2.png" width = "200" height = "30" alt="gamma函数" align="center" /></div><br>
 
-&emsp;&emsp;通过该递归性质，我们可以很容易证明，`gamma`函数可以可以当成阶乘在实数集上的延拓，具有如下性质
+&emsp;&emsp;通过该递归性质，我们可以很容易证明，`gamma`函数可以被当成阶乘在实数集上的延拓，具有如下性质
 
 <div  align="center"><img src="imgs/1.1.3.png" width = "165" height = "30" alt="gamma函数" align="center" /></div><br>
+
+## 1.2 Digamma函数
+
+&emsp;&emsp;如下函数被称为`Digamma`函数，它是`Gamma`函数对数的一阶导数
+
+<div  align="center"><img src="imgs/1.2.1.png" width = "200" height = "55" alt="gamma函数" align="center" /></div><br>
+
 
 
 
