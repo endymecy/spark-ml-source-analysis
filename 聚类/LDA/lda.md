@@ -47,7 +47,18 @@
 
 &emsp;&emsp;如下函数被称为`Digamma`函数，它是`Gamma`函数对数的一阶导数
 
-<div  align="center"><img src="imgs/1.2.1.png" width = "200" height = "55" alt="gamma函数" align="center" /></div><br>
+<div  align="center"><img src="imgs/1.2.1.png" width = "200" height = "55" alt="digamma函数" align="center" /></div><br>
+
+&emsp;&emsp;这是一个很重要的函数，在涉及`Dirichlet`分布相关的参数的极大似然估计时，往往需要用到这个函数。`Digamma`函数具有如下一个漂亮的性质
+
+<div  align="center"><img src="imgs/1.2.2.png" width = "200" height = "50" alt="digamma函数" align="center" /></div><br>
+
+## 1.3 二项分布（Binomial distribution）
+
+&emsp;&emsp;二项分布是由伯努利分布推出的。伯努利分布，又称两点分布或0-1分布，是一个离散型的随机分布，其中的随机变量只有两类取值，即0或者1。二项分布是重复n次的伯努利试验。简言之，只做一次实验，是伯努利分布，重复做了n次，是二项分布。二项分布的概率密度函数为：
+
+<div  align="center"><img src="imgs/1.3.1.png" width = "260" height = "25" alt="二项分布密度函数" align="center" /></div><br>
+
 
 
 
