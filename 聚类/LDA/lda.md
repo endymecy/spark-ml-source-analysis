@@ -33,15 +33,15 @@
 
 &emsp;&emsp;在高等数学中，有一个长相奇特的`Gamma`函数
 
-<div  align="center"><img src="imgs/1.1.1.png" width = "175" height = "41" alt="gamma函数" align="center" /></div><br />
+<div  align="center"><img src="imgs/1.1.1.png" width = "175" height = "41" alt="gamma函数" align="center" /></div>
 
 &emsp;&emsp;通过分部积分，可以推导`gamma`函数有如下递归性质
 
-<div  align="center"><img src="imgs/1.1.2.png" width = "150" height = "25" alt="gamma函数" align="center" /></div><br />
+<div  align="center"><img src="imgs/1.1.2.png" width = "150" height = "25" alt="gamma函数" align="center" /></div>
 
 &emsp;&emsp;通过该递归性质，我们可以很容易证明，`gamma`函数可以可以当成阶乘在实数集上的延拓，具有如下性质
 
-<div  align="center"><img src="imgs/1.1.3.png" width = "160" height = "30" alt="gamma函数" align="center" /></div><br />
+<div  align="center"><img src="imgs/1.1.3.png" width = "110" height = "20" alt="gamma函数" align="center" /></div>
 
 
 
