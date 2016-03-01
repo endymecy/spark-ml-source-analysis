@@ -5,11 +5,11 @@
 
 &emsp;&emsp;举一个简单的例子，比如假设事先给定了这几个主题：Arts、Budgets、Children、Education，然后通过学习的方式，获取每个主题Topic对应的词语，如下图所示：
 
-<div  align="center"><img src="imgs/topic_words.png" width = "650" height = "280" alt="topic_words" align="center" /></div><br />
+<div  align="center"><img src="imgs/topic_words.png" width = "650" height = "280" alt="topic_words" align="center" /></div>
 
 &emsp;&emsp;然后以一定的概率选取上述某个主题，再以一定的概率选取那个主题下的某个单词，不断的重复这两步，最终生成如下图所示的一篇文章（不同颜色的词语分别表示不同主题）。
 
-<div  align="center"><img src="imgs/docs.png" width = "600" height = "315" alt="docs" align="center" /></div><br />
+<div  align="center"><img src="imgs/docs.png" width = "600" height = "315" alt="docs" align="center" /></div>
 
 &emsp;&emsp;我们看到一篇文章后，往往会推测这篇文章是如何生成的，我们通常认为作者会先确定几个主题，然后围绕这几个主题遣词造句写成全文。`LDA`要干的事情就是根据给定的文档，判断它的主题分别。在`LDA`模型中，生成文档的过程有如下几步：
 
@@ -23,7 +23,7 @@
 
 &emsp;&emsp;`LDA`的图模型结构如下图所示：
 
-<div  align="center"><img src="imgs/LDA.png" width = "415" height = "195" alt="topic_words" align="center" /></div><br />
+<div  align="center"><img src="imgs/LDA.png" width = "415" height = "195" alt="topic_words" align="center" /></div>
 
 &emsp;&emsp;`LDA`会涉及很多数学知识，后面的章节我会首先介绍`LDA`涉及的数学知识，然后在这些数学知识的基础上详细讲解`LDA`的原理。
 
