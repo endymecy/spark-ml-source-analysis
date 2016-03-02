@@ -116,6 +116,11 @@
 
 &emsp;&emsp;什么是共轭呢？轭的意思是束缚、控制。共轭从字面上理解，则是共同约束，或互相约束。在贝叶斯概率理论中，如果后验概率P(z|x)和先验概率p(z)满足同样的分布，那么，先验分布和后验分布被叫做共轭分布，同时，先验分布叫做似然函数的共轭先验分布。
 
+### 1.5.3 Beta-Binomial 共轭
+
+&emsp;&emsp;我们在问题1的基础上增加一些观测数据，变成问题2：
+
+<div  align="center"><img src="imgs/question2.png" width = "500" height = "95" alt="问题2" align="center" /></div><br>
 
 
 
