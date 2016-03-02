@@ -122,7 +122,7 @@
 
 <div  align="center"><img src="imgs/question2.png" width = "500" height = "95" alt="问题2" align="center" /></div><br>
 
-&emsp;&emsp;第2步的条件可以用另外一句话来表述，即“Yi中有m1个比X(k)小，m2个比X(k)大”，所以X(k)是<img src="http://www.forkosh.com/mathtex.cgi?{X}_{(1)},{X}_{(2)},...,{X}_{(n)};{Y}_{(1)},{Y}_{(2)},...,{Y}_{(m)},">中k+m1大的数。
+&emsp;&emsp;第2步的条件可以用另外一句话来表述，即“Yi中有m1个比X(k)小，m2个比X(k)大”，所以X(k)是<img src="http://www.forkosh.com/mathtex.cgi?{X}_{(1)},{X}_{(2)},...,{X}_{(n)};{Y}_{(1)},{Y}_{(2)},...,{Y}_{(m)}">中k+m1大的数。
 
 &emsp;&emsp;根据1.5.1的介绍，我们知道事件p服从`beta`分布,它的概率密度函数为：
 
@@ -148,9 +148,56 @@
 
 &emsp;&emsp;**Beta(p|alpha,beta) + BinomCount(m1,m2) = Beta(p|alpha+m1,beta+m2)**
 
+&emsp;&emsp;针对于这种观测到的数据符合二项分布，参数的先验分布和后验分布都是Beta分布的情况，就是`Beta-Binomial`共轭。换言之，`Beta`分布是二项式分布的共轭先验概率分布。二项分布和Beta分布是共轭分布意味着，如果我们为二项分布的参数p选取的先验分布是`Beta`分布，那么以p为参数的二项分布用贝叶斯估计得到的后验分布仍然服从`Beta`分布。
+
+## 1.6 Dirichlet 分布
+
+### 1.6.1 Dirichlet 分布
+
+&emsp;&emsp;`Dirichlet`分布，是`beta`分布在高维度上的推广。`Dirichlet`分布的的密度函数形式跟`beta`分布的密度函数类似：
+
+<div  align="center"><img src="imgs/1.6.1.png" width = "370" height = "75" alt="Dirichlet" align="center" /></div><br>
+
+&emsp;&emsp;其中
+
+<div  align="center"><img src="imgs/1.6.2.png" width = "260" height = "50" alt="Dirichlet" align="center" /></div><br>
+
+&emsp;&emsp;至此，我们可以看到二项分布和多项分布很相似，`Beta`分布和`Dirichlet`分布很相似。并且`Beta`分布是二项式分布的共轭先验概率分布。那么`Dirichlet`分布呢？`Dirichlet`分布是多项式分布的共轭先验概率分布。下文来论证这点。
+
+### 1.6.2 Dirichlet-Multinomial 共轭
+
+&emsp;&emsp;在1.5.3章问题2的基础上，我们更进一步引入**问题3**：
+
+<div  align="center"><img src="imgs/question3.png" width = "320" height = "75" alt="Dirichlet共轭" align="center" /></div><br>
+
+&emsp;&emsp;类似于问题1的推导，我们可以容易推导联合分布。为了简化计算，我们取x3满足x1+x2+x3=1,x1和x2是变量。如下图所示。
+
+<div  align="center"><img src="imgs/1.6.3.png" width = "435" height = "75" alt="Dirichlet共轭" align="center" /></div><br>
+
+&emsp;&emsp;概率计算如下：
+
+<div  align="center"><img src="imgs/1.6.4.png" width = "410" height = "120" alt="Dirichlet共轭" align="center" /></div><br>
+
+&emsp;&emsp;于是我们得到联合分布为：
+
+<div  align="center"><img src="imgs/1.6.5.png" width = "450" height = "85" alt="Dirichlet共轭" align="center" /></div><br>
+
+&emsp;&emsp;观察上述式子的最终结果，可以看出上面这个分布其实就是3维形式的`Dirichlet`分布。令alpha1=k1,alpha2=k2,alpha3=n-k1-k2+1，分布密度函数可以写为：
+
+<div  align="center"><img src="imgs/1.6.6.png" width = "340" height = "40" alt="Dirichlet共轭" align="center" /></div><br>
+
+&emsp;&emsp;为了论证`Dirichlet`分布是多项式分布的共轭先验概率分布，在上述问题3的基础上再进一步，提出**问题4**。
+
+<div  align="center"><img src="imgs/question4.png" width = "525" height = "165" alt="问题4" align="center" /></div><br>
+
+
+
+
 # 参考文献
 
 【1】[LDA数学八卦](http://www.52nlp.cn/lda-math-%E6%B1%87%E6%80%BB-lda%E6%95%B0%E5%AD%A6%E5%85%AB%E5%8D%A6)
+
+【2】[通俗理解LDA主题模型](http://blog.csdn.net/v_july_v/article/details/41209515)
 
 
 
