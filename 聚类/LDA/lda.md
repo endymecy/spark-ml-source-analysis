@@ -138,15 +138,15 @@
 
 &emsp;&emsp;贝叶斯估计的基本过程是：
 
-**先验分布 + 数据的知识 = 后验分布**
+&emsp;&emsp;**先验分布 + 数据的知识 = 后验分布**
 
-emsp;&emsp;以上贝叶斯分析过程的简单直观的表示就是：
+&emsp;&emsp;以上贝叶斯分析过程的简单直观的表示就是：
 
-**Beta(p|k,n-k+1) + BinomCount(m1,m2) = Beta(p|k+m1,n-k+1+m2)**
+&emsp;&emsp;**Beta(p|k,n-k+1) + BinomCount(m1,m2) = Beta(p|k+m1,n-k+1+m2)**
 
-emsp;&emsp;更一般的，对于非负实数alpha和beta，我们有如下关系
+&emsp;&emsp;更一般的，对于非负实数alpha和beta，我们有如下关系
 
-**Beta(p|alpha,beta) + BinomCount(m1,m2) = Beta(p|alpha+m1,beta+m2)**
+&emsp;&emsp;**Beta(p|alpha,beta) + BinomCount(m1,m2) = Beta(p|alpha+m1,beta+m2)**
 
 # 参考文献
 
