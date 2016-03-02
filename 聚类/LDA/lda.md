@@ -232,11 +232,17 @@
 
 &emsp;&emsp;这个结论在后文的推导中会用到。
 
+## 1.8 总结
+
+&emsp;&emsp;`LDA`涉及的数学知识较多，需要认真体会，以上大部分的知识来源于文献【1,2,3】,如有不清楚的地方，参见这些文献以了解更多。
+
 # 参考文献
 
 【1】[LDA数学八卦](http://www.52nlp.cn/lda-math-%E6%B1%87%E6%80%BB-lda%E6%95%B0%E5%AD%A6%E5%85%AB%E5%8D%A6)
 
 【2】[通俗理解LDA主题模型](http://blog.csdn.net/v_july_v/article/details/41209515)
+
+【3】[Blei,David M.,Ng Andrew Y.,Jordan Michael I. Latent Dirichlet Allocation](docs/Latent Dirichlet Allocation.pdf)
 
 
 
