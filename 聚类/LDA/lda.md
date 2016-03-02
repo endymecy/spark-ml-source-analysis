@@ -242,12 +242,12 @@
 
 - 1 `w`表示词，`V`表示所有词的个数
 - 2 `z`表示主题，`k`表示主题的个数
-- 3  <img src="http://www.forkosh.com/mathtex.cgi?D=\{{W}_{1},{W}_{2},...,{W}_{M}\}">表示语料库，`M`表示语料库中的文档数。
-- 4  <img src="http://www.forkosh.com/mathtex.cgi?W=\{{w}_{1},{w}_{2},...,{w}_{N}\}">表示文档，`N`表示文档中词的个数。
+- 3  <img src="http://www.forkosh.com/mathtex.cgi?D=({W}_{1},{W}_{2},...,{W}_{M})">表示语料库，`M`表示语料库中的文档数。
+- 4  <img src="http://www.forkosh.com/mathtex.cgi?W=({w}_{1},{w}_{2},...,{w}_{N})">表示文档，`N`表示文档中词的个数。
 
 ## 2.1 一元模型(Unigram model)
 
-&emsp;&emsp;对于文档<img src="http://www.forkosh.com/mathtex.cgi?W=\{{w}_{1},{w}_{2},...,{w}_{N}\}">,用<img src="http://www.forkosh.com/mathtex.cgi?p({w}_{n})">表示<img src="http://www.forkosh.com/mathtex.cgi?{w}_{n}">的先验概率，生成文档W的概率为：
+&emsp;&emsp;对于文档<img src="http://www.forkosh.com/mathtex.cgi?W=({w}_{1},{w}_{2},...,{w}_{N})">,用<img src="http://www.forkosh.com/mathtex.cgi?p({w}_{n})">表示<img src="http://www.forkosh.com/mathtex.cgi?{w}_{n}">的先验概率，生成文档W的概率为：
 
 <div  align="center"><img src="imgs/2.1.1.png" width = "165" height = "65" alt="性质" align="center" /></div><br>
 
