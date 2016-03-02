@@ -83,11 +83,7 @@
 
 &emsp;&emsp;**问题1：**
 
-- 随机变量X服从均匀分布，即<img src="http://www.forkosh.com/mathtex.cgi?{x}_{1},{x}_{2},...,{x}_{n} iid Uniform(0,1)">
-
-- 把这n个随机变量排序后得到顺序统计量为<img src="http://www.forkosh.com/mathtex.cgi?{x}_{(1)},{x}_{(2)},...,{x}_{(n)}">
-
-- 请问<img src="http://www.forkosh.com/mathtex.cgi?{x}_{(k)}">的分布是什么
+<div  align="center"><img src="imgs/question1.png" width = "430" height = "70" alt="问题1" align="center" /></div><br>
 
 &emsp;&emsp; 为解决这个问题，可以尝试计算<img src="http://www.forkosh.com/mathtex.cgi?{x}_{(k)}">落在区间`[x,x+delta x]`的概率。首先，把`[0,1]`区间分成三段`[0,x)`,`[x,x+delta x]`，`(x+delta x,1]`，然后考虑下简单的情形：即假设n个数中只有1个落在了区间`[x,x+delta x]`内，由于这个区间内的数`X(k)`是第k大的，所以`[0,x)`中应该有k−1个数，`(x+delta x,1]`这个区间中应该有n−k个数。
 如下图所示：
@@ -115,6 +111,10 @@
 &emsp;&emsp;在上式中，我们用`alpha=k`，`beta=n-k+1`替换，可以得到`beta`分布的概率密度函数
 
 <div  align="center"><img src="imgs/1.5.6.png" width = "230" height = "45" alt="beta分布概率密度函数" align="center" /></div><br>
+
+### 1.5.2 共轭先验分布
+
+&emsp;&emsp;什么是共轭呢？轭的意思是束缚、控制。共轭从字面上理解，则是共同约束，或互相约束。在贝叶斯概率理论中，如果后验概率P(z|x)和先验概率p(z)满足同样的分布，那么，先验分布和后验分布被叫做共轭分布，同时，先验分布叫做似然函数的共轭先验分布。
 
 
 
