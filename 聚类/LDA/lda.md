@@ -83,7 +83,7 @@
 
 &emsp;&emsp;**问题1：**
 
-- 随机变量X服从均匀分布，即<img src="http://www.forkosh.com/mathtex.cgi?{x}_{1},{x}_{2},...,{x}_{n} ~ Uniform(0,1)">
+- 随机变量X服从均匀分布，即<img src="http://www.forkosh.com/mathtex.cgi?{x}_{1},{x}_{2},...,{x}_{n} iid Uniform(0,1)">
 
 - 把这n个随机变量排序后得到顺序统计量为<img src="http://www.forkosh.com/mathtex.cgi?{x}_{(1)},{x}_{(2)},...,{x}_{(n)}">
 
@@ -93,6 +93,29 @@
 如下图所示：
 
 <div  align="center"><img src="imgs/1.5.1.png" width = "450" height = "140" alt="多项分布密度函数" align="center" /></div><br>
+
+&emsp;&emsp;上述问题可以转换为下述事件E：
+
+<div  align="center"><img src="imgs/1.5.2.png" width = "250" height = "75" alt="事件E" align="center" /></div><br>
+
+&emsp;&emsp;对于上述事件E，有：
+
+<div  align="center"><img src="imgs/1.5.3.png" width = "255" height = "100" alt="事件E" align="center" /></div><br>
+
+&emsp;&emsp;其中，`o(delta x)`表示`delta x`的高阶无穷小。显然，由于不同的排列组合，即n个数中有一个落在`[x,x+delta x]`区间的有n种取法，余下n−1个数中有k−1个落在`[0,x)`的有`C(n-1,k-1)`种组合。所以和事件E等价的事件一共有`nC(n-1,k-1)`个。
+
+&emsp;&emsp;文献【1】中证明，只要落在`[x,x+delta x]`内的数字超过一个，则对应的事件的概率就是`o(delta x)`。所以<img src="http://www.forkosh.com/mathtex.cgi?{x}_{(k)}">的概率密度函数为：
+
+<div  align="center"><img src="imgs/1.5.4.png" width = "340" height = "120" alt="概率密度函数" align="center" /></div><br>
+
+&emsp;&emsp;利用`Gamma`函数，我们可以将f(x)表示成如下形式：
+
+<div  align="center"><img src="imgs/1.5.5.png" width = "260" height = "40" alt="概率密度函数" align="center" /></div><br>
+
+&emsp;&emsp;在上式中，我们用`alpha=k`，`beta=n-k+1`替换，可以得到`beta`分布的概率密度函数
+
+<div  align="center"><img src="imgs/1.5.6.png" width = "230" height = "45" alt="beta分布概率密度函数" align="center" /></div><br>
+
 
 
 
