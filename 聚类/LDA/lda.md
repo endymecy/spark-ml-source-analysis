@@ -91,7 +91,7 @@
 
 # 参考文献
 
-[【1】LDA数学八卦](docs/LDA数学八卦.pdf)
+[【1】LDA数学八卦](http://www.52nlp.cn/lda-math-%E6%B1%87%E6%80%BB-lda%E6%95%B0%E5%AD%A6%E5%85%AB%E5%8D%A6)
 
 
 
