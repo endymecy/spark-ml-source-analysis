@@ -190,8 +190,47 @@
 
 <div  align="center"><img src="imgs/question4.png" width = "525" height = "165" alt="问题4" align="center" /></div><br>
 
+&emsp;&emsp;为了方便计算，我们记
 
+<div  align="center"><img src="imgs/1.6.7.png" width = "330" height = "23" alt="问题4" align="center" /></div><br>
 
+&emsp;&emsp;根据问题中的信息，我们可以推理得到p1,p2在`X;Y`这`m+n`个数中分别成为了第`k1+m1,k1+k2+m1+m2`大的数。后验分布p应该为
+
+<div  align="center"><img src="imgs/1.6.8.png" width = "640" height = "25" alt="问题4" align="center" /></div><br>
+
+&emsp;&emsp;同样的，按照贝叶斯推理的逻辑，可将上述过程整理如下：
+
+- 1 我们要猜测参数`P=(p1,p2,p3)`，其先验分布为`Dir(p|k)`;
+
+- 2 数据Yi落到三个区间`[0,p1)`,`[p1,p2]`,`(p2,1]`的个数分别是m1,m2,m3,所以`m=(m1,m2,m3)`服从多项分布`Mult(m|p)`;
+
+- 3 在给定了来自数据提供的知识m后，p的后验分布变为`Dir(P|k+m)`
+
+&emsp;&emsp;上述贝叶斯分析过程的直观表述为：
+
+&emsp;&emsp;**Dir(p|k) + Multcount(m) = Dir(p|k+m)**
+
+&emsp;&emsp;针对于这种观测到的数据符合多项分布，参数的先验分布和后验分布都是`Dirichlet`分布的情况，就是`Dirichlet-Multinomial`共轭。这意味着，如果我们为多项分布的参数p选取的先验分布是`Dirichlet`分布，那么以p为参数的多项分布用贝叶斯估计得到的后验分布仍然服从`Dirichlet`分布。
+
+## 1.7 Beta和Dirichlet分布的一个性质
+
+&emsp;&emsp;如果`p=Beta(t|alpha,beta)`，那么
+
+<div  align="center"><img src="imgs/1.7.1.png" width = "285" height = "130" alt="性质" align="center" /></div><br>
+
+&emsp;&emsp;上式右边的积分对应到概率分布`Beta(t|alpha+1,beta)`，对于这个分布，我们有
+
+<div  align="center"><img src="imgs/1.7.2.png" width = "245" height = "47" alt="性质" align="center" /></div><br>
+
+&emsp;&emsp;把上式带人E(p)的计算式，可以得到：
+
+<div  align="center"><img src="imgs/1.7.3.png" width = "233" height = "126" alt="性质" align="center" /></div><br>
+
+&emsp;&emsp;这说明，对于Beta分布的随机变量，其期望可以用上式来估计。`Dirichlet`分布也有类似的结论。对于`p=Dir(t|alpha)`，有
+
+<div  align="center"><img src="imgs/1.7.4.png" width = "290" height = "42" alt="性质" align="center" /></div><br>
+
+&emsp;&emsp;这个结论在后文的推导中会用到。
 
 # 参考文献
 
