@@ -118,11 +118,35 @@
 
 ### 1.5.3 Beta-Binomial 共轭
 
-&emsp;&emsp;我们在问题1的基础上增加一些观测数据，变成问题2：
+&emsp;&emsp;我们在问题1的基础上增加一些观测数据，变成**问题2**：
 
 <div  align="center"><img src="imgs/question2.png" width = "500" height = "95" alt="问题2" align="center" /></div><br>
 
+&emsp;&emsp;第2步的条件可以用另外一句话来表述，即“Yi中有m1个比X(k)小，m2个比X(k)大”，所以X(k)是<img src="http://www.forkosh.com/mathtex.cgi?{X}_{(1)},{X}_{(2)},...,{X}_{(n)};{Y}_{(1)},{Y}_{(2)},...,{Y}_{(m)},">中k+m1大的数。
 
+&emsp;&emsp;根据1.5.1的介绍，我们知道事件p服从`beta`分布,它的概率密度函数为：
+
+<div  align="center"><img src="imgs/1.5.7.png" width = "200" height = "20" alt="问题2" align="center" /></div><br>
+
+&emsp;&emsp;按照贝叶斯推理的逻辑，把以上过程整理如下：
+
+- 1、p是我们要猜测的参数，我们推导出p的分布为f(p)=Beta(p|k,n-k+1),称为p的先验分布
+
+- 2、根据Yi中有m1个比p小，有m2个比p大，Yi相当是做了m次伯努利实验，所以m1服从二项分布B(m,p)
+
+- 3、在给定了来自数据提供(m1,m2)知识后，p的后验分布变为f(p|m1,m2)=Beta(p|k+m1,n-k+1+m2)
+
+&emsp;&emsp;贝叶斯估计的基本过程是：
+
+**先验分布 + 数据的知识 = 后验分布**
+
+emsp;&emsp;以上贝叶斯分析过程的简单直观的表示就是：
+
+**Beta(p|k,n-k+1) + BinomCount(m1,m2) = Beta(p|k+m1,n-k+1+m2)**
+
+emsp;&emsp;更一般的，对于非负实数alpha和beta，我们有如下关系
+
+**Beta(p|alpha,beta) + BinomCount(m1,m2) = Beta(p|alpha+m1,beta+m2)**
 
 # 参考文献
 
