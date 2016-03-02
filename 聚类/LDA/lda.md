@@ -249,12 +249,25 @@
 
 &emsp;&emsp;对于文档<img src="http://www.forkosh.com/mathtex.cgi?W=({w}_{1},{w}_{2},...,{w}_{N})">,用<img src="http://www.forkosh.com/mathtex.cgi?p({w}_{n})">表示<img src="http://www.forkosh.com/mathtex.cgi?{w}_{n}">的先验概率，生成文档W的概率为：
 
-<div  align="center"><img src="imgs/2.1.1.png" width = "165" height = "65" alt="性质" align="center" /></div><br>
+<div  align="center"><img src="imgs/2.1.1.png" width = "165" height = "65" alt="一元模型" align="center" /></div><br>
 
-&emsp;&emsp;其图模型为（图中被涂色的w表示可观测变量，N表示一篇文档中总共N个单词，M表示M篇文档）：
+&emsp;&emsp;其图模型为（图中被涂色的`w`表示可观测变量，`N`表示一篇文档中总共`N`个单词，`M`表示`M`篇文档）：
 
-<div  align="center"><img src="imgs/2.1.2.png" width = "180" height = "110" alt="性质" align="center" /></div><br>
+<div  align="center"><img src="imgs/2.1.2.png" width = "180" height = "110" alt="一元模型" align="center" /></div><br>
 
+## 2.2 混合一元模型(Mixture of unigrams model)
+
+&emsp;&emsp;该模型的生成过程是：给某个文档先选择一个主题`Z`，再根据该主题生成文档，该文档中的所有词都来自一个主题。生成文档的概率为：
+
+<div  align="center"><img src="imgs/2.2.1.png" width = "200" height = "50" alt="混合一元模型" align="center" /></div><br>
+
+&emsp;&emsp;其图模型为（图中被涂色的`w`表示可观测变量，未被涂色的`z`表示未知的隐变量，`N`表示一篇文档中总共`N`个单词，`M`表示`M`篇文档）：
+
+<div  align="center"><img src="imgs/2.2.2.png" width = "200" height = "115" alt="混合一元模型" align="center" /></div><br>
+
+## 2.3 PLSA模型
+
+&emsp;&emsp;在混合一元模型中，假定一篇文档只由一个主题生成，可实际中，一篇文章往往有多个主题，只是这多个主题各自在文档中出现的概率大小不一样。在`pLSA`中，文档由多个主题生成。
 
 # 参考文献
 
