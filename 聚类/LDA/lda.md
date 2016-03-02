@@ -122,7 +122,7 @@
 
 <div  align="center"><img src="imgs/question2.png" width = "500" height = "95" alt="问题2" align="center" /></div><br>
 
-&emsp;&emsp;第2步的条件可以用另外一句话来表述，即“Yi中有m1个比X(k)小，m2个比X(k)大”，所以X(k)是<img src="http://www.forkosh.com/mathtex.cgi?{X}_{(1)},{X}_{(2)},...,{X}_{(n)};{Y}_{(1)},{Y}_{(2)},...,{Y}_{(m)}">中k+m1大的数。
+&emsp;&emsp;第2步的条件可以用另外一句话来表述，即“`Yi`中有`m1`个比`X(k`)小，`m2`个比`X(k)`大”，所以`X(k)`是<img src="http://www.forkosh.com/mathtex.cgi?{X}_{(1)},{X}_{(2)},...,{X}_{(n)};{Y}_{(1)},{Y}_{(2)},...,{Y}_{(m)}">中k+m1大的数。
 
 &emsp;&emsp;根据1.5.1的介绍，我们知道事件p服从`beta`分布,它的概率密度函数为：
 
@@ -130,11 +130,11 @@
 
 &emsp;&emsp;按照贝叶斯推理的逻辑，把以上过程整理如下：
 
-- 1、p是我们要猜测的参数，我们推导出p的分布为f(p)=Beta(p|k,n-k+1),称为p的先验分布
+- 1、p是我们要猜测的参数，我们推导出`p`的分布为`f(p)=Beta(p|k,n-k+1)`,称为`p`的先验分布
 
-- 2、根据Yi中有m1个比p小，有m2个比p大，Yi相当是做了m次伯努利实验，所以m1服从二项分布B(m,p)
+- 2、根据`Yi`中有`m1`个比`p`小，有`m2`个比`p`大，`Yi`相当是做了`m`次伯努利实验，所以`m1`服从二项分布`B(m,p)`
 
-- 3、在给定了来自数据提供(m1,m2)知识后，p的后验分布变为f(p|m1,m2)=Beta(p|k+m1,n-k+1+m2)
+- 3、在给定了来自数据提供`(m1,m2)`知识后，p的后验分布变为`f(p|m1,m2)=Beta(p|k+m1,n-k+1+m2)`
 
 &emsp;&emsp;贝叶斯估计的基本过程是：
 
@@ -235,6 +235,16 @@
 ## 1.8 总结
 
 &emsp;&emsp;`LDA`涉及的数学知识较多，需要认真体会，以上大部分的知识来源于文献【1,2,3】,如有不清楚的地方，参见这些文献以了解更多。
+
+# 2 主题模型LDA
+
+&emsp;&emsp;在介绍LDA之前，我们先介绍几个基础模型：`Unigram model`、`mixture of unigrams model`、`pLSA model`。为了方便描述，首先定义一些变量：
+
+- 1 `w`表示词，`V`表示所有词的个数
+- 2 `z`表示主题，`k`表示主题的个数
+- 3  <img src="http://www.forkosh.com/mathtex.cgi?D={{W}_{1},{W}_{2},...,{W}_{M}}">表示语料库，`M`表示语料库中的文档数。
+- 4  <img src="http://www.forkosh.com/mathtex.cgi?W={{w}_{1},{w}_{2},...,{w}_{N}}">表示文档，`N`表示文档中词的个数。
+
 
 # 参考文献
 
