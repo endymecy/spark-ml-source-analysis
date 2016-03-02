@@ -170,7 +170,7 @@
 
 <div  align="center"><img src="imgs/question3.png" width = "320" height = "75" alt="Dirichlet共轭" align="center" /></div><br>
 
-&emsp;&emsp;类似于问题1的推导，我们可以容易推导联合分布。为了简化计算，我们取x3满足x1+x2+x3=1,x1和x2是变量。如下图所示。
+&emsp;&emsp;类似于问题1的推导，我们可以容易推导联合分布。为了简化计算，我们取`x3`满足`x1+x2+x3=1`,`x1`和`x2`是变量。如下图所示。
 
 <div  align="center"><img src="imgs/1.6.3.png" width = "435" height = "75" alt="Dirichlet共轭" align="center" /></div><br>
 
@@ -182,7 +182,7 @@
 
 <div  align="center"><img src="imgs/1.6.5.png" width = "450" height = "85" alt="Dirichlet共轭" align="center" /></div><br>
 
-&emsp;&emsp;观察上述式子的最终结果，可以看出上面这个分布其实就是3维形式的`Dirichlet`分布。令alpha1=k1,alpha2=k2,alpha3=n-k1-k2+1，分布密度函数可以写为：
+&emsp;&emsp;观察上述式子的最终结果，可以看出上面这个分布其实就是3维形式的`Dirichlet`分布。令`alpha1=k1,alpha2=k2,alpha3=n-k1-k2+1`，分布密度函数可以写为：
 
 <div  align="center"><img src="imgs/1.6.6.png" width = "340" height = "40" alt="Dirichlet共轭" align="center" /></div><br>
 
@@ -194,7 +194,7 @@
 
 <div  align="center"><img src="imgs/1.6.7.png" width = "330" height = "23" alt="问题4" align="center" /></div><br>
 
-&emsp;&emsp;根据问题中的信息，我们可以推理得到p1,p2在`X;Y`这`m+n`个数中分别成为了第`k1+m1,k1+k2+m1+m2`大的数。后验分布p应该为
+&emsp;&emsp;根据问题中的信息，我们可以推理得到`p1,p2`在`X;Y`这`m+n`个数中分别成为了第`k1+m1,k1+k2+m1+m2`大的数。后验分布p应该为
 
 <div  align="center"><img src="imgs/1.6.8.png" width = "640" height = "25" alt="问题4" align="center" /></div><br>
 
@@ -202,9 +202,9 @@
 
 - 1 我们要猜测参数`P=(p1,p2,p3)`，其先验分布为`Dir(p|k)`;
 
-- 2 数据Yi落到三个区间`[0,p1)`,`[p1,p2]`,`(p2,1]`的个数分别是m1,m2,m3,所以`m=(m1,m2,m3)`服从多项分布`Mult(m|p)`;
+- 2 数据`Yi`落到三个区间`[0,p1)`,`[p1,p2]`,`(p2,1]`的个数分别是`m1,m2,m3`,所以`m=(m1,m2,m3)`服从多项分布`Mult(m|p)`;
 
-- 3 在给定了来自数据提供的知识m后，p的后验分布变为`Dir(P|k+m)`
+- 3 在给定了来自数据提供的知识`m`后，`p`的后验分布变为`Dir(P|k+m)`
 
 &emsp;&emsp;上述贝叶斯分析过程的直观表述为：
 
@@ -222,11 +222,11 @@
 
 <div  align="center"><img src="imgs/1.7.2.png" width = "245" height = "47" alt="性质" align="center" /></div><br>
 
-&emsp;&emsp;把上式带人E(p)的计算式，可以得到：
+&emsp;&emsp;把上式带人`E(p)`的计算式，可以得到：
 
 <div  align="center"><img src="imgs/1.7.3.png" width = "233" height = "126" alt="性质" align="center" /></div><br>
 
-&emsp;&emsp;这说明，对于Beta分布的随机变量，其期望可以用上式来估计。`Dirichlet`分布也有类似的结论。对于`p=Dir(t|alpha)`，有
+&emsp;&emsp;这说明，对于`Beta`分布的随机变量，其期望可以用上式来估计。`Dirichlet`分布也有类似的结论。对于`p=Dir(t|alpha)`，有
 
 <div  align="center"><img src="imgs/1.7.4.png" width = "290" height = "42" alt="性质" align="center" /></div><br>
 
