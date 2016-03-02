@@ -49,7 +49,7 @@
 
 &emsp;&emsp;如下函数被称为`Digamma`函数，它是`Gamma`函数对数的一阶导数
 
-<div  align="center"><img src="imgs/1.2.1.png" width = "200" height = "55" alt="digamma函数" align="center" /></div><br>
+<div  align="center"><img src="imgs/1.2.1.png" width = "150" height = "40" alt="digamma函数" align="center" /></div><br>
 
 &emsp;&emsp;这是一个很重要的函数，在涉及`Dirichlet`分布相关的参数的极大似然估计时，往往需要用到这个函数。`Digamma`函数具有如下一个漂亮的性质
 
@@ -89,9 +89,16 @@
 
 - 请问<img src="http://www.forkosh.com/mathtex.cgi?{x}_{(k)}">的分布是什么
 
+&emsp;&emsp; 为解决这个问题，可以尝试计算<img src="http://www.forkosh.com/mathtex.cgi?{x}_{(k)}">落在区间`[x,x+delta x]`的概率。首先，把`[0,1]`区间分成三段`[0,x)`,`[x,x+delta x]`，`(x+delta x,1]`，然后考虑下简单的情形：即假设n个数中只有1个落在了区间`[x,x+delta x]`内，由于这个区间内的数`X(k)`是第k大的，所以`[0,x)`中应该有k−1个数，`(x+delta x,1]`这个区间中应该有n−k个数。
+如下图所示：
+
+<div  align="center"><img src="imgs/1.5.1.png" width = "450" height = "140" alt="多项分布密度函数" align="center" /></div><br>
+
+
+
 # 参考文献
 
-[【1】LDA数学八卦](http://www.52nlp.cn/lda-math-%E6%B1%87%E6%80%BB-lda%E6%95%B0%E5%AD%A6%E5%85%AB%E5%8D%A6)
+【1】[LDA数学八卦](http://www.52nlp.cn/lda-math-%E6%B1%87%E6%80%BB-lda%E6%95%B0%E5%AD%A6%E5%85%AB%E5%8D%A6)
 
 
 
