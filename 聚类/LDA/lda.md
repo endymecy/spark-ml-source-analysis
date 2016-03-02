@@ -1,11 +1,13 @@
 # 隐式狄利克雷分布
 
+# 前言
+
 &emsp;&emsp;`LDA`是一种概率主题模型：隐含狄利克雷分布（`Latent Dirichlet Allocation`，简称`LDA`）。`LDA`是2003年提出的一种[主题模型](http://zh.wikipedia.org/wiki/%E4%B8%BB%E9%A2%98%E6%A8%A1%E5%9E%8B)，它可以将文档集中每篇文档的主题以概率分布的形式给出。
 通过分析一些文档，我们可以抽取出它们的主题（分布），根据主题（分布）进行主题聚类或文本分类。同时，它是一种典型的词袋模型，即一篇文档是由一组词构成，词与词之间没有先后顺序的关系。一篇文档可以包含多个主题，文档中每一个词都由其中的一个主题生成。
 
 &emsp;&emsp;举一个简单的例子，比如假设事先给定了这几个主题：Arts、Budgets、Children、Education，然后通过学习的方式，获取每个主题Topic对应的词语，如下图所示：
 
-<div  align="center"><img src="imgs/topic_words.png" width = "650" height = "300" alt="topic_words" align="center" /></div><br>
+<div  align="center"><img src="imgs/topic_words.png" width = "600" height = "300" alt="topic_words" align="center" /></div><br>
 
 &emsp;&emsp;然后以一定的概率选取上述某个主题，再以一定的概率选取那个主题下的某个单词，不断的重复这两步，最终生成如下图所示的一篇文章（不同颜色的词语分别表示不同主题）。
 
@@ -59,7 +61,37 @@
 
 <div  align="center"><img src="imgs/1.3.1.png" width = "260" height = "25" alt="二项分布密度函数" align="center" /></div><br>
 
+&emsp;&emsp;对于k=1,2，...,n，其中C(n,k)是二项式系数（这就是二项分布的名称的由来）
 
+<div  align="center"><img src="imgs/1.3.2.png" width = "180" height = "49" alt="二项分布密度函数" align="center" /></div><br>
+
+## 1.4 多项分布
+
+&emsp;&emsp;多项分布是二项分布扩展到多维的情况。多项分布是指单次试验中的随机变量的取值不再是0-1，而是有多种离散值可能（1,2,3...,k）。比如投掷6个面的骰子实验，N次实验结果服从K=6的多项分布。其中：
+
+<div  align="center"><img src="imgs/1.4.1.png" width = "158" height = "69" alt="多项分布" align="center" /></div><br>
+
+&emsp;&emsp;多项分布的概率密度函数为：
+
+<div  align="center"><img src="imgs/1.4.2.png" width = "410" height = "55" alt="多项分布密度函数" align="center" /></div><br>
+
+## 1.5 Beta分布
+
+### 1.5.1 Beta分布
+
+&emsp;&emsp;首先看下面的问题1（问题1到问题4都取自于文献【1】）。
+
+&emsp;&emsp;**问题1：**
+
+- 随机变量X服从均匀分布，即<img src="http://www.forkosh.com/mathtex.cgi?{x}_{1},{x}_{2},...,{x}_{n} ~ Uniform(0,1)">
+
+- 把这n个随机变量排序后得到顺序统计量为<img src="http://www.forkosh.com/mathtex.cgi?{x}_{(1)},{x}_{(2)},...,{x}_{(n)}">
+
+- 请问<img src="http://www.forkosh.com/mathtex.cgi?{x}_{(k)}">的分布是什么
+
+# 参考文献
+
+[【1】LDA数学八卦](docs/LDA数学八卦.pdf)
 
 
 
