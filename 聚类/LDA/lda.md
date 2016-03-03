@@ -265,9 +265,94 @@
 
 <div  align="center"><img src="imgs/2.2.2.png" width = "200" height = "115" alt="混合一元模型" align="center" /></div><br>
 
-## 2.3 PLSA模型
+## 2.3 pLSA模型
 
-&emsp;&emsp;在混合一元模型中，假定一篇文档只由一个主题生成，可实际中，一篇文章往往有多个主题，只是这多个主题各自在文档中出现的概率大小不一样。在`pLSA`中，文档由多个主题生成。
+&emsp;&emsp;在混合一元模型中，假定一篇文档只由一个主题生成，可实际中，一篇文章往往有多个主题，只是这多个主题各自在文档中出现的概率大小不一样。在`pLSA`中，假设文档由多个主题生成。下面通过一个投色子的游戏（取自文献【2】的例子）说明`pLSA`生成文档的过程。
+
+&emsp;&emsp;首先，假定你一共有`K`个可选的主题，有`V`个可选的词。假设你每写一篇文档会制作一颗`K`面的“文档-主题”骰子（扔此骰子能得到`K`个主题中的任意一个），和`K`个`V`面的“主题-词项”骰子（每个骰子对应一个主题，`K`个骰子对应之前的`K`个主题，且骰子的每一面对应要选择的词项，`V`个面对应着`V`个可选的词）。
+比如可令`K=3`，即制作1个含有3个主题的“文档-主题”骰子，这3个主题可以是：教育、经济、交通。然后令`V = 3`，制作3个有着3面的“主题-词项”骰子，其中，教育主题骰子的3个面上的词可以是：大学、老师、课程，经济主题骰子的3个面上的词可以是：市场、企业、金融，交通主题骰子的3个面上的词可以是：高铁、汽车、飞机。
+
+&emsp;&emsp;其次，每写一个词，先扔该“文档-主题”骰子选择主题，得到主题的结果后，使用和主题结果对应的那颗“主题-词项”骰子，扔该骰子选择要写的词。先扔“文档-主题”的骰子，假设以一定的概率得到的主题是：**教育**，所以下一步便是扔**教育**主题筛子，以一定的概率得到**教育**主题筛子对应的某个词**大学**。
+
+- 上面这个投骰子产生词的过程简化一下便是：“先以一定的概率选取主题，再以一定的概率选取词”。事实上，一开始可供选择的主题有3个：教育、经济、交通，那为何偏偏选取教育这个主题呢？其实是随机选取的，只是这个随机遵循一定的概率分布。比如可能选取教育主题的概率是0.5，选取经济主题的概率是0.3，选取交通主题的概率是0.2，那么这3个主题的概率分布便是`{教育：0.5，经济：0.3，交通：0.2}`，我们把各个主题`z`在文档`d`中出现的概率分布称之为主题分布，且是一个多项分布。
+
+- 同样的，从主题分布中随机抽取出教育主题后，依然面对着3个词：大学、老师、课程，这3个词都可能被选中，但它们被选中的概率也是不一样的。比如大学这个词被选中的概率是0.5，老师这个词被选中的概率是0.3，课程被选中的概率是0.2，那么这3个词的概率分布便是`{大学：0.5，老师：0.3，课程：0.2}`，我们把各个词语w在主题z下出现的概率分布称之为词分布，这个词分布也是一个多项分布。
+
+- 所以，选主题和选词都是两个随机的过程，先从主题分布`{教育：0.5，经济：0.3，交通：0.2}`中抽取出主题：**教育**，然后从该主题对应的词分布`{大学：0.5，老师：0.3，课程：0.2}`中抽取出词：**大学**。
+
+&emsp;&emsp;最后，你不停的重复扔“文档-主题”骰子和”主题-词项“骰子，重复`N`次（产生`N`个词），完成一篇文档，重复这产生一篇文档的方法`M`次，则完成`M`篇文档。
+
+&emsp;&emsp;上述过程抽象出来即是`pLSA`的文档生成模型。在这个过程中，我们并未关注词和词之间的出现顺序，所以`pLSA`是一种词袋模型。定义如下变量:
+
+- <img src="http://www.forkosh.com/mathtex.cgi?({z}_{1},{z}_{2},...,{z}_{k})">表示隐藏的主题；
+
+- <img src="http://www.forkosh.com/mathtex.cgi?P({d}_{i})">表示海量文档中某篇文档被选中的概率；
+
+- <img src="http://www.forkosh.com/mathtex.cgi?P({w}_{j}|{d}_{i})">表示词<img src="http://www.forkosh.com/mathtex.cgi?{w}_{j}">在文档<img src="http://www.forkosh.com/mathtex.cgi?{d}_{i}">中出现的概率；针对海量文档，对所有文档进行分词后，得到一个词汇列表，这样每篇文档就是一个词语的集合。对于每个词语，用它在文档中出现的次数除以文档中词语总的数目便是它在文档中出现的概率；
+
+- <img src="http://www.forkosh.com/mathtex.cgi?P({z}_{k}|{d}_{i})">表示主题<img src="http://www.forkosh.com/mathtex.cgi?{z}_{k}">在文档<img src="http://www.forkosh.com/mathtex.cgi?{d}_{i}">中出现的概率；
+
+- <img src="http://www.forkosh.com/mathtex.cgi?P({w}_{j}|{z}_{k})">表示词<img src="http://www.forkosh.com/mathtex.cgi?{w}_{j}">在主题<img src="http://www.forkosh.com/mathtex.cgi?{z}_{k}">中出现的概率。与主题关系越密切的词其条件概率越大。
+
+&emsp;&emsp;我们可以按照如下的步骤得到“文档-词项”的生成模型：
+
+- 1 按照<img src="http://www.forkosh.com/mathtex.cgi?P({d}_{i})">选择一篇文档<img src="http://www.forkosh.com/mathtex.cgi?{d}_{i}">；
+
+- 2 选定文档<img src="http://www.forkosh.com/mathtex.cgi?{d}_{i}">之后，从主题分布中按照概率<img src="http://www.forkosh.com/mathtex.cgi?P({z}_{k}|{d}_{i})">选择主题；
+
+- 3 选定主题后，从词分布中按照概率<img src="http://www.forkosh.com/mathtex.cgi?P({w}_{j}|{z}_{k})">选择一个词。
+
+&emsp;&emsp;利用看到的文档推断其隐藏的主题（分布）的过程，就是主题建模的目的：自动地发现文档集中的主题（分布）。文档`d`和单词`w`是可被观察到的，但主题`z`却是隐藏的。如下图所示（图中被涂色的`d、w`表示可观测变量，未被涂色的`z`表示未知的隐变量，`N`表示一篇文档中总共`N`个单词，`M`表示`M`篇文档）。
+
+<div  align="center"><img src="imgs/2.3.1.png" width = "300" height = "110" alt="pLSA模型" align="center" /></div><br>
+
+&emsp;&emsp;上图中，文档`d`和词`w`是我们得到的样本，可观测得到，所以对于任意一篇文档，其<img src="http://www.forkosh.com/mathtex.cgi?P({w}_{j}|{d}_{i})">是已知的。根据这个概率可以训练得到`文档-主题`概率以及`主题-词项`概率。即：
+
+<div  align="center"><img src="imgs/2.3.2.png" width = "275" height = "65" alt="pLSA模型" align="center" /></div><br>
+
+&emsp;&emsp;故得到文档中每个词的生成概率为：
+
+<div  align="center"><img src="imgs/2.3.3.png" width = "450" height = "70" alt="pLSA模型" align="center" /></div><br>
+
+&emsp;&emsp;<img src="http://www.forkosh.com/mathtex.cgi?P({d}_{i})">可以直接得出，而<img src="http://www.forkosh.com/mathtex.cgi?P({z}_{k}|{d}_{i})">和<img src="http://www.forkosh.com/mathtex.cgi?P({w}_{j}|{z}_{k})">未知，所以
+<img src="http://www.forkosh.com/mathtex.cgi?\theta=(P({z}_{k}|{d}_{i}),P({w}_{j}|{z}_{k}))">就是我们要估计的参数,我们要最大化这个参数。因为该待估计的参数中含有隐变量`z`，所以我们可以用`EM`算法来估计这个参数。
+
+## 2.4 LDA模型
+
+&emsp;&emsp;`LDA`就是在`pLSA`的基础上加层贝叶斯框架，即`LDA`就是`pLSA`的贝叶斯版本,正因为`LDA`被贝叶斯化了，所以才会加的两个先验参数。`LDA`模型中一篇文档生成的方式如下所示:
+
+- 1 按照<img src="http://www.forkosh.com/mathtex.cgi?P({d}_{i})">选择一篇文档<img src="http://www.forkosh.com/mathtex.cgi?{d}_{i}">；
+
+- 2 从狄利克雷分布<img src="http://www.forkosh.com/mathtex.cgi?{\alpha}">中生成文档i的主题分布<img src="http://www.forkosh.com/mathtex.cgi?{\theta}_{i}">；
+
+- 3 从主题的多项式分布<img src="http://www.forkosh.com/mathtex.cgi?{\theta}_{i}">中取样生成文档i第j个词的主题<img src="http://www.forkosh.com/mathtex.cgi?{Z}_{i,j}">；
+
+- 4 从狄利克雷分布<img src="http://www.forkosh.com/mathtex.cgi?{\eta}">中取样生成主题<img src="http://www.forkosh.com/mathtex.cgi?{Z}_{i,j}">对应的词语分布<img src="http://www.forkosh.com/mathtex.cgi?{\beta}_{i,j}">；
+
+- 5 从词语的多项式分布<img src="http://www.forkosh.com/mathtex.cgi?{\beta}_{i,j}">中采样最终生成词语<img src="http://www.forkosh.com/mathtex.cgi?{W}_{i,j}">
+
+&emsp;&emsp;从上面的过程可以看出，`LDA`在`pLSA`的基础上，为主题分布和词分布分别加了两个`Dirichlet`先验。
+
+&emsp;&emsp;拿之前讲解`pLSA`的例子进行具体说明。如前所述，在`pLSA`中，选主题和选词都是两个随机的过程，先从主题分布`{教育：0.5，经济：0.3，交通：0.2}`中抽取出主题：教育，然后从该主题对应的词分布`{大学：0.5，老师：0.3，课程：0.2}`中抽取出词：大学。
+在`LDA`中，选主题和选词依然都是两个随机的过程。但在`LDA`中，主题分布和词分布不再唯一确定不变，即无法确切给出。例如主题分布可能是`{教育：0.5，经济：0.3，交通：0.2}`，也可能是`{教育：0.6，经济：0.2，交通：0.2}`，到底是哪个我们不能确定，因为它是随机的可变化的。
+但再怎么变化，也依然服从一定的分布，主题分布和词分布由`Dirichlet`先验确定。
+
+&emsp;&emsp;举个文档`d`产生主题`z`的例子。
+
+&emsp;&emsp;在`pLSA`中，给定一篇文档d，主题分布是一定的，比如`{ P(zi|d), i = 1,2,3 }`可能就是`{0.4,0.5,0.1}`，表示`z1、z2、z3`这3个主题被文档`d`选中的概率都是个固定的值：`P(z1|d) = 0.4、P(z2|d) = 0.5、P(z3|d) = 0.1`，如下图所示:
+
+<div  align="center"><img src="imgs/2.3.4.png" width = "490" height = "350" alt="LDA模型" align="center" /></div><br>
+
+&emsp;&emsp;在`LDA`中，主题分布（各个主题在文档中出现的概率分布）和词分布（各个词语在某个主题下出现的概率分布）是唯一确定的。`LDA`为提供了两个`Dirichlet`先验参数，`Dirichlet`先验为某篇文档随机抽取出主题分布和词分布。
+
+&emsp;&emsp;给定一篇文档`d`，现在有多个主题`z1、z2、z3`，它们的主题分布`{ P(zi|d), i = 1,2,3 }`可能是`{0.4,0.5,0.1}`，也可能是`{0.2,0.2,0.6}`，即这些主题被`d`选中的概率都不再是确定的值，可能是`P(z1|d) = 0.4、P(z2|d) = 0.5、P(z3|d) = 0.1`，也有可能是`P(z1|d) = 0.2、P(z2|d) = 0.2、P(z3|d) = 0.6`，而主题分布到底是哪个取值集合我们不确定，但其先验分布是`dirichlet`分布，所以可以从无穷多个主题分布中按照`dirichlet`先验随机抽取出某个主题分布出来。如下图所示
+
+<div  align="center"><img src="imgs/2.3.5.png" width = "490" height = "350" alt="LDA模型" align="center" /></div><br>
+
+&emsp;&emsp;`LDA`在`pLSA`的基础上给两参数<img src="http://www.forkosh.com/mathtex.cgi?P({z}_{k}|{d}_{i})">和<img src="http://www.forkosh.com/mathtex.cgi?P({w}_{j}|{z}_{k})">加了两个先验分布的参数。这两个分布都是`Dirichlet`分布。
+
+# 3 LDA 参数估计
+
 
 # 参考文献
 
