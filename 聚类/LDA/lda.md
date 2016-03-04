@@ -451,7 +451,7 @@ def run(documents: RDD[(Long, Vector)]): LDAModel = {
 &emsp;&emsp;这段代码首先调用`initialize`方法初始化状态信息，然后循环迭代调用`next`方法直到满足最大的迭代次数。在我们没有指定的情况下，迭代次数默认为20。需要注意的是，
 `ldaOptimizer`有两个具体的实现类`EMLDAOptimizer`和`OnlineLDAOptimizer`，它们分别表示使用`EM`算法和在线学习算法实现参数估计。在未指定的情况下，默认使用`EMLDAOptimizer`。
 
-&emsp;&emsp;在`spark`中，使用`GraphX`来实现`LDA`算法，这个图是有两种类型的顶点的双向图。这两类顶点分别是文档顶点（`Document vertices`）和词顶点（`Term vertices`）。
+&emsp;&emsp;在`spark`中，使用`GraphX`来实现`LDA`算法，这个图是有两种类型的顶点的二分图。这两类顶点分别是文档顶点（`Document vertices`）和词顶点（`Term vertices`）。
 
 - 文档顶点使用大于0的唯一的指标来索引，保存长度为`k`（主题格式）的向量
 
