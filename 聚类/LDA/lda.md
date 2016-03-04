@@ -387,11 +387,11 @@
 
 &emsp;&emsp;根据文献【4】中`2.2`章节的介绍，我们知道了有如下更新公式，其中`alpha`和`eta`均大于1：
 
-<div  align="center"><img src="imgs/3.1.6.png" width = "245" height = "42" alt="topic_words" align="center" /></div><br>
+<div  align="center"><img src="imgs/3.1.6.png" width = "360" height = "60" alt="topic_words" align="center" /></div><br>
 
 &emsp;&emsp;收敛之后，最大后验估计可以得到：
 
-<div  align="center"><img src="imgs/3.1.7.png" width = "305" height = "45" alt="topic_words" align="center" /></div><br>
+<div  align="center"><img src="imgs/3.1.7.png" width = "450" height = "60" alt="topic_words" align="center" /></div><br>
 
 
 # 参考文献
