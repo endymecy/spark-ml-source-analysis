@@ -363,25 +363,25 @@
 &emsp;&emsp;在上文中，我们知道`LDA`将变量`theta`和`phi`（为了方便起见，我们将上文LDA图模型中的`beta`改为了`phi`）看做随机变量，并且为`theta`添加一个超参数为`alpha`的`Dirichlet`先验，为`phi`添加一个超参数为`eta`的`Dirichlet`先验来估计`theta`和`beta`的最大后验（`MAP`）。
 可以通过最优化最大后验估计来估计参数。我们首先来定义几个变量：
 
-- 下式的`gamma`表示词为`w`，文档为`j`时，主题为`k`的概率，如下公式**（3.1.1）**
+- 下式的`gamma`表示词为`w`，文档为`j`时，主题为`k`的概率，如公式**（3.1.1）**
 
 <div  align="center"><img src="imgs/3.1.1.png" width = "255" height = "30" alt="topic_words" align="center" /></div><br>
 
 - <img src="http://www.forkosh.com/mathtex.cgi?{N}_{wj}">表示词`w`在文档`j`中出现的次数；
 
-- <img src="http://www.forkosh.com/mathtex.cgi?{N}_{wk}">表示词`w`在主题`k`中出现的次数，如下公式**（3.1.2）**
+- <img src="http://www.forkosh.com/mathtex.cgi?{N}_{wk}">表示词`w`在主题`k`中出现的次数，如公式**（3.1.2）**
 
 <div  align="center"><img src="imgs/3.1.2.png" width = "170" height = "60" alt="topic_words" align="center" /></div><br>
 
-- <img src="http://www.forkosh.com/mathtex.cgi?{N}_{kj}">表示主题`k`在文档`j`中出现的次数，如下公式**（3.1.3）**
+- <img src="http://www.forkosh.com/mathtex.cgi?{N}_{kj}">表示主题`k`在文档`j`中出现的次数，如公式**（3.1.3）**
 
 <div  align="center"><img src="imgs/3.1.3.png" width = "160" height = "55" alt="topic_words" align="center" /></div><br>
 
-- <img src="http://www.forkosh.com/mathtex.cgi?{N}_{k}">表示主题`k`中包含的词出现的总次数，如下公式**（3.1.4）**
+- <img src="http://www.forkosh.com/mathtex.cgi?{N}_{k}">表示主题`k`中包含的词出现的总次数，如公式**（3.1.4）**
 
 <div  align="center"><img src="imgs/3.1.4.png" width = "120" height = "50" alt="topic_words" align="center" /></div><br>
 
-- <img src="http://www.forkosh.com/mathtex.cgi?{N}_{j}">表示文档`j`中包含的主题出现的总次数,如下公式**（3.1.5）**
+- <img src="http://www.forkosh.com/mathtex.cgi?{N}_{j}">表示文档`j`中包含的主题出现的总次数,如公式**（3.1.5）**
 
 <div  align="center"><img src="imgs/3.1.5.png" width = "120" height = "50" alt="topic_words" align="center" /></div><br>
 
@@ -507,7 +507,7 @@ val edges: RDD[Edge[TokenCount]] = docs.flatMap { case (docID: Long, termCounts:
       verticesTMP.reduceByKey(_ + _)
  }
 ```
-&emsp;&emsp;上面的代码创建顶点。我们为每个主题随机初始化一个值，即`gamma`是随机的。`sum`为`gamma * edge.attr`，这里的`edge.attr`即`N_wj`,根据公式**（3.1.2）**，我们知道`sum`为`N_wk`。
+&emsp;&emsp;上面的代码创建顶点。我们为每个主题随机初始化一个值，即`gamma`是随机的。`sum`为`gamma * edge.attr`，这里的`edge.attr`即`N_wj`,所以`sum`用`gamma * N_wj`作为顶点的初始值。
 
 ```scala
 this.graph = Graph(docTermVertices, edges).partitionBy(PartitionStrategy.EdgePartition1D)
