@@ -526,13 +526,14 @@ this.graph = Graph(docTermVertices, edges).partitionBy(PartitionStrategy.EdgePar
         // 计算 N_{wj} gamma_{wjk}
         val N_wj = edgeContext.attr
         // E-STEP: 计算 gamma_{wjk} 通过N_{wj}来计算
-        val scaledTopicDistribution: TopicCounts = computePTopic(edgeContext.srcAttr, edgeContext.dstAttr, N_k, W, eta, alpha) *= N_wj
+        val scaledTopicDistribution: TopicCounts = 
+                    computePTopic(edgeContext.srcAttr, edgeContext.dstAttr, N_k, W, eta, alpha) *= N_wj
         edgeContext.sendToDst((false, scaledTopicDistribution))
         edgeContext.sendToSrc((false, scaledTopicDistribution))
       }
 ```
-&emsp;&emsp;上述代码中，`W`表示词数，`N_k`表示所有文档中，出现在主题`k`中的词的词频总数，后续的实现会使用方法`computeGlobalTopicTotals`来更新这个值。`N_wj`表示词`w`出现在文档`j`中的词频数，为已知数。`E`步就是要利用公式**(3.1.6)**来更新`gamma`。
-代码中使用`computePTopic`方法来实现更新。`scaledTopicDistribution`表示更新后的`N_wj * gamma`。`edgeContext`通过方法`sendToDst`将`scaledTopicDistribution`发送到目标顶点，
+&emsp;&emsp;上述代码中，`W`表示词数，`N_k`表示所有文档中，出现在主题`k`中的词的词频总数，后续的实现会使用方法`computeGlobalTopicTotals`来更新这个值。`N_wj`表示词`w`出现在文档`j`中的词频数，为已知数。`E`步就是利用公式**(3.1.6)**去更新`gamma`。
+代码中使用`computePTopic`方法来实现这个更新。`edgeContext`通过方法`sendToDst`将`scaledTopicDistribution`发送到目标顶点，
 通过方法`sendToSrc`发送到源节点以便于后续的`M`步计算更新的`N_kj`和`N_wk`。下面我们看看`computePTopic`方法。
 
 ```scala
