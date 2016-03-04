@@ -363,38 +363,212 @@
 &emsp;&emsp;在上文中，我们知道`LDA`将变量`theta`和`phi`（为了方便起见，我们将上文LDA图模型中的`beta`改为了`phi`）看做随机变量，并且为`theta`添加一个超参数为`alpha`的`Dirichlet`先验，为`phi`添加一个超参数为`eta`的`Dirichlet`先验来估计`theta`和`beta`的最大后验（`MAP`）。
 可以通过最优化最大后验估计来估计参数。我们首先来定义几个变量：
 
-- 1 下式的`gamma`表示词为`w`，文档为`j`时，主题为`k`的概率，如下公式
+- 下式的`gamma`表示词为`w`，文档为`j`时，主题为`k`的概率，如下公式**（3.1.1）**
 
 <div  align="center"><img src="imgs/3.1.1.png" width = "255" height = "30" alt="topic_words" align="center" /></div><br>
 
-- 2 <img src="http://www.forkosh.com/mathtex.cgi?{N}_{wj}">表示词`w`在文档`j`中出现的次数；
+- <img src="http://www.forkosh.com/mathtex.cgi?{N}_{wj}">表示词`w`在文档`j`中出现的次数；
 
-- 3 <img src="http://www.forkosh.com/mathtex.cgi?{N}_{wk}">表示词`w`在主题`k`中出现的次数，如下公式
+- <img src="http://www.forkosh.com/mathtex.cgi?{N}_{wk}">表示词`w`在主题`k`中出现的次数，如下公式**（3.1.2）**
 
 <div  align="center"><img src="imgs/3.1.2.png" width = "170" height = "60" alt="topic_words" align="center" /></div><br>
 
-- 4 <img src="http://www.forkosh.com/mathtex.cgi?{N}_{kj}">表示主题`k`在文档`j`中出现的次数，如下公式
+- <img src="http://www.forkosh.com/mathtex.cgi?{N}_{kj}">表示主题`k`在文档`j`中出现的次数，如下公式**（3.1.3）**
 
 <div  align="center"><img src="imgs/3.1.3.png" width = "160" height = "55" alt="topic_words" align="center" /></div><br>
 
-- 5 <img src="http://www.forkosh.com/mathtex.cgi?{N}_{k}">表示主题`k`中包含的词出现的总次数，如下公式
+- <img src="http://www.forkosh.com/mathtex.cgi?{N}_{k}">表示主题`k`中包含的词出现的总次数，如下公式**（3.1.4）**
 
 <div  align="center"><img src="imgs/3.1.4.png" width = "120" height = "50" alt="topic_words" align="center" /></div><br>
 
-- 6 <img src="http://www.forkosh.com/mathtex.cgi?{N}_{j}">表示文档`j`中包含的主题出现的总次数,如下公式
+- <img src="http://www.forkosh.com/mathtex.cgi?{N}_{j}">表示文档`j`中包含的主题出现的总次数,如下公式**（3.1.5）**
 
 <div  align="center"><img src="imgs/3.1.5.png" width = "120" height = "50" alt="topic_words" align="center" /></div><br>
 
-&emsp;&emsp;根据文献【4】中`2.2`章节的介绍，我们可以推导出如下更新公式，其中`alpha`和`eta`均大于1：
+&emsp;&emsp;根据文献【4】中`2.2`章节的介绍，我们可以推导出如下更新公式**(3.1.6)**，其中`alpha`和`eta`均大于1：
 
 <div  align="center"><img src="imgs/3.1.6.png" width = "360" height = "60" alt="topic_words" align="center" /></div><br>
 
-&emsp;&emsp;收敛之后，最大后验估计可以得到：
+&emsp;&emsp;收敛之后，最大后验估计可以得到公式**(3.1.7)**：
 
 <div  align="center"><img src="imgs/3.1.7.png" width = "450" height = "60" alt="topic_words" align="center" /></div><br>
 
+&emsp;&emsp;变分`EM`算法的流程如下：
 
-# 参考文献
+- **1 初始化状态**，即随机初始化<img src="http://www.forkosh.com/mathtex.cgi?{N}_{wk}">和<img src="http://www.forkosh.com/mathtex.cgi?{N}_{kj}">
+
+- **2 E步**，对每一个`（文档，词汇）`对`i`，计算<img src="http://www.forkosh.com/mathtex.cgi?P({z}_{i}|{w}_{i},{d}_{i})">，更新`gamma`值
+
+- **3 M步**，计算隐藏变量`phi`和`theta`。即计算<img src="http://www.forkosh.com/mathtex.cgi?{N}_{wk}">和<img src="http://www.forkosh.com/mathtex.cgi?{N}_{kj}">
+
+- **4 重复以上2、3两步**，直到满足最大迭代数
+
+&emsp;&emsp;第`4.2`章会从代码层面说明该过程。
+
+## 3.2 在线学习算法
+
+# 4 LDA代码实现
+
+## 4.1 LDA使用实例
+
+&emsp;&emsp;我们从官方文档【6】给出的使用代码为起始点来详细分析`LDA`的实现。
+
+```scala
+import org.apache.spark.mllib.clustering.{LDA, DistributedLDAModel}
+import org.apache.spark.mllib.linalg.Vectors
+// 加载和处理数据
+val data = sc.textFile("data/mllib/sample_lda_data.txt")
+val parsedData = data.map(s => Vectors.dense(s.trim.split(' ').map(_.toDouble)))
+// 为文档编号，编号唯一。List（（id，vector）....）
+val corpus = parsedData.zipWithIndex.map(_.swap).cache()
+// 将文档聚类为3类
+val ldaModel = new LDA().setK(3).run(corpus)
+val topics = ldaModel.topicsMatrix
+for (topic <- Range(0, 3)) {
+  print("Topic " + topic + ":")
+  for (word <- Range(0, ldaModel.vocabSize)) { print(" " + topics(word, topic)); }
+  println()
+}
+```
+&emsp;&emsp;以上代码主要做了两件事：加载和切分数据、训练模型。在样本数据中，每一行代表一篇文档，经过处理后，`corpus`的类型为`List((id,vector)*)`，一个`(id,vector)`代表一篇文档。将处理后的数据传给`org.apache.spark.mllib.clustering.LDA`类的`run`方法，
+就可以开始训练模型。`run`方法的代码如下所示：
+
+```scala
+def run(documents: RDD[(Long, Vector)]): LDAModel = {
+    val state = ldaOptimizer.initialize(documents, this)
+    var iter = 0
+    val iterationTimes = Array.fill[Double](maxIterations)(0)
+    while (iter < maxIterations) {
+      val start = System.nanoTime()
+      state.next()
+      val elapsedSeconds = (System.nanoTime() - start) / 1e9
+      iterationTimes(iter) = elapsedSeconds
+      iter += 1
+    }
+    state.getLDAModel(iterationTimes)
+  }
+```
+&emsp;&emsp;这段代码首先调用`initialize`方法初始化状态信息，然后循环迭代调用`next`方法直到满足最大的迭代次数。在我们没有指定的情况下，迭代次数默认为20。需要注意的是，
+`ldaOptimizer`有两个具体的实现类`EMLDAOptimizer`和`OnlineLDAOptimizer`，它们分别表示使用`EM`算法和在线学习算法实现参数估计。在未指定的情况下，默认使用`EMLDAOptimizer`。
+
+&emsp;&emsp;在`spark`中，使用`GraphX`来实现`LDA`算法，这个图是有两种类型的顶点的双向图。这两类顶点分别是文档顶点（`Document vertices`）和词顶点（`Term vertices`）。
+
+- 文档顶点使用大于0的唯一的指标来索引，保存长度为`k`（主题格式）的向量
+
+- 词顶点使用`{-1, -2, ..., -vocabSize}`来索引，保存长度为`k`（主题格式）的向量
+
+- 边（`edges`）对应词出现在文档中的情况。边的方向是`document -> term`，并且根据文档进行分区
+
+## 4.2 变分EM算法的实现
+
+&emsp;&emsp;我们可以根据3.1节中介绍的算法流程来解析源代码。
+
+- **1 初始化状态**
+
+&emsp;&emsp;`spark`在`EMLDAOptimizer`的`initialize`方法中实现初始化功能。包括初始化`Dirichlet`参数`alpha`和`eta`、初始化边、初始化顶点以及初始化图。
+
+```scala
+ //对应超参数alpha
+ val docConcentration = lda.getDocConcentration
+ //对应超参数eta
+ val topicConcentration = lda.getTopicConcentration
+ this.docConcentration = if (docConcentration == -1) (50.0 / k) + 1.0 else docConcentration
+ this.topicConcentration = if (topicConcentration == -1) 1.1 else topicConcentration
+```
+&emsp;&emsp;上面的代码初始化了超参数`alpha`和`eta`，根据文献【4】，当`alpha`未指定时，初始化其为`(50.0 / k) + 1.0`，其中`k`表示主题个数。当`eta`未指定时，初始化其为1.1。
+
+```scala
+//对于每个文档，为每一个唯一的Term创建一个(文档->Term)的边
+val edges: RDD[Edge[TokenCount]] = docs.flatMap { case (docID: Long, termCounts: Vector) =>
+      // Add edges for terms with non-zero counts.
+      termCounts.toBreeze.activeIterator.filter(_._2 != 0.0).map { case (term, cnt) =>
+        Edge(docID, term2index(term), cnt)
+      }
+}
+//term2index将term转为{-1, -2, ..., -vocabSize}索引
+ private[clustering] def term2index(term: Int): Long = -(1 + term.toLong)
+```
+&emsp;&emsp;上面的这段代码处理每个文档，对文档中每个唯一的`Term`（词）创建一个边，边的格式为`(文档id，词索引，词频)`。词索引为`{-1, -2, ..., -vocabSize}`。
+
+```scala
+//创建顶点
+ val docTermVertices: RDD[(VertexId, TopicCounts)] = {
+      val verticesTMP: RDD[(VertexId, TopicCounts)] =
+        edges.mapPartitionsWithIndex { case (partIndex, partEdges) =>
+          val random = new Random(partIndex + randomSeed)
+          partEdges.flatMap { edge =>
+            val gamma = normalize(BDV.fill[Double](k)(random.nextDouble()), 1.0)
+            //此处的sum是DenseVector，gamma*N_wj
+            val sum = gamma * edge.attr
+            //srcId表示文献id，dstId表是词索引
+            Seq((edge.srcId, sum), (edge.dstId, sum))
+          }
+        }
+      verticesTMP.reduceByKey(_ + _)
+ }
+```
+&emsp;&emsp;上面的代码创建顶点。我们为每个主题随机初始化一个值，即`gamma`是随机的。`sum`为`gamma * edge.attr`，这里的`edge.attr`即`N_wj`,根据公式**（3.1.2）**，我们知道`sum`为`N_wk`。
+
+```scala
+this.graph = Graph(docTermVertices, edges).partitionBy(PartitionStrategy.EdgePartition1D)
+```
+&emsp;&emsp;上面的代码初始化`Graph`并通过文档分区。
+
+- **2 E步**
+
+```scala
+    val eta = topicConcentration
+    val W = vocabSize
+    val alpha = docConcentration
+    val N_k = globalTopicTotals
+    val sendMsg: EdgeContext[TopicCounts, TokenCount, (Boolean, TopicCounts)] => Unit =
+      (edgeContext) => {
+        // 计算 N_{wj} gamma_{wjk}
+        val N_wj = edgeContext.attr
+        // E-STEP: 计算 gamma_{wjk} 通过N_{wj}来计算
+        val scaledTopicDistribution: TopicCounts = computePTopic(edgeContext.srcAttr, edgeContext.dstAttr, N_k, W, eta, alpha) *= N_wj
+        edgeContext.sendToDst((false, scaledTopicDistribution))
+        edgeContext.sendToSrc((false, scaledTopicDistribution))
+      }
+```
+&emsp;&emsp;上述代码中，`W`表示词数，`N_k`表示所有文档中，出现在主题`k`中的词的词频总数，后面通过方法`computeGlobalTopicTotals`来更新。`N_wj`表示词`w`出现在文档`j`中的词频数，为已知数。`E`步就是要利用公式**(3.1.6)**来更新`gamma`。
+代码中使用`computePTopic`方法来实现更新。根据公式**（3.1.2）**，`scaledTopicDistribution`表示更新后的`N_wj * gamma`。`edgeContext`通过方法`sendToDst`将`scaledTopicDistribution`发送到目标顶点，
+通过方法`sendToSrc`发送到目标节点，通过后面的`M`步，我们可以得到`N_kj`和`N_wk`。下面我们看看`computePTopic`方法。
+
+```scala
+private[clustering] def computePTopic(
+      docTopicCounts: TopicCounts,
+      termTopicCounts: TopicCounts,
+      totalTopicCounts: TopicCounts,
+      vocabSize: Int,
+      eta: Double,
+      alpha: Double): TopicCounts = {
+    val K = docTopicCounts.length
+    val N_j = docTopicCounts.data
+    val N_w = termTopicCounts.data
+    val N = totalTopicCounts.data
+    val eta1 = eta - 1.0
+    val alpha1 = alpha - 1.0
+    val Weta1 = vocabSize * eta1
+    var sum = 0.0
+    val gamma_wj = new Array[Double](K)
+    var k = 0
+    while (k < K) {
+      val gamma_wjk = (N_w(k) + eta1) * (N_j(k) + alpha1) / (N(k) + Weta1)
+      gamma_wj(k) = gamma_wjk
+      sum += gamma_wjk
+      k += 1
+    }
+    // normalize
+    BDV(gamma_wj) /= sum
+  }
+```
+&emsp;&emsp;这段代码比较简单，完全按照公式**(3.1.6)**来实现。
+
+- **3 M步**
+
+
+# 5 参考文献
 
 【1】[LDA数学八卦](http://www.52nlp.cn/lda-math-%E6%B1%87%E6%80%BB-lda%E6%95%B0%E5%AD%A6%E5%85%AB%E5%8D%A6)
 
@@ -405,6 +579,8 @@
 【4】[On Smoothing and Inference for Topic Models](docs/On Smoothing and Inference for Topic Models.pdf)
 
 【5】[Online Learning for Latent Dirichlet Allocation](docs/Online Learning for Latent Dirichlet Allocation.pdf)
+
+【6】[Spark官方文档](https://spark.apache.org/docs/latest/mllib-clustering.html#latent-dirichlet-allocation-lda)
 
 
 
