@@ -5,7 +5,7 @@
 &emsp;&emsp;`LDA`是一种概率主题模型：隐含狄利克雷分布（`Latent Dirichlet Allocation`，简称`LDA`）。`LDA`是2003年提出的一种[主题模型](http://zh.wikipedia.org/wiki/%E4%B8%BB%E9%A2%98%E6%A8%A1%E5%9E%8B)，它可以将文档集中每篇文档的主题以概率分布的形式给出。
 通过分析一些文档，我们可以抽取出它们的主题（分布），根据主题（分布）进行主题聚类或文本分类。同时，它是一种典型的词袋模型，即一篇文档是由一组词构成，词与词之间没有先后顺序的关系。一篇文档可以包含多个主题，文档中每一个词都由其中的一个主题生成。
 
-&emsp;&emsp;举一个简单的例子，比如假设事先给定了这几个主题：Arts、Budgets、Children、Education，然后通过学习的方式，获取每个主题Topic对应的词语，如下图所示：
+&emsp;&emsp;举一个简单的例子，比如假设事先给定了这几个主题：`Arts、Budgets、Children、Education`，然后通过学习的方式，获取每个主题`Topic`对应的词语，如下图所示：
 
 <div  align="center"><img src="imgs/topic_words.png" width = "600" height = "300" alt="topic_words" align="center" /></div><br>
 
@@ -57,17 +57,17 @@
 
 ## 1.3 二项分布（Binomial distribution）
 
-&emsp;&emsp;二项分布是由伯努利分布推出的。伯努利分布，又称两点分布或0-1分布，是一个离散型的随机分布，其中的随机变量只有两类取值，即0或者1。二项分布是重复n次的伯努利试验。简言之，只做一次实验，是伯努利分布，重复做了n次，是二项分布。二项分布的概率密度函数为：
+&emsp;&emsp;二项分布是由伯努利分布推出的。伯努利分布，又称两点分布或`0-1`分布，是一个离散型的随机分布，其中的随机变量只有两类取值，即0或者1。二项分布是重复`n`次的伯努利试验。简言之，只做一次实验，是伯努利分布，重复做了n次，是二项分布。二项分布的概率密度函数为：
 
 <div  align="center"><img src="imgs/1.3.1.png" width = "260" height = "25" alt="二项分布密度函数" align="center" /></div><br>
 
-&emsp;&emsp;对于k=1,2，...,n，其中C(n,k)是二项式系数（这就是二项分布的名称的由来）
+&emsp;&emsp;对于k=1,2，...,n，其中`C(n,k)`是二项式系数（这就是二项分布的名称的由来）
 
 <div  align="center"><img src="imgs/1.3.2.png" width = "180" height = "49" alt="二项分布密度函数" align="center" /></div><br>
 
 ## 1.4 多项分布
 
-&emsp;&emsp;多项分布是二项分布扩展到多维的情况。多项分布是指单次试验中的随机变量的取值不再是0-1，而是有多种离散值可能（1,2,3...,k）。比如投掷6个面的骰子实验，N次实验结果服从K=6的多项分布。其中：
+&emsp;&emsp;多项分布是二项分布扩展到多维的情况。多项分布是指单次试验中的随机变量的取值不再是`0-1`，而是有多种离散值可能`（1,2,3...,k）`。比如投掷6个面的骰子实验，`N`次实验结果服从`K=6`的多项分布。其中：
 
 <div  align="center"><img src="imgs/1.4.1.png" width = "158" height = "69" alt="多项分布" align="center" /></div><br>
 
@@ -90,11 +90,11 @@
 
 <div  align="center"><img src="imgs/1.5.1.png" width = "450" height = "140" alt="多项分布密度函数" align="center" /></div><br>
 
-&emsp;&emsp;上述问题可以转换为下述事件E：
+&emsp;&emsp;上述问题可以转换为下述事件`E`：
 
 <div  align="center"><img src="imgs/1.5.2.png" width = "250" height = "75" alt="事件E" align="center" /></div><br>
 
-&emsp;&emsp;对于上述事件E，有：
+&emsp;&emsp;对于上述事件`E`，有：
 
 <div  align="center"><img src="imgs/1.5.3.png" width = "255" height = "100" alt="事件E" align="center" /></div><br>
 
@@ -104,7 +104,7 @@
 
 <div  align="center"><img src="imgs/1.5.4.png" width = "340" height = "120" alt="概率密度函数" align="center" /></div><br>
 
-&emsp;&emsp;利用`Gamma`函数，我们可以将f(x)表示成如下形式：
+&emsp;&emsp;利用`Gamma`函数，我们可以将`f(x)`表示成如下形式：
 
 <div  align="center"><img src="imgs/1.5.5.png" width = "260" height = "40" alt="概率密度函数" align="center" /></div><br>
 
@@ -114,7 +114,7 @@
 
 ### 1.5.2 共轭先验分布
 
-&emsp;&emsp;什么是共轭呢？轭的意思是束缚、控制。共轭从字面上理解，则是共同约束，或互相约束。在贝叶斯概率理论中，如果后验概率P(z|x)和先验概率p(z)满足同样的分布，那么，先验分布和后验分布被叫做共轭分布，同时，先验分布叫做似然函数的共轭先验分布。
+&emsp;&emsp;什么是共轭呢？轭的意思是束缚、控制。共轭从字面上理解，则是共同约束，或互相约束。在贝叶斯概率理论中，如果后验概率`P(z|x)`和先验概率`p(z)`满足同样的分布，那么，先验分布和后验分布被叫做共轭分布，同时，先验分布叫做似然函数的共轭先验分布。
 
 ### 1.5.3 Beta-Binomial 共轭
 
@@ -148,7 +148,7 @@
 
 &emsp;&emsp;**Beta(p|alpha,beta) + BinomCount(m1,m2) = Beta(p|alpha+m1,beta+m2)**
 
-&emsp;&emsp;针对于这种观测到的数据符合二项分布，参数的先验分布和后验分布都是Beta分布的情况，就是`Beta-Binomial`共轭。换言之，`Beta`分布是二项式分布的共轭先验概率分布。二项分布和Beta分布是共轭分布意味着，如果我们为二项分布的参数p选取的先验分布是`Beta`分布，那么以p为参数的二项分布用贝叶斯估计得到的后验分布仍然服从`Beta`分布。
+&emsp;&emsp;针对于这种观测到的数据符合二项分布，参数的先验分布和后验分布都是`Beta`分布的情况，就是`Beta-Binomial`共轭。换言之，`Beta`分布是二项式分布的共轭先验概率分布。二项分布和Beta分布是共轭分布意味着，如果我们为二项分布的参数p选取的先验分布是`Beta`分布，那么以p为参数的二项分布用贝叶斯估计得到的后验分布仍然服从`Beta`分布。
 
 ## 1.6 Dirichlet 分布
 
@@ -350,8 +350,48 @@
 <div  align="center"><img src="imgs/2.3.5.png" width = "490" height = "350" alt="LDA模型" align="center" /></div><br>
 
 &emsp;&emsp;`LDA`在`pLSA`的基础上给两参数<img src="http://www.forkosh.com/mathtex.cgi?P({z}_{k}|{d}_{i})">和<img src="http://www.forkosh.com/mathtex.cgi?P({w}_{j}|{z}_{k})">加了两个先验分布的参数。这两个分布都是`Dirichlet`分布。
+下面是`LDA`的图模型结构：
+
+<div  align="center"><img src="imgs/LDA.png" width = "415" height = "195" alt="topic_words" align="center" /></div><br>
 
 # 3 LDA 参数估计
+
+&emsp;&emsp;在`spark`中，提供了两种方法来估计参数，分别是变分`EM`（期望最大）算法（见文献【3】【4】）和在线学习算法（见文献【5】）。下面将分别介绍这两种算法以及其源码实现。
+
+## 3.1 变分EM算法
+
+&emsp;&emsp;在上文中，我们知道`LDA`将变量`theta`和`phi`（为了方便起见，我们将上文LDA图模型中的`beta`改为了`phi`）看做随机变量，并且为`theta`添加一个超参数为`alpha`的`Dirichlet`先验，为`phi`添加一个超参数为`eta`的`Dirichlet`先验来估计`theta`和`beta`的最大后验估计（`MAP`）。
+可以通过最优化最大后验估计来估计参数。我们首先来定义几个变量：
+
+- 下式的`gamma`表示词为`w`，文档为`j`时，主题为`k`的概率；
+
+<div  align="center"><img src="imgs/3.1.1.png" width = "255" height = "30" alt="topic_words" align="center" /></div><br>
+
+- <img src="http://www.forkosh.com/mathtex.cgi?{N}_{wj}">表示词`w`在文档`j`中出现的次数；
+
+- <img src="http://www.forkosh.com/mathtex.cgi?{N}_{wk}">表示词`w`在主题`k`中出现的次数；
+
+<div  align="center"><img src="imgs/3.1.2.png" width = "170" height = "60" alt="topic_words" align="center" /></div><br>
+
+- <img src="http://www.forkosh.com/mathtex.cgi?{N}_{kj}">表示主题`k`在文档`j`中出现的次数；
+
+<div  align="center"><img src="imgs/3.1.3.png" width = "160" height = "55" alt="topic_words" align="center" /></div><br>
+
+- <img src="http://www.forkosh.com/mathtex.cgi?{N}_{k}">表示主题`k`中包含的词出现的总次数；
+
+<div  align="center"><img src="imgs/3.1.4.png" width = "120" height = "50" alt="topic_words" align="center" /></div><br>
+
+- <img src="http://www.forkosh.com/mathtex.cgi?{N}_{j}">表示文档`j`中包含的主题出现的总次数；
+
+<div  align="center"><img src="imgs/3.1.5.png" width = "120" height = "50" alt="topic_words" align="center" /></div><br>
+
+&emsp;&emsp;根据文献【4】中`2.2`章节的介绍，我们知道了有如下更新公式，其中`alpha`和`eta`均大于1：
+
+<div  align="center"><img src="imgs/3.1.6.png" width = "245" height = "42" alt="topic_words" align="center" /></div><br>
+
+&emsp;&emsp;收敛之后，最大后验估计可以得到：
+
+<div  align="center"><img src="imgs/3.1.7.png" width = "305" height = "45" alt="topic_words" align="center" /></div><br>
 
 
 # 参考文献
@@ -360,9 +400,11 @@
 
 【2】[通俗理解LDA主题模型](http://blog.csdn.net/v_july_v/article/details/41209515)
 
-【3】[Blei,David M.,Ng Andrew Y.,Jordan Michael I. Latent Dirichlet Allocation](docs/Latent Dirichlet Allocation.pdf)
+【3】[Latent Dirichlet Allocation](docs/Latent Dirichlet Allocation.pdf)
 
+【4】[On Smoothing and Inference for Topic Models](docs/On Smoothing and Inference for Topic Models.pdf)
 
+【5】[Online Learning for Latent Dirichlet Allocation](docs/Online Learning for Latent Dirichlet Allocation.pdf)
 
 
 
