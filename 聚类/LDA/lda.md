@@ -397,9 +397,9 @@
 
 - **1 初始化状态**，即随机初始化<img src="http://www.forkosh.com/mathtex.cgi?{N}_{wk}">和<img src="http://www.forkosh.com/mathtex.cgi?{N}_{kj}">
 
-- **2 E步**，对每一个`（文档，词汇）`对`i`，计算<img src="http://www.forkosh.com/mathtex.cgi?P({z}_{i}|{w}_{i},{d}_{i})">，更新`gamma`值
+- **2 E-步**，对每一个`（文档，词汇）`对`i`，计算<img src="http://www.forkosh.com/mathtex.cgi?P({z}_{i}|{w}_{i},{d}_{i})">，更新`gamma`值
 
-- **3 M步**，计算隐藏变量`phi`和`theta`。即计算<img src="http://www.forkosh.com/mathtex.cgi?{N}_{wk}">和<img src="http://www.forkosh.com/mathtex.cgi?{N}_{kj}">
+- **3 M-步**，计算隐藏变量`phi`和`theta`。即计算<img src="http://www.forkosh.com/mathtex.cgi?{N}_{wk}">和<img src="http://www.forkosh.com/mathtex.cgi?{N}_{kj}">
 
 - **4 重复以上2、3两步**，直到满足最大迭代数
 
@@ -514,7 +514,7 @@ this.graph = Graph(docTermVertices, edges).partitionBy(PartitionStrategy.EdgePar
 ```
 &emsp;&emsp;上面的代码初始化`Graph`并通过文档分区。
 
-- **2 E步**
+- **2 E-步：更新gamma**
 
 ```scala
     val eta = topicConcentration
@@ -532,9 +532,9 @@ this.graph = Graph(docTermVertices, edges).partitionBy(PartitionStrategy.EdgePar
         edgeContext.sendToSrc((false, scaledTopicDistribution))
       }
 ```
-&emsp;&emsp;上述代码中，`W`表示词数，`N_k`表示所有文档中，出现在主题`k`中的词的词频总数，后续的实现会使用方法`computeGlobalTopicTotals`来更新这个值。`N_wj`表示词`w`出现在文档`j`中的词频数，为已知数。`E`步就是利用公式**(3.1.6)**去更新`gamma`。
+&emsp;&emsp;上述代码中，`W`表示词数，`N_k`表示所有文档中，出现在主题`k`中的词的词频总数，后续的实现会使用方法`computeGlobalTopicTotals`来更新这个值。`N_wj`表示词`w`出现在文档`j`中的词频数，为已知数。`E-步`就是利用公式**(3.1.6)**去更新`gamma`。
 代码中使用`computePTopic`方法来实现这个更新。`edgeContext`通过方法`sendToDst`将`scaledTopicDistribution`发送到目标顶点，
-通过方法`sendToSrc`发送到源节点以便于后续的`M`步计算更新的`N_kj`和`N_wk`。下面我们看看`computePTopic`方法。
+通过方法`sendToSrc`发送到源节点以便于后续的`M-步`计算更新的`N_kj`和`N_wk`。下面我们看看`computePTopic`方法。
 
 ```scala
 private[clustering] def computePTopic(
@@ -566,7 +566,15 @@ private[clustering] def computePTopic(
 ```
 &emsp;&emsp;这段代码比较简单，完全按照公式**(3.1.6)**来实现。
 
-- **3 M步**
+- **3 M-步：更新phi和theta**
+
+```scala
+// M-STEP: 聚合计算新的 N_{kj}, N_{wk} counts.
+val docTopicDistributions: VertexRDD[TopicCounts] =
+   graph.aggregateMessages[(Boolean, TopicCounts)](sendMsg, mergeMsg).mapValues(_._2)
+```
+
+&emsp;&emsp;我们由公式**(3.1.7)**可知，更新隐藏变量`phi`和`theta`就是更新相应的`N_kj`和`N_wk`。聚合更新使用`aggregateMessages`方法。请参考文献【7】来了解该方法的作用。
 
 
 # 5 参考文献
@@ -582,6 +590,8 @@ private[clustering] def computePTopic(
 【5】[Online Learning for Latent Dirichlet Allocation](docs/Online Learning for Latent Dirichlet Allocation.pdf)
 
 【6】[Spark官方文档](https://spark.apache.org/docs/latest/mllib-clustering.html#latent-dirichlet-allocation-lda)
+
+【7】[Spark GraphX介绍]()
 
 
 
