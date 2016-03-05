@@ -138,15 +138,15 @@
 
 &emsp;&emsp;贝叶斯估计的基本过程是：
 
-<center>**先验分布 + 数据的知识 = 后验分布**</center>
+&emsp;&emsp;&emsp;&emsp; **先验分布 + 数据的知识 = 后验分布**
 
 &emsp;&emsp;以上贝叶斯分析过程的简单直观的表示就是：
 
-<center> **Beta(p|k,n-k+1) + BinomCount(m1,m2) = Beta(p|k+m1,n-k+1+m2)** </center>
+&emsp;&emsp;&emsp;&emsp; **Beta(p|k,n-k+1) + BinomCount(m1,m2) = Beta(p|k+m1,n-k+1+m2)**
 
 &emsp;&emsp;更一般的，对于非负实数alpha和beta，我们有如下关系
 
-<center>&emsp;&emsp;**Beta(p|alpha,beta) + BinomCount(m1,m2) = Beta(p|alpha+m1,beta+m2)**</center>
+&emsp;&emsp;&emsp;&emsp; **Beta(p|alpha,beta) + BinomCount(m1,m2) = Beta(p|alpha+m1,beta+m2)**
 
 &emsp;&emsp;针对于这种观测到的数据符合二项分布，参数的先验分布和后验分布都是`Beta`分布的情况，就是`Beta-Binomial`共轭。换言之，`Beta`分布是二项式分布的共轭先验概率分布。二项分布和Beta分布是共轭分布意味着，如果我们为二项分布的参数p选取的先验分布是`Beta`分布，那么以p为参数的二项分布用贝叶斯估计得到的后验分布仍然服从`Beta`分布。
 
@@ -208,7 +208,7 @@
 
 &emsp;&emsp;上述贝叶斯分析过程的直观表述为：
 
-&emsp;&emsp;**Dir(p|k) + Multcount(m) = Dir(p|k+m)**
+&emsp;&emsp;&emsp;&emsp; **Dir(p|k) + Multcount(m) = Dir(p|k+m)**
 
 &emsp;&emsp;针对于这种观测到的数据符合多项分布，参数的先验分布和后验分布都是`Dirichlet`分布的情况，就是`Dirichlet-Multinomial`共轭。这意味着，如果我们为多项分布的参数p选取的先验分布是`Dirichlet`分布，那么以p为参数的多项分布用贝叶斯估计得到的后验分布仍然服从`Dirichlet`分布。
 
@@ -403,7 +403,7 @@
 
 - **4 重复以上2、3两步**，直到满足最大迭代数
 
-&emsp;&emsp;第`4.2`章会从代码层面说明该过程。
+&emsp;&emsp;第`4.2`章会从代码层面说明该算法的实现流程。
 
 ## 3.2 在线学习算法
 
@@ -564,7 +564,7 @@ private[clustering] def computePTopic(
     BDV(gamma_wj) /= sum
   }
 ```
-&emsp;&emsp;这段代码比较简单，完全按照公式**(3.1.6)**来实现。
+&emsp;&emsp;这段代码比较简单，完全按照公式**(3.1.6)**表示的样子来实现。`val gamma_wjk = (N_w(k) + eta1) * (N_j(k) + alpha1) / (N(k) + Weta1)`就是实现的更新逻辑。
 
 - **3 M-步：更新phi和theta**
 
@@ -574,7 +574,7 @@ val docTopicDistributions: VertexRDD[TopicCounts] =
    graph.aggregateMessages[(Boolean, TopicCounts)](sendMsg, mergeMsg).mapValues(_._2)
 ```
 
-&emsp;&emsp;我们由公式**(3.1.7)**可知，更新隐藏变量`phi`和`theta`就是更新相应的`N_kj`和`N_wk`。聚合更新使用`aggregateMessages`方法。请参考文献【7】来了解该方法的作用。
+&emsp;&emsp;我们由公式**(3.1.7)**可知，更新隐藏变量`phi`和`theta`就是更新相应的`N_kj`和`N_wk`。聚合更新使用`aggregateMessages`方法来实现。请参考文献【7】来了解该方法的作用。
 
 
 # 5 参考文献
