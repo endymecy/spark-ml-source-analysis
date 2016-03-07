@@ -407,6 +407,57 @@
 
 ## 3.2 在线学习算法
 
+### 3.2.1 批量变分贝叶斯
+
+&emsp;&emsp;在变分贝叶斯推导(`VB`)中，根据文献【3】，使用一种更简单的分布`q(z,theta,beta)`来估计真正的后验分布，这个简单的分布使用一组自由变量(`free parameters`)来定义。
+通过最大化对数似然的一个下界（`Evidence Lower Bound (ELBO)`）来最优化这些参数，如下公式**(3.2.1)**
+
+<div  align="center"><img src="imgs/3.2.1.png" width = "500" height = "25" alt="topic_words" align="center" /></div><br>
+
+&emsp;&emsp;最大化`ELBO`就是最大化`q(z,theta,beta)`和`p(z,theta,beta|w,alpha,eta)`的`KL`距离。根据文献【3】，我们将`q`因式分解为如下**（3.2.2）**的形式：
+
+<div  align="center"><img src="imgs/3.2.2.png" width = "500" height = "20" alt="topic_words" align="center" /></div><br>
+
+&emsp;&emsp;后验`z`通过`phi`来参数化，后验`theta`通过`gamma`来参数化，后验`beta`通过`lambda`来参数化。简单的说，我们把`lambda`作为“主题”。公式**(3.2.1)**分解为如下**(3.2.3)**形式：
+
+<div  align="center"><img src="imgs/3.2.3.png" width = "550" height = "50" alt="topic_words" align="center" /></div><br>
+
+&emsp;&emsp;我们现在将上面的期望扩展为变分参数的函数形式。这反映了变分目标只依赖于<img src="http://www.forkosh.com/mathtex.cgi?{n}_{dw}">，即词`w`出现在文档`d`中的次数。当使用`VB`算法时，文档可以通过它们的词频来概括，如公式**(3.2.4)**
+
+<div  align="center"><img src="imgs/3.2.4.png" width = "500" height = "110" alt="topic_words" align="center" /></div><br>
+
+&emsp;&emsp;上面的公式中，`W`表示词的数量，`D`表示文档的数量。`l`表示文档`d`对`ELBO`所做的贡献。`L`可以通过坐标上升法来最优化，它的更新公式如**(3.2.5)**:
+
+<div  align="center"><img src="imgs/3.2.5.png" width = "600" height = "25" alt="topic_words" align="center" /></div><br>
+
+&emsp;&emsp;`log(theta)`和`log(beta)`的期望通过下面的公式**(3.2.6)**计算：
+
+<div  align="center"><img src="imgs/3.2.6.png" width = "500" height = "25" alt="topic_words" align="center" /></div><br>
+
+&emsp;&emsp;通过`EM`算法，我们可以将这些更新分解成`E-步`和`M-步`。`E-步`固定`lambda`来更新`gamma`和`phi`；`M-步`通过给定`phi`来更新`lambda`。批`VB`算法的过程如下**(算法1)**所示：
+
+<div  align="center"><img src="imgs/alg1.png" width = "750" height = "400" alt="topic_words" align="center" /></div><br>
+
+### 3.2.2 在线变分贝叶斯
+
+&emsp;&emsp;批量变分贝叶斯算法需要固定的内存，并且比吉布斯采样更快。但是它仍然需要在每次迭代时处理所有的文档，这在处理大规模文档时，速度会很慢，并且也不适合流式数据的处理。
+文献【5】提出了一种在线变分推导算法。设定`gamma(n_d,lambda)`和`phi(n_d,lambda)`分别表示`gamma_d`和`phi_d`的值，我们的目的就是设定`phi`来最大化下面的公式**(3.2.7)**
+
+<div  align="center"><img src="imgs/3.2.7.png" width = "260" height = "25" alt="topic_words" align="center" /></div><br>
+
+&emsp;&emsp;我们在**算法2**中介绍了在线`VB`算法。因为词频的第t个向量<img src="http://www.forkosh.com/mathtex.cgi?{n}_{t}">是可观察的，我们在`E-步`通过固定`lambda`来找到`gamma_t`和`phi_t`的局部最优解。
+然后，我们计算`lambda_cap`。如果整个语料库由单个文档重复`D`次组成，那么这样的`lambda_cap`设置是最优的。之后，我们通过`lambda`之前的值以及`lambda_cap`来更新`lambda`。我们给`lambda_cap`设置的权重如公式**(3.2.8)**所示：
+
+<div  align="center"><img src="imgs/3.2.8.png" width = "220" height = "30" alt="topic_words" align="center" /></div><br>
+
+&emsp;&emsp;在线`VB`算法的实现流程如下**算法2**所示
+
+<div  align="center"><img src="imgs/alg2.png" width = "300" height = "220" alt="topic_words" align="center" /></div><br>
+
+&emsp;&emsp;同时在在线`VB`算法中，`alpha`和`eta`通过下面公式**(3.2.9)**来更新：
+
+<div  align="center"><img src="imgs/3.2.9.png" width = "250" height = "25" alt="topic_words" align="center" /></div><br>
+
 # 4 LDA代码实现
 
 ## 4.1 LDA使用实例
@@ -526,6 +577,8 @@ this.graph = Graph(docTermVertices, edges).partitionBy(PartitionStrategy.EdgePar
         // 计算 N_{wj} gamma_{wjk}
         val N_wj = edgeContext.attr
         // E-STEP: 计算 gamma_{wjk} 通过N_{wj}来计算
+        //此处的edgeContext.srcAttr为当前迭代的N_kj , edgeContext.dstAttr为当前迭代的N_wk,
+        //后面通过M-步，会更新这两个值,作为下一次迭代的当前值
         val scaledTopicDistribution: TopicCounts = 
                     computePTopic(edgeContext.srcAttr, edgeContext.dstAttr, N_k, W, eta, alpha) *= N_wj
         edgeContext.sendToDst((false, scaledTopicDistribution))
@@ -534,7 +587,7 @@ this.graph = Graph(docTermVertices, edges).partitionBy(PartitionStrategy.EdgePar
 ```
 &emsp;&emsp;上述代码中，`W`表示词数，`N_k`表示所有文档中，出现在主题`k`中的词的词频总数，后续的实现会使用方法`computeGlobalTopicTotals`来更新这个值。`N_wj`表示词`w`出现在文档`j`中的词频数，为已知数。`E-步`就是利用公式**(3.1.6)**去更新`gamma`。
 代码中使用`computePTopic`方法来实现这个更新。`edgeContext`通过方法`sendToDst`将`scaledTopicDistribution`发送到目标顶点，
-通过方法`sendToSrc`发送到源节点以便于后续的`M-步`计算更新的`N_kj`和`N_wk`。下面我们看看`computePTopic`方法。
+通过方法`sendToSrc`发送到源顶点以便于后续的`M-步`更新的`N_kj`和`N_wk`。下面我们看看`computePTopic`方法。
 
 ```scala
 private[clustering] def computePTopic(
