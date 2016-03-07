@@ -436,7 +436,7 @@
 
 &emsp;&emsp;通过`EM`算法，我们可以将这些更新分解成`E-步`和`M-步`。`E-步`固定`lambda`来更新`gamma`和`phi`；`M-步`通过给定`phi`来更新`lambda`。批`VB`算法的过程如下**(算法1)**所示：
 
-<div  align="center"><img src="imgs/alg1.png" width = "500" height = "300" alt="topic_words" align="center" /></div><br>
+<div  align="center"><img src="imgs/alg1.png" width = "400" height = "250" alt="topic_words" align="center" /></div><br>
 
 ### 3.2.2 在线变分贝叶斯
 
