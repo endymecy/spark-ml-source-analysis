@@ -452,11 +452,37 @@
 
 &emsp;&emsp;在线`VB`算法的实现流程如下**算法2**所示
 
-<div  align="center"><img src="imgs/alg2.png" width = "300" height = "220" alt="topic_words" align="center" /></div><br>
+<div  align="center"><img src="imgs/alg2.png" width = "400" height = "250" alt="topic_words" align="center" /></div><br>
 
-&emsp;&emsp;同时在在线`VB`算法中，`alpha`和`eta`通过下面公式**(3.2.9)**来更新：
+&emsp;&emsp;那么在在线`VB`算法中，`alpha`和`eta`是如何更新的呢？参考文献【8】提供了计算方法。给定数据集，`dirichlet`参数的可以通过最大化下面的对数似然来估计
 
-<div  align="center"><img src="imgs/3.2.9.png" width = "250" height = "25" alt="topic_words" align="center" /></div><br>
+<div  align="center"><img src="imgs/3.3.1.png" width = "500" height = "140" alt="3.3.1" align="center" /></div><br>
+
+&emsp;&emsp;其中，
+
+<div  align="center"><img src="imgs/3.3.2.png" width = "230" height = "45" alt="3.3.2" align="center" /></div><br>
+
+&emsp;&emsp;有多种方法可以最大化这个目标函数，如梯度上升，`Newton-Raphson`等。`Spark`使用`Newton-Raphson`方法估计参数，更新`alpha`。`Newton-Raphson`提供了一种参数二次收敛的方法，
+它一般的更新规则如下公式**(3.3.3)**:
+
+<div  align="center"><img src="imgs/3.3.3.png" width = "200" height = "20" alt="3.3.2" align="center" /></div><br>
+
+&emsp;&emsp;其中，`H`表示海森矩阵。对于这个特别的对数似然函数，可以应用`Newton-Raphson`去解决高维数据，因为它可以在线性时间求出海森矩阵的逆矩阵。一般情况下，海森矩阵可以用一个对角矩阵和一个元素都一样的矩阵的和来表示。
+如下公式**(3.3.4)**，`Q`是对角矩阵，`C11`是元素相同的一个矩阵。
+
+<div  align="center"><img src="imgs/3.3.4.png" width = "200" height = "100" alt="3.3.2" align="center" /></div><br>
+
+&emsp;&emsp;为了计算海森矩阵的逆矩阵，我们观察到，对任意的可逆矩阵`Q`和非负标量`c`，有下列式子**(3.3.5)**:
+
+<div  align="center"><img src="imgs/3.3.5.png" width = "550" height = "170" alt="3.3.5" align="center" /></div><br>
+
+&emsp;&emsp;因为`Q`是对角矩阵，所以`Q`的逆矩阵可以很容易的计算出来。所以`Newton-Raphson`的更新规则可以重写为如下**(3.3.6)**的形式
+
+<div  align="center"><img src="imgs/3.3.6.png" width = "180" height = "45" alt="3.3.6" align="center" /></div><br>
+
+&emsp;&emsp;其中`b`如下公式**(3.3.7)**，
+
+<div  align="center"><img src="imgs/3.3.7.png" width = "200" height = "30" alt="3.3.7" align="center" /></div><br>
 
 # 4 LDA代码实现
 
@@ -502,7 +528,9 @@ def run(documents: RDD[(Long, Vector)]): LDAModel = {
 &emsp;&emsp;这段代码首先调用`initialize`方法初始化状态信息，然后循环迭代调用`next`方法直到满足最大的迭代次数。在我们没有指定的情况下，迭代次数默认为20。需要注意的是，
 `ldaOptimizer`有两个具体的实现类`EMLDAOptimizer`和`OnlineLDAOptimizer`，它们分别表示使用`EM`算法和在线学习算法实现参数估计。在未指定的情况下，默认使用`EMLDAOptimizer`。
 
-&emsp;&emsp;在`spark`中，使用`GraphX`来实现`LDA`算法，这个图是有两种类型的顶点的二分图。这两类顶点分别是文档顶点（`Document vertices`）和词顶点（`Term vertices`）。
+## 4.2 变分EM算法的实现
+
+&emsp;&emsp;在`spark`中，使用`GraphX`来实现`EMLDAOptimizer`，这个图是有两种类型的顶点的二分图。这两类顶点分别是文档顶点（`Document vertices`）和词顶点（`Term vertices`）。
 
 - 文档顶点使用大于0的唯一的指标来索引，保存长度为`k`（主题格式）的向量
 
@@ -510,11 +538,9 @@ def run(documents: RDD[(Long, Vector)]): LDAModel = {
 
 - 边（`edges`）对应词出现在文档中的情况。边的方向是`document -> term`，并且根据文档进行分区
 
-## 4.2 变分EM算法的实现
-
 &emsp;&emsp;我们可以根据3.1节中介绍的算法流程来解析源代码。
 
-- **1 初始化状态**
+### 4.2.1 初始化状态
 
 &emsp;&emsp;`spark`在`EMLDAOptimizer`的`initialize`方法中实现初始化功能。包括初始化`Dirichlet`参数`alpha`和`eta`、初始化边、初始化顶点以及初始化图。
 
@@ -565,7 +591,7 @@ this.graph = Graph(docTermVertices, edges).partitionBy(PartitionStrategy.EdgePar
 ```
 &emsp;&emsp;上面的代码初始化`Graph`并通过文档分区。
 
-- **2 E-步：更新gamma**
+### 4.2.2 E-步：更新gamma
 
 ```scala
     val eta = topicConcentration
@@ -619,7 +645,7 @@ private[clustering] def computePTopic(
 ```
 &emsp;&emsp;这段代码比较简单，完全按照公式**(3.1.6)**表示的样子来实现。`val gamma_wjk = (N_w(k) + eta1) * (N_j(k) + alpha1) / (N(k) + Weta1)`就是实现的更新逻辑。
 
-- **3 M-步：更新phi和theta**
+### 4.2.3 M-步：更新phi和theta
 
 ```scala
 // M-STEP: 聚合计算新的 N_{kj}, N_{wk} counts.
@@ -628,6 +654,200 @@ val docTopicDistributions: VertexRDD[TopicCounts] =
 ```
 
 &emsp;&emsp;我们由公式**(3.1.7)**可知，更新隐藏变量`phi`和`theta`就是更新相应的`N_kj`和`N_wk`。聚合更新使用`aggregateMessages`方法来实现。请参考文献【7】来了解该方法的作用。
+
+## 4.3 在线变分算法的代码实现
+
+### 4.3.1 初始化状态
+
+&emsp;&emsp;在线学习算法首先使用方法`initialize`方法初始化参数值
+
+```scala
+override private[clustering] def initialize(
+      docs: RDD[(Long, Vector)],
+      lda: LDA): OnlineLDAOptimizer = {
+    this.k = lda.getK
+    this.corpusSize = docs.count()
+    this.vocabSize = docs.first()._2.size
+    this.alpha = if (lda.getAsymmetricDocConcentration.size == 1) {
+      if (lda.getAsymmetricDocConcentration(0) == -1) Vectors.dense(Array.fill(k)(1.0 / k))
+      else {
+        require(lda.getAsymmetricDocConcentration(0) >= 0,
+          s"all entries in alpha must be >=0, got: $alpha")
+        Vectors.dense(Array.fill(k)(lda.getAsymmetricDocConcentration(0)))
+      }
+    } else {
+      require(lda.getAsymmetricDocConcentration.size == k,
+        s"alpha must have length k, got: $alpha")
+      lda.getAsymmetricDocConcentration.foreachActive { case (_, x) =>
+        require(x >= 0, s"all entries in alpha must be >= 0, got: $alpha")
+      }
+      lda.getAsymmetricDocConcentration
+    }
+    this.eta = if (lda.getTopicConcentration == -1) 1.0 / k else lda.getTopicConcentration
+    this.randomGenerator = new Random(lda.getSeed)
+    this.docs = docs
+    // 初始化变分分布 q(beta|lambda)
+    this.lambda = getGammaMatrix(k, vocabSize)
+    this.iteration = 0
+    this
+  }
+```
+&emsp;&emsp;根据文献【5】，`alpha`和`eta`的值大于等于0，并且默认为`1.0/k`。上文使用`getGammaMatrix`方法来初始化变分分布`q(beta|lambda)`。
+
+```scala
+private def getGammaMatrix(row: Int, col: Int): BDM[Double] = {
+    val randBasis = new RandBasis(new org.apache.commons.math3.random.MersenneTwister(
+      randomGenerator.nextLong()))
+    //初始化一个gamma分布
+    val gammaRandomGenerator = new Gamma(gammaShape, 1.0 / gammaShape)(randBasis)
+    val temp = gammaRandomGenerator.sample(row * col).toArray
+    new BDM[Double](col, row, temp).t
+  }
+```
+&emsp;&emsp;`getGammaMatrix`方法使用`gamma`分布初始化一个随机矩阵。
+
+### 4.3.2 更新参数
+
+```scala
+override private[clustering] def next(): OnlineLDAOptimizer = {
+    //返回文档集中采样的子集
+    //默认情况下，文档可以被采样多次，且采样比例是0.05
+    val batch = docs.sample(withReplacement = sampleWithReplacement, miniBatchFraction,
+      randomGenerator.nextLong())
+    if (batch.isEmpty()) return this
+    submitMiniBatch(batch)
+  }
+```
+&emsp;&emsp;以上的`next`方法首先对文档进行采样，然后调用`submitMiniBatch`对采样的文档子集进行处理。下面我们详细分解`submitMiniBatch`方法。
+
+- **1** 计算`log(beta)`的期望，并将其作为广播变量广播到集群中
+
+```scala
+val expElogbeta = exp(LDAUtils.dirichletExpectation(lambda)).t
+//广播变量
+val expElogbetaBc = batch.sparkContext.broadcast(expElogbeta)
+//参数alpha是dirichlet参数
+private[clustering] def dirichletExpectation(alpha: BDM[Double]): BDM[Double] = {
+    val rowSum = sum(alpha(breeze.linalg.*, ::))
+    val digAlpha = digamma(alpha)
+    val digRowSum = digamma(rowSum)
+    val result = digAlpha(::, breeze.linalg.*) - digRowSum
+    result
+  }
+```
+&emsp;&emsp;上述代码调用`exp(LDAUtils.dirichletExpectation(lambda))`方法实现参数为`lambda`的`log beta`的期望。实现原理参见公式**(3.2.6)**。
+
+- **2** 计算`phi`以及`gamma`，即**算法2**中的`E-步`
+
+```scala
+//对采样文档进行分区处理
+val stats: RDD[(BDM[Double], List[BDV[Double]])] = batch.mapPartitions { docs =>
+      //
+      val nonEmptyDocs = docs.filter(_._2.numNonzeros > 0)
+      val stat = BDM.zeros[Double](k, vocabSize)
+      var gammaPart = List[BDV[Double]]()
+      nonEmptyDocs.foreach { case (_, termCounts: Vector) =>
+        val ids: List[Int] = termCounts match {
+          case v: DenseVector => (0 until v.size).toList
+          case v: SparseVector => v.indices.toList
+        }
+        val (gammad, sstats) = OnlineLDAOptimizer.variationalTopicInference(
+          termCounts, expElogbetaBc.value, alpha, gammaShape, k)
+        stat(::, ids) := stat(::, ids).toDenseMatrix + sstats
+        gammaPart = gammad :: gammaPart
+      }
+      Iterator((stat, gammaPart))
+    }
+```
+&emsp;&emsp;上面的代码调用`OnlineLDAOptimizer.variationalTopicInference`实现**算法2**中的`E-步`,迭代计算`phi`和`gamma`。
+
+```scala
+private[clustering] def variationalTopicInference(
+      termCounts: Vector,
+      expElogbeta: BDM[Double],
+      alpha: breeze.linalg.Vector[Double],
+      gammaShape: Double,
+      k: Int): (BDV[Double], BDM[Double]) = {
+    val (ids: List[Int], cts: Array[Double]) = termCounts match {
+      case v: DenseVector => ((0 until v.size).toList, v.values)
+      case v: SparseVector => (v.indices.toList, v.values)
+    }
+    // 初始化变分分布 q(theta|gamma) 
+    val gammad: BDV[Double] = new Gamma(gammaShape, 1.0 / gammaShape).samplesVector(k)   // K
+    //根据公式（3.2.6）计算 E(log theta)
+    val expElogthetad: BDV[Double] = exp(LDAUtils.dirichletExpectation(gammad))  // K
+    val expElogbetad = expElogbeta(ids, ::).toDenseMatrix                        // ids * K
+    //根据公式（3.2.5）计算phi，这里加1e-100表示并非严格等于
+    val phiNorm: BDV[Double] = expElogbetad * expElogthetad :+ 1e-100            // ids
+    var meanGammaChange = 1D
+    val ctsVector = new BDV[Double](cts)                                         // ids
+    // 迭代直至收敛
+    while (meanGammaChange > 1e-3) {
+      val lastgamma = gammad.copy
+      //依据公式(3.2.5)计算gamma
+      gammad := (expElogthetad :* (expElogbetad.t * (ctsVector :/ phiNorm))) :+ alpha
+      //根据更新的gamma，计算E(log theta)
+      expElogthetad := exp(LDAUtils.dirichletExpectation(gammad))
+      // 更新phi
+      phiNorm := expElogbetad * expElogthetad :+ 1e-100
+      //计算两次gamma的差值
+      meanGammaChange = sum(abs(gammad - lastgamma)) / k
+    }
+    val sstatsd = expElogthetad.asDenseMatrix.t * (ctsVector :/ phiNorm).asDenseMatrix
+    (gammad, sstatsd)
+  }
+```
+- **3** 更新`lambda`
+
+```scala
+    val statsSum: BDM[Double] = stats.map(_._1).reduce(_ += _)
+    val gammat: BDM[Double] = breeze.linalg.DenseMatrix.vertcat(
+      stats.map(_._2).reduce(_ ++ _).map(_.toDenseMatrix): _*)
+    val batchResult = statsSum :* expElogbeta.t
+    // 更新lambda和alpha
+    updateLambda(batchResult, (miniBatchFraction * corpusSize).ceil.toInt)
+```
+&emsp;&emsp;`updateLambda`方法实现**算法2**中的`M-步`,更新`lambda`。实现代码如下：
+
+```scala
+private def updateLambda(stat: BDM[Double], batchSize: Int): Unit = {
+    // 根据公式（3.2.8）计算权重
+    val weight = rho()
+    // 更新lambda，其中stat * (corpusSize.toDouble / batchSize.toDouble)+eta表示rho_cap
+    lambda := (1 - weight) * lambda +
+      weight * (stat * (corpusSize.toDouble / batchSize.toDouble) + eta)
+  }
+// 根据公式（3.2.8）计算rho
+private def rho(): Double = {
+    math.pow(getTau0 + this.iteration, -getKappa)
+  }
+```
+
+- **4** 更新`alpha`
+
+```scala
+private def updateAlpha(gammat: BDM[Double]): Unit = {
+    //计算rho
+    val weight = rho()
+    val N = gammat.rows.toDouble
+    val alpha = this.alpha.toBreeze.toDenseVector
+    //计算log p_hat
+    val logphat: BDM[Double] = sum(LDAUtils.dirichletExpectation(gammat)(::, breeze.linalg.*)) / N
+    //计算梯度为N（-phi(alpha)+log p_hat）
+    val gradf = N * (-LDAUtils.dirichletExpectation(alpha) + logphat.toDenseVector)
+    //计算公式（3.3.4）中的c，trigamma表示gamma函数的二阶导数
+    val c = N * trigamma(sum(alpha))
+    //计算公式（3.3.4）中的q
+    val q = -N * trigamma(alpha)
+    //根据公式(3.3.7)计算b
+    val b = sum(gradf / q) / (1D / c + sum(1D / q))
+    val dalpha = -(gradf - b) / q
+    if (all((weight * dalpha + alpha) :> 0D)) {
+      alpha :+= weight * dalpha
+      this.alpha = Vectors.dense(alpha.toArray)
+    }
+  }
+```
 
 
 # 5 参考文献
@@ -645,6 +865,8 @@ val docTopicDistributions: VertexRDD[TopicCounts] =
 【6】[Spark官方文档](https://spark.apache.org/docs/latest/mllib-clustering.html#latent-dirichlet-allocation-lda)
 
 【7】[Spark GraphX介绍]()
+
+【8】[Maximum Likelihood Estimation of Dirichlet Distribution Parameters](docs/dirichlet.pdf)
 
 
 
