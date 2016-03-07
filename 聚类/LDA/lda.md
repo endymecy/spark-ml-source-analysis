@@ -456,21 +456,21 @@
 
 &emsp;&emsp;那么在在线`VB`算法中，`alpha`和`eta`是如何更新的呢？参考文献【8】提供了计算方法。给定数据集，`dirichlet`参数的可以通过最大化下面的对数似然来估计
 
-<div  align="center"><img src="imgs/3.3.1.png" width = "500" height = "140" alt="3.3.1" align="center" /></div><br>
+<div  align="center"><img src="imgs/3.3.1.png" width = "500" height = "150" alt="3.3.1" align="center" /></div><br>
 
 &emsp;&emsp;其中，
 
-<div  align="center"><img src="imgs/3.3.2.png" width = "230" height = "45" alt="3.3.2" align="center" /></div><br>
+<div  align="center"><img src="imgs/3.3.2.png" width = "200" height = "40" alt="3.3.2" align="center" /></div><br>
 
 &emsp;&emsp;有多种方法可以最大化这个目标函数，如梯度上升，`Newton-Raphson`等。`Spark`使用`Newton-Raphson`方法估计参数，更新`alpha`。`Newton-Raphson`提供了一种参数二次收敛的方法，
 它一般的更新规则如下公式**(3.3.3)**:
 
-<div  align="center"><img src="imgs/3.3.3.png" width = "200" height = "20" alt="3.3.2" align="center" /></div><br>
+<div  align="center"><img src="imgs/3.3.3.png" width = "300" height = "30" alt="3.3.2" align="center" /></div><br>
 
 &emsp;&emsp;其中，`H`表示海森矩阵。对于这个特别的对数似然函数，可以应用`Newton-Raphson`去解决高维数据，因为它可以在线性时间求出海森矩阵的逆矩阵。一般情况下，海森矩阵可以用一个对角矩阵和一个元素都一样的矩阵的和来表示。
 如下公式**(3.3.4)**，`Q`是对角矩阵，`C11`是元素相同的一个矩阵。
 
-<div  align="center"><img src="imgs/3.3.4.png" width = "200" height = "100" alt="3.3.2" align="center" /></div><br>
+<div  align="center"><img src="imgs/3.3.4.png" width = "300" height = "150" alt="3.3.2" align="center" /></div><br>
 
 &emsp;&emsp;为了计算海森矩阵的逆矩阵，我们观察到，对任意的可逆矩阵`Q`和非负标量`c`，有下列式子**(3.3.5)**:
 
@@ -478,11 +478,11 @@
 
 &emsp;&emsp;因为`Q`是对角矩阵，所以`Q`的逆矩阵可以很容易的计算出来。所以`Newton-Raphson`的更新规则可以重写为如下**(3.3.6)**的形式
 
-<div  align="center"><img src="imgs/3.3.6.png" width = "180" height = "45" alt="3.3.6" align="center" /></div><br>
+<div  align="center"><img src="imgs/3.3.6.png" width = "250" height = "50" alt="3.3.6" align="center" /></div><br>
 
 &emsp;&emsp;其中`b`如下公式**(3.3.7)**，
 
-<div  align="center"><img src="imgs/3.3.7.png" width = "200" height = "30" alt="3.3.7" align="center" /></div><br>
+<div  align="center"><img src="imgs/3.3.7.png" width = "300" height = "40" alt="3.3.7" align="center" /></div><br>
 
 # 4 LDA代码实现
 
