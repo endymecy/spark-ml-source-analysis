@@ -14,14 +14,14 @@
     * [交换最小二乘](推荐/交换最小二乘/ALS.md)
 * 分类和回归
     * 线性支持向量机
-    * 逻辑回归
+    * [逻辑回归]()
     * 朴素贝叶斯
     * 决策树
     * 随机森林
     * 保序回归
 * 聚类
     * [k-means算法](聚类/k-means/k-means.md)
-    * [高斯混合算法 进行中。。。](聚类/gaussian-mixture/gaussian-mixture.md)
+    * [GMM（高斯混合模型）](聚类/gaussian-mixture/gaussian-mixture.md)
     * [PIC（快速迭代聚类）](聚类/PIC/pic.md)
     * [LDA（隐式狄利克雷分布)](聚类/LDA/lda.md)
     * [二分k-means算法](聚类/bis-k-means/bisecting-k-means.md)
