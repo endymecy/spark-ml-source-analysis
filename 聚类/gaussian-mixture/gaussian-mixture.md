@@ -169,7 +169,7 @@ def add( weights: Array[Double],dists: Array[MultivariateGaussian])
 ```
 &emsp;&emsp;从上面的实现我们可以看出，最终，`logLikelihood`表示公式**(2)**中的对数似然。`p`和`weights`分别表示公式**(3)**中的`gamma`和`pi`，`means`表示公式**(6)**中的求和部分，`sigmas`表示公式**(7)**中的求和部分。
 
-&emsp;&emsp;调用`RDD`的`aggregate`方法，我们可以基于所有数据计算上面的值。我们可以利用这些值，在`M-步`中更新`mu`和`sigma`。
+&emsp;&emsp;调用`RDD`的`aggregate`方法，我们可以基于所有给定数据计算上面的值。利用计算的这些新值，我们可以在`M-步`中更新`mu`和`sigma`。
 
 - **M-步**：更新参数`mu`和`sigma`
 
@@ -200,7 +200,7 @@ def add( weights: Array[Double],dists: Array[MultivariateGaussian])
 &emsp;&emsp;基于**E-步**计算出来的值，根据公式**(6)**，我们可以通过`(mean /= weight)`来更新`mu`；根据公式**(7)**，我们可以通过`BLAS.syr()`来更新`sigma`；同时，根据公式**(5)**，
 我们可以通过`weight / sumWeights`来计算`pi`。
 
-&emsp;&emsp;迭代执行以上的**E-步**和**M-步**，我们就可以计算得到相应的参数了。
+&emsp;&emsp;迭代执行以上的**E-步**和**M-步**，到达一定的迭代数或者对数似然值变化较小后，我们停止迭代。这时就可以获得聚类后的参数了。
 
 ## 3.3 多元高斯模型中相关方法介绍
 
