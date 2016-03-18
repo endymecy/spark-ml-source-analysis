@@ -45,14 +45,17 @@
 | 问题       | 规则化函数R(w)   | 梯度 |
 | ------------- |:-------------:|:-------------:|
 | Zero       | 0 | 0 |
-| L2         | <img src="http://www.forkosh.com/mathtex.cgi?1/2{{||w||}^{2}}_{2}"> | w |
-| L1         | <img src="http://www.forkosh.com/mathtex.cgi?{||w||}_{1}"> | sign(w) |
+| L2         | 如下公式(1) | w |
+| L1         | 如下公式(2) | sign(w) |
 | elastic net | alpha * L1 +(1-alpha) * L2 | alpha * sign(w) + (1-alpha) * w |
+
+<div  align="center"><img src="imgs/1.7.png" width = "200" height = "40" alt="objective function" align="center" /></div><br>
+<div  align="center"><img src="imgs/1.8.png" width = "200" height = "35" alt="objective function" align="center" /></div><br>
 
 &emsp;&emsp;在上面的表格中，`sign(w)`是一个向量，它由`w`中的所有实体的信号量`(+1,-1)`组成。`L2`问题往往比`L1`问题更容易解决，那是因为`L2`是平滑的。然而，`L1`可以使权重矩阵更稀疏，
 从而构建更小以及更可判断的模型，模型的可判断性在特征选择中很有用。
 
-# 分类
+# 2 分类
 
 &emsp;&emsp;分类的目的就是将数据切分为不同的类别。最一般的分类类型是二分类，即有两个类别，通常称为正和负。如果类别数超过两个，我们称之为多分类。`spark.ml`提供了两中线性方法用于分类：线性支持向量机以及逻辑回归。
 线性支持向量机仅仅支持二分类，逻辑回归既支持二分类也支持多分类。对所有的方法，`spark.ml`支持`L1`和`L2`规则化。分类算法的详细介绍见下面的链接。
