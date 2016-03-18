@@ -9,17 +9,27 @@
 ## 本系列的目录结构
 
 &emsp;&emsp;本系列目录如下：
-
+* 数据类型
+* 基本统计
+    * summary statistics 概括统计
+    * correlations 相关性
+    * tratified sampling 分层取样
+    * hypothesis testing 假设检验
+    * random data generation 随机数生成
 * 协同过滤
     * [交换最小二乘](推荐/交换最小二乘/ALS.md)
-* 分类和回归
-    * 线性支持向量机
-    * [逻辑回归]()
+* [分类和回归](分类与回归/readme.md)
+    * [线性模型]()
+        * SVMs
+        * 逻辑回归
+        * 线性回归
     * 朴素贝叶斯
     * 决策树
-    * 随机森林
+    * [多种树]()
+        * 随机森林
+        * 梯度增强树
     * 保序回归
-* 聚类
+* [聚类](聚类/readme.md)
     * [k-means算法](聚类/k-means/k-means.md)
     * [GMM（高斯混合模型）](聚类/gaussian-mixture/gaussian-mixture.md)
     * [PIC（快速迭代聚类）](聚类/PIC/pic.md)
@@ -27,7 +37,7 @@
     * [二分k-means算法](聚类/bis-k-means/bisecting-k-means.md)
     * [流式k-means算法](聚类/streaming-k-means/streaming-k-means.md)
 * 最优化算法
-    * 梯度下降算法
+    * 随机梯度下降算法
     * L-BFGS
     * [NNLS(非负最小二乘)](最优化算法/非负最小二乘/NNLS.md)
 * 降维
