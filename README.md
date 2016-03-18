@@ -18,8 +18,8 @@
     * random data generation（随机数生成）
 * 协同过滤
     * [交换最小二乘](推荐/交换最小二乘/ALS.md)
-* [分类和回归](分类与回归/readme.md)
-    * [线性模型](分类与回归/线性模型/readme.md)
+* [分类和回归](分类和回归/readme.md)
+    * [线性模型](分类和回归/线性模型/readme.md)
         * SVMs
         * 逻辑回归
         * 线性回归
