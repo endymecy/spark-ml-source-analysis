@@ -11,21 +11,21 @@
 &emsp;&emsp;本系列目录如下：
 * 数据类型
 * 基本统计
-    * summary statistics 概括统计
-    * correlations 相关性
-    * tratified sampling 分层取样
-    * hypothesis testing 假设检验
-    * random data generation 随机数生成
+    * summary statistics（概括统计）
+    * correlations（相关性）
+    * tratified sampling（分层取样）
+    * hypothesis testing（假设检验）
+    * random data generation（随机数生成）
 * 协同过滤
     * [交换最小二乘](推荐/交换最小二乘/ALS.md)
 * [分类和回归](分类与回归/readme.md)
-    * [线性模型]()
+    * [线性模型](分类与回归/线性模型/readme.md)
         * SVMs
         * 逻辑回归
         * 线性回归
     * 朴素贝叶斯
     * 决策树
-    * [多种树]()
+    * 多种树
         * 随机森林
         * 梯度增强树
     * 保序回归
@@ -50,6 +50,11 @@
     * Normalizer
     * ChiSqSelector
     * ElementwiseProduct
+    
+## 说明
+
+&emsp;&emsp;本专题的大部分内容来自[spark源码](https://github.com/apache/spark)、[spark官方文档](https://spark.apache.org/docs/latest)，并不用于商业用途。本专题的内容引用他人的内容均列出了参考文献，如有侵权，请务必邮件通知笔者。
+邮箱地址：`endymecy@sian.cn`
     
 ## License
 
