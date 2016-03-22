@@ -105,7 +105,7 @@ val sm: Matrix = Matrices.sparse(3, 2, Array(0, 1, 3), Array(0, 2, 1), Array(9, 
 # 4 分布式矩阵(Distributed matrix)
 
 &emsp;&emsp;一个分布式矩阵拥有`long`类型的行和列索引，以及`double`类型的值，分布式的存储在一个或多个`RDD`中。选择正确的格式存储大型分布式矩阵是非常重要的。将一个分布式矩阵转换为另外一个格式可能需要一个全局的`shuffle`，这是非常昂贵的。
-到目前为止，已经为分布式矩阵实现了三种类型。
+到目前为止，已经实现了三种类型的分布式矩阵。
 
 &emsp;&emsp;基本的类型是`RowMatrix`，`RowMatrix`是一个面向行的分布式矩阵，它没有有意义的行索引。它的行保存为一个`RDD`,每一行都是一个本地向量。我们假设一个`RowMatrix`的列的数量不是很巨大，这样单个本地向量可以方便的和`driver`通信，也可以被单个节点保存和操作。
 `IndexedRowMatrix`和`RowMatrix`很像，但是它拥有行索引，行索引可以用于识别行和进行`join`操作。`CoordinateMatrix`是一个分布式矩阵，它使用`COO`格式存储。请参看文献【1】了解`COO`格式。
@@ -114,7 +114,7 @@ val sm: Matrix = Matrices.sparse(3, 2, Array(0, 1, 3), Array(0, 2, 1), Array(9, 
 
 &emsp;&emsp;`RowMatrix`是一个面向行的分布式矩阵，它没有有意义的行索引。它的行保存为一个`RDD`,每一行都是一个本地向量。因为每一行保存为一个本地向量，所以列数限制在了整数范围。
 
-&emsp;&emsp;一个`RowMatrix`可以通过`RDD`实例创建。创建完之后，我们可以计算它的列的统计和分解。[QR分解](https://en.wikipedia.org/wiki/QR_decomposition)的形式为`A=QR`，其中`Q`是一个正交矩阵，
+&emsp;&emsp;一个`RowMatrix`可以通过`RDD[Vector]`实例创建。创建完之后，我们可以计算它的列的统计和分解。[QR分解](https://en.wikipedia.org/wiki/QR_decomposition)的形式为`A=QR`，其中`Q`是一个正交矩阵，
 `R`是一个上三角矩阵。下面是一个`RowMatrix`的例子。
 
 ```scala
