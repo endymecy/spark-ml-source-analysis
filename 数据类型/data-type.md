@@ -1,17 +1,17 @@
 # 数据类型
 
 &emsp;&emsp;`MLlib`既支持保存在单台机器上的本地向量和矩阵，也支持备份在一个或多个`RDD`中的分布式矩阵。本地向量和本地矩阵是简单的数据模型，作为公共接口提供。底层的线性代数操作通过[Breeze](http://www.scalanlp.org/)和[jblas](http://jblas.org/)提供。
-在`MLlib`中，用于有监督学习的训练样本成为标注点(`labeled point`)。
+在`MLlib`中，用于有监督学习的训练样本称为标注点(`labeled point`)。
 
 # 1 本地向量(Local vector)
 
-&emsp;&emsp;一个本地向量有`integer`类型且从0开始的索引以及`double`类型的值，它保存在单台机器上面。`MLlib`支持两种类型的本地向量：稠密(`dense`)向量和稀疏(`sparse`)向量。
+&emsp;&emsp;一个本地向量拥有从0开始的`integer`类型的索引以及`double`类型的值，它保存在单台机器上面。`MLlib`支持两种类型的本地向量：稠密(`dense`)向量和稀疏(`sparse`)向量。
 一个稠密向量通过一个`double`类型的数组保存数据，这个数组表示向量的条目值(`entry values`)；一个稀疏向量通过两个并行的数组（`indices和values`）保存数据。例如，一个向量
 `(1.0, 0.0, 3.0)`可以以稠密的格式保存为`[1.0, 0.0, 3.0] `或者以稀疏的格式保存为`(3, [0, 2], [1.0, 3.0])`，其中3表示数组的大小。
 
 &emsp;&emsp;本地向量的基类是[Vector](https://spark.apache.org/docs/latest/api/scala/index.html#org.apache.spark.mllib.linalg.Vector)，`Spark`提供了两种实现：
 [DenseVector](https://spark.apache.org/docs/latest/api/scala/index.html#org.apache.spark.mllib.linalg.DenseVector)和[SparseVector](https://spark.apache.org/docs/latest/api/scala/index.html#org.apache.spark.mllib.linalg.SparseVector)。
-`Spark`官方推荐使用[Vectors](https://spark.apache.org/docs/latest/api/scala/index.html#org.apache.spark.mllib.linalg.Vectors$)中实现的工厂类去创建本地向量。下面是创建本地向量的例子。
+`Spark`官方推荐使用[Vectors](https://spark.apache.org/docs/latest/api/scala/index.html#org.apache.spark.mllib.linalg.Vectors$)中实现的工厂方法去创建本地向量。下面是创建本地向量的例子。
 
 ```scala
 import org.apache.spark.mllib.linalg.{Vector, Vectors}
@@ -23,7 +23,7 @@ val sv1: Vector = Vectors.sparse(3, Array(0, 2), Array(1.0, 3.0))
 val sv2: Vector = Vectors.sparse(3, Seq((0, 1.0), (2, 3.0)))
 ```
 
-&emsp;&emsp; `Scala`默认引入`scala.collection.immutable.Vector`，这里我们主动引入`MLLib`中的`org.apache.spark.mllib.linalg.Vector`。我们可以看看`Vectors`对象的部分方法。
+&emsp;&emsp; 注意，`Scala`默认引入`scala.collection.immutable.Vector`，这里我们需要主动引入`MLLib`中的`org.apache.spark.mllib.linalg.Vector`来操作。我们可以看看`Vectors`对象的部分方法。
 
 ```scala
 def dense(firstValue: Double, otherValues: Double*): Vector =
@@ -47,10 +47,10 @@ def sparse(size: Int, elements: Seq[(Int, Double)]): Vector = {
 
 # 2 标注点(Labeled point)
 
-&emsp;&emsp;一个标注点就是一个本地向量（或者是稠密的或者是稀疏的），这个向量和一个标签或者响应相联系。在`MLlib`中，标注点用于有监督学习算法。我们用一个`double`存储标签，这样我们就可以在回归和分类中使用标注点。
+&emsp;&emsp;一个标注点就是一个本地向量（或者是稠密的或者是稀疏的），这个向量和一个标签或者响应相关联。在`MLlib`中，标注点用于有监督学习算法。我们用一个`double`存储标签，这样我们就可以在回归和分类中使用标注点。
 对于二分类，一个标签可能是0或者是1；对于多分类，一个标签可能代表从0开始的类别索引。
 
-&emsp;&emsp;一个标注点通过样本类[LabeledPoint](https://spark.apache.org/docs/latest/api/scala/index.html#org.apache.spark.mllib.regression.LabeledPoint)表示。
+&emsp;&emsp;在`MLlib`中，一个标注点通过样本类[LabeledPoint](https://spark.apache.org/docs/latest/api/scala/index.html#org.apache.spark.mllib.regression.LabeledPoint)表示。
 
 ```scala
 @Since("0.8.0")
@@ -74,7 +74,7 @@ val pos = LabeledPoint(1.0, Vectors.dense(1.0, 0.0, 3.0))
 val neg = LabeledPoint(0.0, Vectors.sparse(3, Array(0, 2), Array(1.0, 3.0)))
 ```
 
-&emsp;&emsp;在实现的应用中，拥有稀疏的训练数据是非常常见的，`MLlib`支持读取训练数据存储为`LIBSVM`格式。它是[LIBSVM](http://www.csie.ntu.edu.tw/~cjlin/libsvm/)和[LIBLINEAR](http://www.csie.ntu.edu.tw/~cjlin/liblinear/)默认的格式。
+&emsp;&emsp;在现实的应用中，训练数据是稀疏的情况非常常见，`MLlib`支持读取训练数据存储为`LIBSVM`格式。它是[LIBSVM](http://www.csie.ntu.edu.tw/~cjlin/libsvm/)和[LIBLINEAR](http://www.csie.ntu.edu.tw/~cjlin/liblinear/)默认的格式。
 它是一种文本格式，每一行表示一个标注的稀疏特征向量，如下所示：
 
 ```scala
