@@ -11,7 +11,7 @@
 &emsp;&emsp;本系列目录如下：
 * [数据类型](数据类型/data-type.md)
 * 基本统计
-    * summary statistics（概括统计）
+    * [summary statistics（概括统计）](基本统计/summary-statistics.md)
     * correlations（相关性）
     * tratified sampling（分层取样）
     * hypothesis testing（假设检验）
