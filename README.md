@@ -9,18 +9,18 @@
 ## 本系列的目录结构
 
 &emsp;&emsp;本系列目录如下：
-* 数据类型
+* [数据类型](数据类型/data-type.md)
 * 基本统计
     * summary statistics（概括统计）
     * correlations（相关性）
     * tratified sampling（分层取样）
     * hypothesis testing（假设检验）
     * random data generation（随机数生成）
-* 协同过滤
+* [协同过滤](推荐/交换最小二乘/ALS.md)
     * [交换最小二乘](推荐/交换最小二乘/ALS.md)
 * [分类和回归](分类和回归/readme.md)
     * [线性模型](分类和回归/线性模型/readme.md)
-        * SVMs
+        * SVMs(支持向量机)
         * 逻辑回归
         * 线性回归
     * 朴素贝叶斯
