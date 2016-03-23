@@ -86,7 +86,9 @@ def computeColumnSummaryStatistics(): MultivariateStatisticalSummary = {
 
 <div  align="center"><img src="imgs/1.2.png" width = "340" height = "120" alt="1.2" align="center" /></div>
 
-&emsp;&emsp;在上面的公式中，`x`表示样本均值，`s`表示样本方差，`delta`表示总体方差。
+&emsp;&emsp;在上面的公式中，`x`表示样本均值，`s`表示样本方差，`delta`表示总体方差。`MLlib`实现的是带有权重的计算，所以使用的迭代公式略有不同，参考文献【2】。
+
+<div  align="center"><img src="imgs/1.3.png" width = "370" height = "270" alt="1.1" align="center" /></div>
 
 &emsp;&emsp;`merge`方法相对比较简单，它只是对两个`MultivariateOnlineSummarizer`对象的指标作合并操作。遵循的规则也是上述公式。
 
@@ -132,6 +134,32 @@ def computeColumnSummaryStatistics(): MultivariateStatisticalSummary = {
       this.currMin = other.currMin.clone()
     }
     this
+  }
+```
+&emsp;&emsp;依靠文献【3】我们可以知道，样本方差的无偏估计由下面的公式给出：
+
+<div  align="center"><img src="imgs/1.4.png" width = "165" height = "65" alt="1.4" align="center" /></div>
+
+<div  align="center"><img src="imgs/1.5.png" width = "475" height = "85" alt="1.5" align="center" /></div>
+
+&emsp;&emsp;所以，样本方差的无偏估计由下面的代码计算：
+
+```scala
+ override def variance: Vector = {
+    val realVariance = Array.ofDim[Double](n)
+    val denominator = weightSum - (weightSquareSum / weightSum)
+    // Sample variance is computed, if the denominator is less than 0, the variance is just 0.
+    if (denominator > 0.0) {
+      val deltaMean = currMean
+      var i = 0
+      val len = currM2n.length
+      while (i < len) {
+        realVariance(i) = (currM2n(i) + deltaMean(i) * deltaMean(i) * nnz(i) *
+          (weightSum - nnz(i)) / weightSum) / denominator
+        i += 1
+      }
+    }
+    Vectors.dense(realVariance)
   }
 ```
 
