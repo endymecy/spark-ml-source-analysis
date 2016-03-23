@@ -106,11 +106,11 @@ def computeCorrelationMatrixFromCovariance(covarianceMatrix: Matrix): Matrix = {
 &emsp;&emsp;使用皮尔逊线性相关系数有2个局限：首先，必须假设数据是成对地从正态分布中取得的；其次，数据至少在逻辑范围内是等距的。对不服从正态分布的资料不符合使用矩相关系数来描述关联性。
 此时可采用秩相关（`rank correlation`），也称等级相关，来描述两个变量之间的关联程度与方向。斯皮尔曼秩相关系数就是其中一种。
 
-&emsp;&emsp;斯皮尔曼秩相关系数定义为排序变量(`ranked variables`)之间的皮尔逊相关系数。对于大小为`n`的样本集，将原始的数据`X_i`和`Y_i`转换成排序变量`rgX_i`和`rgY_1`，然后按照皮尔森相关系数的计算公式进行计算。
+&emsp;&emsp;斯皮尔曼秩相关系数定义为排序变量(`ranked variables`)之间的皮尔逊相关系数。对于大小为`n`的样本集，将原始的数据`X_i`和`Y_i`转换成排序变量`rgX_i`和`rgY_i`，然后按照皮尔森相关系数的计算公式进行计算。
 
 <div  align="center"><img src="imgs/2.2.png" width = "270" height = "60" alt="2.2" align="center" /></div>
 
-&emsp;&emsp;下面的代码实现了变量的转换。
+&emsp;&emsp;下面的代码将原始数据转换成了排序数据。
 
 ```scala
 override def computeCorrelationMatrix(X: RDD[Vector]): Matrix = {
@@ -158,7 +158,7 @@ override def computeCorrelationMatrix(X: RDD[Vector]): Matrix = {
        Vectors.dense(iter.toSeq.sortBy(_._1).map(_._2).toArray)
    }
 ```
-&emsp;&emsp;在每个分区内部，对于相同的列，为其分配平均`rank`。平均`rank`的计算方式如下面公式所示：
+&emsp;&emsp;在每个分区内部，对于列索引相同且值相同的数据对，我们为其分配平均`rank`值。平均`rank`的计算方式如下面公式所示：
 
 <div  align="center"><img src="imgs/2.3.png" width = "250" height = "45" alt="2.3" align="center" /></div>
 
