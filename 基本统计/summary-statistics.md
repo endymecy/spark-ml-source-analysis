@@ -90,7 +90,7 @@ def computeColumnSummaryStatistics(): MultivariateStatisticalSummary = {
 
 <div  align="center"><img src="imgs/1.3.png" width = "370" height = "270" alt="1.1" align="center" /></div>
 
-&emsp;&emsp;`merge`方法相对比较简单，它只是对两个`MultivariateOnlineSummarizer`对象的指标作合并操作。遵循的规则也是上述公式。
+&emsp;&emsp;`merge`方法相对比较简单，它只是对两个`MultivariateOnlineSummarizer`对象的指标作合并操作。
 
 ```scala
  def merge(other: MultivariateOnlineSummarizer): this.type = {
@@ -107,7 +107,7 @@ def computeColumnSummaryStatistics(): MultivariateStatisticalSummary = {
           val deltaMean = other.currMean(i) - currMean(i)
           // merge mean together
           currMean(i) += deltaMean * otherNnz / totalNnz
-          // merge m2n together，不单纯是累加，需要加上后面这块，why？
+          // merge m2n together，不单纯是累加
           currM2n(i) += other.currM2n(i) + deltaMean * deltaMean * thisNnz * otherNnz / totalNnz
           // merge m2 together
           currM2(i) += other.currM2(i)
@@ -136,15 +136,28 @@ def computeColumnSummaryStatistics(): MultivariateStatisticalSummary = {
     this
   }
 ```
+&emsp;&emsp;这里需要注意的是，在线算法的并行化实现是一种特殊情况。例如样本集`X`分到两个不同的分区，分别为`X_A`和`X_B`，那么它们的合并需要满足下面的公式：
+
+<div  align="center"><img src="imgs/1.6.png" width = "310" height = "110" alt="1.6" align="center" /></div>
+
 &emsp;&emsp;依靠文献【3】我们可以知道，样本方差的无偏估计由下面的公式给出：
 
 <div  align="center"><img src="imgs/1.4.png" width = "165" height = "65" alt="1.4" align="center" /></div>
 
 <div  align="center"><img src="imgs/1.5.png" width = "475" height = "85" alt="1.5" align="center" /></div>
 
-&emsp;&emsp;所以，样本方差的无偏估计由下面的代码计算：
+&emsp;&emsp;所以，真实的样本均值和样本方差通过下面的代码实现。
 
 ```scala
+override def mean: Vector = {
+    val realMean = Array.ofDim[Double](n)
+    var i = 0
+    while (i < n) {
+      realMean(i) = currMean(i) * (nnz(i) / weightSum)
+      i += 1
+    }
+    Vectors.dense(realMean)
+  }
  override def variance: Vector = {
     val realVariance = Array.ofDim[Double](n)
     val denominator = weightSum - (weightSquareSum / weightSum)
@@ -162,6 +175,8 @@ def computeColumnSummaryStatistics(): MultivariateStatisticalSummary = {
     Vectors.dense(realVariance)
   }
 ```
+
+
 
 # 参考文献
 
