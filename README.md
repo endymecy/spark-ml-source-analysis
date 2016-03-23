@@ -12,7 +12,7 @@
 * [数据类型](数据类型/data-type.md)
 * [基本统计](基本统计/summary-statistics.md)
     * [summary statistics（概括统计）](基本统计/summary-statistics.md)
-    * [correlations（相关性）](基本统计/correlations.md)
+    * [correlations（相关性系数）](基本统计/correlations.md)
     * tratified sampling（分层取样）
     * hypothesis testing（假设检验）
     * random data generation（随机数生成）
