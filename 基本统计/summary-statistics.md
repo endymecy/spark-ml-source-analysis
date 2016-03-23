@@ -142,7 +142,7 @@ def computeColumnSummaryStatistics(): MultivariateStatisticalSummary = {
 
 &emsp;&emsp;依靠文献【3】我们可以知道，样本方差的无偏估计由下面的公式给出：
 
-<div  align="center"><img src="imgs/1.4.png" width = "165" height = "65" alt="1.4" align="center" /></div>
+<div  align="center"><img src="imgs/1.4.png" width = "200" height = "70" alt="1.4" align="center" /></div>
 
 <div  align="center"><img src="imgs/1.5.png" width = "475" height = "85" alt="1.5" align="center" /></div>
 
@@ -175,8 +175,6 @@ override def mean: Vector = {
     Vectors.dense(realVariance)
   }
 ```
-
-
 
 # 参考文献
 
