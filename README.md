@@ -14,7 +14,7 @@
     * [summary statistics（概括统计）](基本统计/summary-statistics.md)
     * [correlations（相关性系数）](基本统计/correlations.md)
     * [tratified sampling（分层取样）](基本统计/tratified-sampling.md)
-    * hypothesis testing（假设检验）
+    * [hypothesis testing（假设检验）](基本统计/hypothesis-testing.md)
     * random data generation（随机数生成）
 * [协同过滤](推荐/交换最小二乘/ALS.md)
     * [交换最小二乘](推荐/交换最小二乘/ALS.md)
