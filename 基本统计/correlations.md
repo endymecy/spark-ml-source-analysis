@@ -1,6 +1,6 @@
 # 相关性系数
 
-&emsp;&emsp;计算两个数据集的相关性是统计中的常用操作。在`MLlib`中提供了计算多个数据集两两相关的方法。目前支持的相关性方法有皮尔逊(`Pearson`)相关和斯皮尔曼(`Spearman`)相关。
+&emsp;&emsp;计算两个数据集的相关性是统计中的常用操作。在`MLlib`中提供了计算多个数据集两两相关的方法。目前支持的相关性方法有皮尔森(`Pearson`)相关和斯皮尔曼(`Spearman`)相关。
 
 &emsp;&emsp;`Statistics`提供方法计算数据集的相关性。根据输入的类型，两个`RDD[Double]`或者一个`RDD[Vector]`，输出将会是一个`Double`值或者相关性矩阵。下面是一个应用的例子。
 
@@ -43,9 +43,9 @@ def computeCorrelationWithMatrixImpl(x: RDD[Double], y: RDD[Double]): Double = {
     computeCorrelationMatrix(mat)(0, 1)
   }
 ```
-&emsp;&emsp;不同的相关性方法，`computeCorrelationMatrix`的实现不同。下面分别介绍皮尔逊相关与斯皮尔曼相关的实现。
+&emsp;&emsp;不同的相关性方法，`computeCorrelationMatrix`的实现不同。下面分别介绍皮尔森相关与斯皮尔曼相关的实现。
 
-## 1 皮尔逊相关系数
+## 1 皮尔森相关系数
 
 &emsp;&emsp;皮尔森相关系数也叫皮尔森积差相关系数，是用来反映两个变量相似程度的统计量。或者说可以用来计算两个向量的相似度（在基于向量空间模型的文本分类、用户喜好推荐系统中都有应用）。皮尔森相关系数计算公式如下：
 
@@ -103,7 +103,7 @@ def computeCorrelationMatrixFromCovariance(covarianceMatrix: Matrix): Matrix = {
 
 ## 2 斯皮尔曼相关系数
 
-&emsp;&emsp;使用皮尔逊线性相关系数有2个局限：首先，必须假设数据是成对地从正态分布中取得的；其次，数据至少在逻辑范围内是等距的。对不服从正态分布的资料不符合使用矩相关系数来描述关联性。
+&emsp;&emsp;使用皮尔森线性相关系数有2个局限：首先，必须假设数据是成对地从正态分布中取得的；其次，数据至少在逻辑范围内是等距的。对不服从正态分布的资料不符合使用矩相关系数来描述关联性。
 此时可采用秩相关（`rank correlation`），也称等级相关，来描述两个变量之间的关联程度与方向。斯皮尔曼秩相关系数就是其中一种。
 
 &emsp;&emsp;斯皮尔曼秩相关系数定义为排序变量(`ranked variables`)之间的皮尔逊相关系数。对于大小为`n`的样本集，将原始的数据`X_i`和`Y_i`转换成排序变量`rgX_i`和`rgY_i`，然后按照皮尔森相关系数的计算公式进行计算。
