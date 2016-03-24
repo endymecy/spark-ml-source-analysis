@@ -16,6 +16,7 @@
     * [tratified sampling（分层取样）](基本统计/tratified-sampling.md)
     * [hypothesis testing（假设检验）](基本统计/hypothesis-testing.md)
     * [random data generation（随机数生成）](基本统计/random-data-generation.md)
+    * [Kernel density estimation（核密度估计）](基本统计/kernel-density-estimation.md)
 * [协同过滤](推荐/交换最小二乘/ALS.md)
     * [交换最小二乘](推荐/交换最小二乘/ALS.md)
 * [分类和回归](分类和回归/readme.md)
