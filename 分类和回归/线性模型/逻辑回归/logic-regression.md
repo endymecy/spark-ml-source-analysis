@@ -33,7 +33,7 @@
 
 <div  align="center"><img src="imgs/1.7.png" width = "590" height = "60" alt="1.7" align="center" /></div><br>
 
-&emsp;&emsp;最大似然估计就是求使`l`取最大值时的`theta`。`MLlib`中提供了两种方法来求这个参数，分别是[梯度下降法](../../最优化算法/梯度下降/gradient-descent.md)和[L-BFGS](../../最优化算法/L-BFGS/lbfgs.md)。
+&emsp;&emsp;最大似然估计就是求使`l`取最大值时的`theta`。`MLlib`中提供了两种方法来求这个参数，分别是[梯度下降法](../../../最优化算法/梯度下降/gradient-descent.md)和[L-BFGS](../../../最优化算法/L-BFGS/lbfgs.md)。
 
 ## 2 多分类
 
@@ -133,7 +133,7 @@ val initialWeightsWithIntercept = if (addIntercept && numOfLinearPredictor == 1)
 ```
 
 &emsp;&emsp;在最优化过程中，收敛速度依赖于训练数据集的条件数(`condition number`)，缩放变量经常可以启发式地减少这些条件数，提高收敛速度。不减少条件数，一些混合有不同范围列的数据集可能不能收敛。
-在这里使用`StandardScaler`将数据集的特征进行缩放。详细信息请看[StandardScaler](../../特征抽取和转换/StandardScaler.md)。`appendBias`方法很简单，就是在每个向量后面加一个值为1的项。
+在这里使用`StandardScaler`将数据集的特征进行缩放。详细信息请看[StandardScaler](../../../特征抽取和转换/StandardScaler.md)。`appendBias`方法很简单，就是在每个向量后面加一个值为1的项。
 
 ```scala
 def appendBias(vector: Vector): Vector = {
@@ -166,7 +166,7 @@ def appendBias(vector: Vector): Vector = {
 ```scala
 val weightsWithIntercept = optimizer.optimize(data, initialWeightsWithIntercept)
 ```
-&emsp;&emsp;有梯度下降算法和`L-BFGS`两种算法来计算最终的权重值，查看[梯度下降法](../../最优化算法/梯度下降/gradient-descent.md)和[L-BFGS](../../最优化算法/L-BFGS/lbfgs.md)了解详细实现。
+&emsp;&emsp;有梯度下降算法和`L-BFGS`两种算法来计算最终的权重值，查看[梯度下降法](../../../最优化算法/梯度下降/gradient-descent.md)和[L-BFGS](../../../最优化算法/L-BFGS/lbfgs.md)了解详细实现。
 
 - **3** 对最终的权重值进行后处理
 
@@ -182,7 +182,7 @@ var weights = if (addIntercept && numOfLinearPredictor == 1) {
       weightsWithIntercept
     }
 ```
-&emsp;&emsp;该端代码获得了`intercept`以及最终的权重值。由于`intercept`和权重是在收缩的空间进行训练的，所以我们需要再把它们转换到元素的空间。数学显示，如果我们仅仅执行标准化而没有减去均值，即`withStd = true, withMean = false`，
+&emsp;&emsp;该段代码获得了`intercept`以及最终的权重值。由于`intercept`和权重是在收缩的空间进行训练的，所以我们需要再把它们转换到元素的空间。数学显示，如果我们仅仅执行标准化而没有减去均值，即`withStd = true, withMean = false`，
 那么`intercept`的值并不会发送改变。所以下面的代码仅仅处理权重向量。
 
 ```scala
