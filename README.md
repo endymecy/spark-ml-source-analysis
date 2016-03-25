@@ -38,7 +38,7 @@
     * [二分k-means算法](聚类/bis-k-means/bisecting-k-means.md)
     * [流式k-means算法](聚类/streaming-k-means/streaming-k-means.md)
 * 最优化算法
-    * 随机梯度下降算法
+    * [梯度下降算法](最优化算法/梯度下降/gradient-descent.md)
     * L-BFGS
     * [NNLS(非负最小二乘)](最优化算法/非负最小二乘/NNLS.md)
 * 降维
