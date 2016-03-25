@@ -77,7 +77,9 @@ val sameModel = LogisticRegressionModel.load(sc, "myModelPath")
 
 ## 4 源码分析
 
-&emsp;&emsp;如上所述，在`MLlib`中，分别使用了梯度下降法和`L-BFGS`实现逻辑回归。这两个算法的实现我们会在最优化章节介绍，这里我们介绍公共的部分。
+### 4.1 训练模型
+
+&emsp;&emsp;如上所述，在`MLlib`中，分别使用了梯度下降法和`L-BFGS`实现逻辑回归参数的计算。这两个算法的实现我们会在最优化章节介绍，这里我们介绍公共的部分。
 
 &emsp;&emsp;`LogisticRegressionWithLBFGS`和`LogisticRegressionWithSGD`的入口函数均是`GeneralizedLinearAlgorithm.run`，下面详细分析该方法。
 
@@ -99,10 +101,10 @@ def run(input: RDD[LabeledPoint]): M = {
     run(input, initialWeights)
 }
 ```
-&emsp;&emsp;上面的代码初始化权重向量，向量的值均初始化为0。需要注意的是，`addIntercept`表示是否添加截距(`Intercept`)，默认是不添加的。`numOfLinearPredictor`表示二元逻辑回归模型的个数。
+&emsp;&emsp;上面的代码初始化权重向量，向量的值均初始化为0。需要注意的是，`addIntercept`表示是否添加截距(`Intercept`，指函数图形与坐标的交点到原点的距离)，默认是不添加的。`numOfLinearPredictor`表示二元逻辑回归模型的个数。
 我们重点看`run(input, initialWeights)`的实现。它的实现分四步。
 
-- **1** 根据提供的参数缩放特征并添加`Intercept`
+- **1** 根据提供的参数缩放特征并添加截距
 
 ```scala
 val scaler = if (useFeatureScaling) {
@@ -212,6 +214,46 @@ if (useFeatureScaling) {
 ```scala
 createModel(weights, intercept)
 ```
+
+### 4.2 预测
+
+&emsp;&emsp;训练完模型之后，我们就可以通过训练的模型计算得到测试数据的分类信息。`predictPoint`用来预测分类信息。它针对二分类和多分类，分别进行处理。
+
+- 二分类的情况
+
+```scala
+val margin = dot(weightMatrix, dataMatrix) + intercept
+val score = 1.0 / (1.0 + math.exp(-margin))
+threshold match {
+    case Some(t) => if (score > t) 1.0 else 0.0
+    case None => score
+}
+```
+&emsp;&emsp;我们可以看到`1.0 / (1.0 + math.exp(-margin))`就是上文提到的逻辑函数即`sigmoid`函数。
+
+- 多分类情况
+
+```scala
+var bestClass = 0
+var maxMargin = 0.0
+val withBias = dataMatrix.size + 1 == dataWithBiasSize
+(0 until numClasses - 1).foreach { i =>
+        var margin = 0.0
+        dataMatrix.foreachActive { (index, value) =>
+          if (value != 0.0) margin += value * weightsArray((i * dataWithBiasSize) + index)
+        }
+        // Intercept is required to be added into margin.
+        if (withBias) {
+          margin += weightsArray((i * dataWithBiasSize) + dataMatrix.size)
+        }
+        if (margin > maxMargin) {
+          maxMargin = margin
+          bestClass = i + 1
+        }
+}
+bestClass.toDouble
+```
+&emsp;&emsp;该段代码计算并找到最大的`margin`。如果`maxMargin`为负，那么第一类是该数据的类别。
 
 # 参考文献
 
