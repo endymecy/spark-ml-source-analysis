@@ -22,7 +22,7 @@
 * [分类和回归](分类和回归/readme.md)
     * [线性模型](分类和回归/线性模型/readme.md)
         * SVMs(支持向量机)
-        * 逻辑回归
+        * [逻辑回归](线性模型/逻辑回归/logic-regression.md)
         * 线性回归
     * 朴素贝叶斯
     * 决策树
@@ -47,7 +47,7 @@
 * 特征抽取和转换
     * TF-IDF
     * Word2Vec
-    * StandardScaler
+    * [StandardScaler（特征缩放）](特征抽取和转换/StandardScaler.md)
     * Normalizer
     * ChiSqSelector
     * ElementwiseProduct
