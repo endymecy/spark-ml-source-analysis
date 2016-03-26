@@ -1,11 +1,11 @@
 # 逻辑回归
 
-## 1 逻辑回归模型
+## 1 二元逻辑回归
 
 &emsp;&emsp;回归是一种很容易理解的模型，就相当于`y=f(x)`，表明自变量`x`与因变量`y`的关系。最常见问题如医生治病时的望、闻、问、切，之后判定病人是否生病或生了什么病，
-其中的望、闻、问、切就是获取的自变量`x`，即特征数据，判断是否生病就相当于获取因变量`y`，即预测分类。最简单的回归是[线性回归]()，但是线性回归的鲁棒性很差。
+其中的望、闻、问、切就是获取的自变量`x`，即特征数据，判断是否生病就相当于获取因变量`y`，即预测分类。最简单的回归是线性回归，但是线性回归的鲁棒性很差。
 
-&emsp;&emsp;逻辑回归是一种减小预测范围，将预测值限定为`[0,1]`间的一种回归模型，其回归方程与回归曲线如下图所示。逻辑曲线在`z=0`时，十分敏感，在`z>>0`或`z<<0`处，都不敏感，将预测值限定为`(0,1)`。
+&emsp;&emsp;逻辑回归是一种减小预测范围，将预测值限定为`[0,1]`间的一种回归模型，其回归方程与回归曲线如下图所示。逻辑曲线在`z=0`时，十分敏感，在`z>>0`或`z<<0`处，都不敏感。
 
 <div  align="center"><img src="imgs/1.1.png" width = "590" height = "300" alt="1.1" align="center" /></div><br>
 
@@ -35,10 +35,31 @@
 
 &emsp;&emsp;最大似然估计就是求使`l`取最大值时的`theta`。`MLlib`中提供了两种方法来求这个参数，分别是[梯度下降法](../../../最优化算法/梯度下降/gradient-descent.md)和[L-BFGS](../../../最优化算法/L-BFGS/lbfgs.md)。
 
-## 2 多分类
+## 2 多元逻辑回归
 
 &emsp;&emsp;二元逻辑回归可以一般化为[多元逻辑回归](http://en.wikipedia.org/wiki/Multinomial_logistic_regression)用来训练和预测多分类问题。对于多分类问题，算法将会训练出一个多元逻辑回归模型，
 它包含`K-1`个二元回归模型。给定一个数据点，`K-1`个模型都会运行，概率最大的类别将会被选为预测类别。
+
+&emsp;&emsp;对于输入点`x`，分类结果为各类别的概率分别为如下公式**(6)**，其中`k`表示类别个数。
+
+<div  align="center"><img src="imgs/2.1.png" width = "330" height = "175" alt="2.1" align="center" /></div><br>
+
+&emsp;&emsp;对于`k`类的多分类问题，模型的权重`w = (w_1, w_2, ..., w_{K-1})`是一个矩阵，如果添加截距，矩阵的维度为`(K-1) * (N+1)`，否则为`(K-1) * N`。单个样本的目标函数的损失函数可以写成如下公式**(7)**的形式。
+
+<div  align="center"><img src="imgs/2.2.png" width = "730" height = "110" alt="2.2" align="center" /></div><br>
+
+&emsp;&emsp;对损失函数求一阶导数，我们可以得到下面的公式**(8)**:
+
+<div  align="center"><img src="imgs/2.3.png" width = "730" height = "110" alt="2.3" align="center" /></div><br>
+
+&emsp;&emsp;根据上面的公式，如果某些`margin`的值大于709.78，`multiplier`以及逻辑函数的计算会出现算术溢出(`arithmetic overflow`)的情况。这个问题发生在有离群点远离超平面的情况下。
+幸运的是，当`max(margins) = maxMargin > 0`时，损失函数可以重写为如下公式**(9)**的形式。
+
+<div  align="center"><img src="imgs/2.4.png" width = "740" height = "150" alt="2.4" align="center" /></div><br>
+
+&emsp;&emsp;同理，`multiplier`也可以重写为如下公式**(10)**的形式。
+
+<div  align="center"><img src="imgs/2.5.png" width = "535" height = "120" alt="2.5" align="center" /></div><br>
 
 ## 3 实例
 
@@ -104,7 +125,7 @@ def run(input: RDD[LabeledPoint]): M = {
 &emsp;&emsp;上面的代码初始化权重向量，向量的值均初始化为0。需要注意的是，`addIntercept`表示是否添加截距(`Intercept`，指函数图形与坐标的交点到原点的距离)，默认是不添加的。`numOfLinearPredictor`表示二元逻辑回归模型的个数。
 我们重点看`run(input, initialWeights)`的实现。它的实现分四步。
 
-- **1** 根据提供的参数缩放特征并添加截距
+#### 4.1.1 根据提供的参数缩放特征并添加截距
 
 ```scala
 val scaler = if (useFeatureScaling) {
@@ -163,14 +184,97 @@ def appendBias(vector: Vector): Vector = {
     }
 ```
 
-- **2** 使用最优化算法计算最终的权重值
+#### 4.1.2 使用最优化算法计算最终的权重值
 
 ```scala
 val weightsWithIntercept = optimizer.optimize(data, initialWeightsWithIntercept)
 ```
 &emsp;&emsp;有梯度下降算法和`L-BFGS`两种算法来计算最终的权重值，查看[梯度下降法](../../../最优化算法/梯度下降/gradient-descent.md)和[L-BFGS](../../../最优化算法/L-BFGS/lbfgs.md)了解详细实现。
+`LogisticRegressionWithSGD`和`LogisticRegressionWithLBFGS`均使用`LogisticGradient`计算梯度，使用`SquaredL2Updater`更新参数。
 
-- **3** 对最终的权重值进行后处理
+```scala
+//在GradientDescent中
+private val gradient = new LogisticGradient()
+private val updater = new SquaredL2Updater()
+override val optimizer = new GradientDescent(gradient, updater)
+    .setStepSize(stepSize)
+    .setNumIterations(numIterations)
+    .setRegParam(regParam)
+    .setMiniBatchFraction(miniBatchFraction)
+//在LBFGS中
+override val optimizer = new LBFGS(new LogisticGradient, new SquaredL2Updater)
+```
+&emsp;&emsp;下面将详细介绍`LogisticGradient`的实现和`SquaredL2Updater`的实现。
+
+- LogisticGradient
+
+&emsp;&emsp;`LogisticGradient`中使用`compute`方法计算梯度。计算分为两种情况，即二元逻辑回归的情况和多元逻辑回归的情况。虽然多元逻辑回归也可以实现二元分类，但是为了效率，`compute`方法仍然实现了一个二元逻辑回归的版本。
+
+```scala
+val margin = -1.0 * dot(data, weights)
+val multiplier = (1.0 / (1.0 + math.exp(margin))) - label
+//y += a * x，即cumGradient += multiplier * data
+axpy(multiplier, data, cumGradient)
+if (label > 0) {
+    // The following is equivalent to log(1 + exp(margin)) but more numerically stable.
+    MLUtils.log1pExp(margin)
+} else {
+    MLUtils.log1pExp(margin) - margin
+}
+```
+&emsp;&emsp;这里的`multiplier`就是上文的公式**(2)**。`axpy`方法用于计算梯度，这里表示的意思是`h(x) * x`。下面是多元逻辑回归的实现方法。
+
+```scala
+//权重
+val weightsArray = weights match {
+    case dv: DenseVector => dv.values
+    case _ =>
+            throw new IllegalArgumentException
+}
+//梯度
+val cumGradientArray = cumGradient match {
+    case dv: DenseVector => dv.values
+    case _ =>
+        throw new IllegalArgumentException
+}
+// 计算所有类别中最大的margin
+var marginY = 0.0
+var maxMargin = Double.NegativeInfinity
+var maxMarginIndex = 0
+val margins = Array.tabulate(numClasses - 1) { i =>
+    var margin = 0.0
+    data.foreachActive { (index, value) =>
+        if (value != 0.0) margin += value * weightsArray((i * dataSize) + index)
+    }
+    if (i == label.toInt - 1) marginY = margin
+    if (margin > maxMargin) {
+            maxMargin = margin
+            maxMarginIndex = i
+    }
+    margin
+}
+//当maxMargin大于0时，
+val sum = {
+     var temp = 0.0
+     if (maxMargin > 0) {
+         for (i <- 0 until numClasses - 1) {
+              margins(i) -= maxMargin
+              if (i == maxMarginIndex) {
+                temp += math.exp(-maxMargin)
+              } else {
+                temp += math.exp(margins(i))
+              }
+         }
+     } else {
+         for (i <- 0 until numClasses - 1) {
+              temp += math.exp(margins(i))
+         }
+     }
+     temp
+}
+```
+
+#### 4.1.3 对最终的权重值进行后处理
 
 ```scala
 val intercept = if (addIntercept && numOfLinearPredictor == 1) {
@@ -209,7 +313,7 @@ if (useFeatureScaling) {
     }
 ```
 
-- **4** 创建模型
+#### 4.1.4 创建模型
 
 ```scala
 createModel(weights, intercept)
