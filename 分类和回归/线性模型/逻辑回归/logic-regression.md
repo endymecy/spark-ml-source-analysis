@@ -55,7 +55,7 @@
 &emsp;&emsp;根据上面的公式，如果某些`margin`的值大于709.78，`multiplier`以及逻辑函数的计算会出现算术溢出(`arithmetic overflow`)的情况。这个问题发生在有离群点远离超平面的情况下。
 幸运的是，当`max(margins) = maxMargin > 0`时，损失函数可以重写为如下公式**(9)**的形式。
 
-<div  align="center"><img src="imgs/2.4.png" width = "740" height = "150" alt="2.4" align="center" /></div><br>
+<div  align="center"><img src="imgs/2.4.png" width = "670" height = "150" alt="2.4" align="center" /></div><br>
 
 &emsp;&emsp;同理，`multiplier`也可以重写为如下公式**(10)**的形式。
 
