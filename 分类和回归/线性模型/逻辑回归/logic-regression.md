@@ -59,7 +59,7 @@
 
 &emsp;&emsp;同理，`multiplier`也可以重写为如下公式**(10)**的形式。
 
-<div  align="center"><img src="imgs/2.5.png" width = "535" height = "120" alt="2.5" align="center" /></div><br>
+<div  align="center"><img src="imgs/2.5.png" width = "500" height = "160" alt="2.5" align="center" /></div><br>
 
 ## 3 实例
 
@@ -253,7 +253,7 @@ val margins = Array.tabulate(numClasses - 1) { i =>
     }
     margin
 }
-//当maxMargin大于0时，
+//计算公式（10）中的sum部分
 val sum = {
      var temp = 0.0
      if (maxMargin > 0) {
