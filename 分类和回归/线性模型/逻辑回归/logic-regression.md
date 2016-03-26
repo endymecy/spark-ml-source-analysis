@@ -190,7 +190,7 @@ def appendBias(vector: Vector): Vector = {
 val weightsWithIntercept = optimizer.optimize(data, initialWeightsWithIntercept)
 ```
 &emsp;&emsp;有梯度下降算法和`L-BFGS`两种算法来计算最终的权重值，查看[梯度下降法](../../../最优化算法/梯度下降/gradient-descent.md)和[L-BFGS](../../../最优化算法/L-BFGS/lbfgs.md)了解详细实现。
-`LogisticRegressionWithSGD`和`LogisticRegressionWithLBFGS`均使用`LogisticGradient`计算梯度，使用`SquaredL2Updater`更新参数。
+这两种算法均使用`Gradient`的实现类计算梯度，使用`Updater`的实现类更新参数。在`LogisticRegressionWithSGD`和`LogisticRegressionWithLBFGS`中，它们均使用`LogisticGradient`实现类计算梯度，使用`SquaredL2Updater`实现类更新参数。
 
 ```scala
 //在GradientDescent中
