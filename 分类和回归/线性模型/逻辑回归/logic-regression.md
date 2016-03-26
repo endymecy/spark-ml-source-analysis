@@ -253,7 +253,7 @@ val margins = Array.tabulate(numClasses - 1) { i =>
     }
     margin
 }
-//计算公式（10）中的sum部分
+//计算sum，保证每个margin都小于0，避免出现算术溢出的情况
 val sum = {
      var temp = 0.0
      if (maxMargin > 0) {
@@ -272,7 +272,47 @@ val sum = {
      }
      temp
 }
+//计算multiplier并计算梯度
+for (i <- 0 until numClasses - 1) {
+     val multiplier = math.exp(margins(i)) / (sum + 1.0) - {
+          if (label != 0.0 && label == i + 1) 1.0 else 0.0
+     }
+     data.foreachActive { (index, value) =>
+         if (value != 0.0) cumGradientArray(i * dataSize + index) += multiplier * value
+     }
+}
+//计算损失函数,
+val loss = if (label > 0.0) math.log1p(sum) - marginY else math.log1p(sum)
+if (maxMargin > 0) {
+     loss + maxMargin
+} else {
+     loss
+}
 ```
+- SquaredL2Updater
+
+```scala
+class SquaredL2Updater extends Updater {
+  override def compute(
+      weightsOld: Vector,
+      gradient: Vector,
+      stepSize: Double,
+      iter: Int,
+      regParam: Double): (Vector, Double) = {
+    //表示步长，即负梯度方向的大小
+    val thisIterStepSize = stepSize / math.sqrt(iter)
+    val brzWeights: BV[Double] = weightsOld.toBreeze.toDenseVector
+    //正则化，brzWeights每行数据均乘以(1.0 - thisIterStepSize * regParam)
+    brzWeights :*= (1.0 - thisIterStepSize * regParam)
+    //y += x * a，即brzWeights -= gradient * thisInterStepSize
+    brzAxpy(-thisIterStepSize, gradient.toBreeze, brzWeights)
+    //正则化||w||_2
+    val norm = brzNorm(brzWeights, 2.0)
+    (Vectors.fromBreeze(brzWeights), 0.5 * regParam * norm * norm)
+  }
+}
+```
+&emsp;&emsp;这里`thisIterStepSize`表示参数沿负梯度方向改变的速率，它随着迭代次数的增多而减小。
 
 #### 4.1.3 对最终的权重值进行后处理
 
