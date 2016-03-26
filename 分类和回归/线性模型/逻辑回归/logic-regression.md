@@ -11,15 +11,15 @@
 
 &emsp;&emsp;逻辑回归其实是在线性回归的基础上，套用了一个逻辑函数。上图的`g(z)`就是这个逻辑函数(或称为`Sigmoid`函数)。下面左图是一个线性的决策边界，右图是非线性的决策边界。
 
-<div  align="center"><img src="imgs/1.2.png" width = "900" height = "400" alt="1.2" align="center" /></div><br>
+<div  align="center"><img src="imgs/1.2.png" width = "780" height = "300" alt="1.2" align="center" /></div><br>
 
 &emsp;&emsp;对于线性边界的情况，边界形式可以归纳为如下公式**(1)**:
 
-<div  align="center"><img src="imgs/1.3.png" width = "370" height = "70" alt="1.3" align="center" /></div><br>
+<div  align="center"><img src="imgs/1.3.png" width = "300" height = "60" alt="1.3" align="center" /></div><br>
 
 &emsp;&emsp;因此我们可以构造预测函数为如下公式**(2)**:
 
-<div  align="center"><img src="imgs/1.4.png" width = "270" height = "75" alt="1.4" align="center" /></div><br>
+<div  align="center"><img src="imgs/1.4.png" width = "250" height = "70" alt="1.4" align="center" /></div><br>
 
 &emsp;&emsp;该预测函数表示分类结果为1时的概率。因此对于输入点`x`，分类结果为类别1和类别0的概率分别为如下公式**(3)**：
 
@@ -27,11 +27,11 @@
 
 &emsp;&emsp;对于训练数据集，特征数据`x={x1, x2, … , xm}`和对应的分类数据`y={y1, y2, … , ym}`。构建逻辑回归模型`f`，最典型的构建方法便是应用极大似然估计。对公式**(3)**取极大似然函数，可以得到如下的公式**(4)**:
 
-<div  align="center"><img src="imgs/1.6.png" width = "500" height = "60" alt="1.6" align="center" /></div><br>
+<div  align="center"><img src="imgs/1.6.png" width = "400" height = "45" alt="1.6" align="center" /></div><br>
 
 &emsp;&emsp;再对公式**(4)**取对数，可得到公式**(5)**：
 
-<div  align="center"><img src="imgs/1.7.png" width = "590" height = "60" alt="1.7" align="center" /></div><br>
+<div  align="center"><img src="imgs/1.7.png" width = "500" height = "55" alt="1.7" align="center" /></div><br>
 
 &emsp;&emsp;最大似然估计就是求使`l`取最大值时的`theta`。`MLlib`中提供了两种方法来求这个参数，分别是[梯度下降法](../../../最优化算法/梯度下降/gradient-descent.md)和[L-BFGS](../../../最优化算法/L-BFGS/lbfgs.md)。
 
