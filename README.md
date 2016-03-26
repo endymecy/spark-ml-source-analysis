@@ -55,7 +55,7 @@
 ## 说明
 
 &emsp;&emsp;本专题的大部分内容来自[spark源码](https://github.com/apache/spark)、[spark官方文档](https://spark.apache.org/docs/latest)，并不用于商业用途。转载请注明本专题地址。
-本专题引用他人的内容均列出了参考文献，如有侵权，请务必邮件通知作者。邮箱地址：`endymecy@sian.cn`
+本专题引用他人的内容均列出了参考文献，如有侵权，请务必邮件通知作者。邮箱地址：`endymecy@sina.cn`
     
 ## License
 
