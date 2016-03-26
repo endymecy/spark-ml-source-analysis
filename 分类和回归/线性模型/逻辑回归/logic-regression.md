@@ -27,11 +27,11 @@
 
 &emsp;&emsp;对于训练数据集，特征数据`x={x1, x2, … , xm}`和对应的分类数据`y={y1, y2, … , ym}`。构建逻辑回归模型`f`，最典型的构建方法便是应用极大似然估计。对公式**(3)**取极大似然函数，可以得到如下的公式**(4)**:
 
-<div  align="center"><img src="imgs/1.6.png" width = "400" height = "45" alt="1.6" align="center" /></div><br>
+<div  align="center"><img src="imgs/1.6.png" width = "350" height = "45" alt="1.6" align="center" /></div><br>
 
 &emsp;&emsp;再对公式**(4)**取对数，可得到公式**(5)**：
 
-<div  align="center"><img src="imgs/1.7.png" width = "500" height = "55" alt="1.7" align="center" /></div><br>
+<div  align="center"><img src="imgs/1.7.png" width = "450" height = "50" alt="1.7" align="center" /></div><br>
 
 &emsp;&emsp;最大似然估计就是求使`l`取最大值时的`theta`。`MLlib`中提供了两种方法来求这个参数，分别是[梯度下降法](../../../最优化算法/梯度下降/gradient-descent.md)和[L-BFGS](../../../最优化算法/L-BFGS/lbfgs.md)。
 
@@ -50,7 +50,7 @@
 
 &emsp;&emsp;对损失函数求一阶导数，我们可以得到下面的公式**(8)**:
 
-<div  align="center"><img src="imgs/2.3.png" width = "730" height = "110" alt="2.3" align="center" /></div><br>
+<div  align="center"><img src="imgs/2.3.png" width = "535" height = "150" alt="2.3" align="center" /></div><br>
 
 &emsp;&emsp;根据上面的公式，如果某些`margin`的值大于709.78，`multiplier`以及逻辑函数的计算会出现算术溢出(`arithmetic overflow`)的情况。这个问题发生在有离群点远离超平面的情况下。
 幸运的是，当`max(margins) = maxMargin > 0`时，损失函数可以重写为如下公式**(9)**的形式。
