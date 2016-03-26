@@ -46,16 +46,16 @@
 
 &emsp;&emsp;对于`k`类的多分类问题，模型的权重`w = (w_1, w_2, ..., w_{K-1})`是一个矩阵，如果添加截距，矩阵的维度为`(K-1) * (N+1)`，否则为`(K-1) * N`。单个样本的目标函数的损失函数可以写成如下公式**(7)**的形式。
 
-<div  align="center"><img src="imgs/2.2.png" width = "730" height = "110" alt="2.2" align="center" /></div><br>
+<div  align="center"><img src="imgs/2.2.png" width = "710" height = "110" alt="2.2" align="center" /></div><br>
 
 &emsp;&emsp;对损失函数求一阶导数，我们可以得到下面的公式**(8)**:
 
-<div  align="center"><img src="imgs/2.3.png" width = "535" height = "150" alt="2.3" align="center" /></div><br>
+<div  align="center"><img src="imgs/2.3.png" width = "570" height = "140" alt="2.3" align="center" /></div><br>
 
 &emsp;&emsp;根据上面的公式，如果某些`margin`的值大于709.78，`multiplier`以及逻辑函数的计算会出现算术溢出(`arithmetic overflow`)的情况。这个问题发生在有离群点远离超平面的情况下。
 幸运的是，当`max(margins) = maxMargin > 0`时，损失函数可以重写为如下公式**(9)**的形式。
 
-<div  align="center"><img src="imgs/2.4.png" width = "670" height = "150" alt="2.4" align="center" /></div><br>
+<div  align="center"><img src="imgs/2.4.png" width = "690" height = "190" alt="2.4" align="center" /></div><br>
 
 &emsp;&emsp;同理，`multiplier`也可以重写为如下公式**(10)**的形式。
 
