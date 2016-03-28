@@ -37,9 +37,9 @@
     * [LDA（隐式狄利克雷分布)](聚类/LDA/lda.md)
     * [二分k-means算法](聚类/bis-k-means/bisecting-k-means.md)
     * [流式k-means算法](聚类/streaming-k-means/streaming-k-means.md)
-* 最优化算法
+* [最优化算法](最优化算法/梯度下降/gradient-descent.md)
     * [梯度下降算法](最优化算法/梯度下降/gradient-descent.md)
-    * L-BFGS
+    * [L-BFGS](最优化算法/梯度下降/lbfgs.md)
     * [NNLS(非负最小二乘)](最优化算法/非负最小二乘/NNLS.md)
 * 降维
     * 奇异值分解（SVD）
