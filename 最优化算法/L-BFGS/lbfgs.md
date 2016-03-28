@@ -87,6 +87,34 @@
 
 ## 2.4 BFGS算法
 
+&emsp;&emsp;前面利用拟牛顿条件**(2.1)**推导出了`DFP`公式**(2.4)**。下面我们用不含二阶导数的矩阵<img src="http://www.forkosh.com/mathtex.cgi?{B}_{(k+1)}">计算`Hesse`矩阵，从而给出另一种形式的拟牛顿条件**(2.5)**:
+
+<div  align="center"><img src="imgs/2.11.png" width = "140" height = "35" alt="2.11" align="center" /></div><br>
+
+&emsp;&emsp;将公式**(2.1)**的`H`换为`B`，`p`和`q`互换正好可以得到公式**(2.5)**。所以我们可以得到`B`的修正公式**(2.5)**:
+
+<div  align="center"><img src="imgs/2.12.png" width = "320" height = "65" alt="2.12" align="center" /></div><br>
+
+&emsp;&emsp;这个公式称关于矩阵`B`的`BFGS`修正公式，也称为`DFP`公式的对偶公式。设<img src="http://www.forkosh.com/mathtex.cgi?{B}_{(k+1)}">可逆，由公式**(2.1)**以及**(2.5)**可以推出：
+
+<div  align="center"><img src="imgs/2.13.png" width = "110" height = "35" alt="2.13" align="center" /></div><br>
+
+&emsp;&emsp;这样可以得到关于`H`的`BFGS`公式为下面的公式**(2.6)**:
+
+<div  align="center"><img src="imgs/2.14.png" width = "570" height = "60" alt="2.14" align="center" /></div><br>
+
+&emsp;&emsp;这个重要公式是由`Broyden`,`Fletcher`,`Goldfard`和`Shanno`于1970年提出的，所以简称为`BFGS`。数值计算经验表明，它比`DFP`公式还好，因此目前得到广泛应用。
+
+
+
+
+
+
+
+
+
+
+
 
 
 
