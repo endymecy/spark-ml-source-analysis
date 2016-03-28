@@ -39,11 +39,11 @@
     * [流式k-means算法](聚类/streaming-k-means/streaming-k-means.md)
 * [最优化算法](最优化算法/梯度下降/gradient-descent.md)
     * [梯度下降算法](最优化算法/梯度下降/gradient-descent.md)
-    * [L-BFGS](最优化算法/L-BFGS/lbfgs.md)
+    * [L-BFGS（限制内存BFGS）](最优化算法/L-BFGS/lbfgs.md)
     * [NNLS(非负最小二乘)](最优化算法/非负最小二乘/NNLS.md)
 * 降维
-    * 奇异值分解（SVD）
-    * 主成分分析（PCA）
+    * SVD（奇异值分解）
+    * PCA（主成分分析）
 * 特征抽取和转换
     * TF-IDF
     * Word2Vec
