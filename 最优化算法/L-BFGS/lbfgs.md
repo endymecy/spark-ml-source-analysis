@@ -118,7 +118,7 @@
 
 &emsp;&emsp;那么同样有
 
-<div  align="center"><img src="imgs/2.17.png" width = "330" height = "30" alt="2.17" align="center" /></div><br>
+<div  align="center"><img src="imgs/2.17.png" width = "320" height = "30" alt="2.17" align="center" /></div><br>
 
 &emsp;&emsp;将该式子带入到公式**(2.8)**中，可以推导出如下公式
 
@@ -147,11 +147,15 @@
 
 【1】陈宝林，最优化理论和算法
 
-【2】[L-BFGS算法](http://blog.csdn.net/acdreamers/article/details/44728041)
+【2】[Updating Quasi-Newton Matrices with Limited Storage](docs/Updating  Quasi-Newton  Matrices  with  Limited  Storage.pdf)
 
-【3】[BFGS算法](http://wenku.baidu.com/link?url=xyN5e-LMR2Ztq90-J95oKHUFBLP8gkLzlbFI6ptbgXMWYt5xTZHgXexWcbjQUmGahQpr39AIc0AomDeFqyY7mn7VqLoQj6gcDHDOccJGln3)
+【3】[On the Limited Memory BFGS Method for Large Scale Optimization](docs/On the Limited Memory BFGS Method for Large Scale Optimization.pdf)
 
-【4】[逻辑回归模型及LBFGS的Sherman Morrison(SM) 公式推导](http://blog.csdn.net/zhirom/article/details/38332111)
+【4】[L-BFGS算法](http://blog.csdn.net/acdreamers/article/details/44728041)
+
+【5】[BFGS算法](http://wenku.baidu.com/link?url=xyN5e-LMR2Ztq90-J95oKHUFBLP8gkLzlbFI6ptbgXMWYt5xTZHgXexWcbjQUmGahQpr39AIc0AomDeFqyY7mn7VqLoQj6gcDHDOccJGln3)
+
+【6】[逻辑回归模型及LBFGS的Sherman Morrison(SM) 公式推导](http://blog.csdn.net/zhirom/article/details/38332111)
 
 
 
