@@ -110,11 +110,11 @@
 &emsp;&emsp;在`BFGS`算法中，仍然有缺陷，比如当优化问题规模很大时，矩阵的存储和计算将变得不可行。为了解决这个问题，就有了`L-BFGS`算法。`L-BFGS`即`Limited-memory BFGS`。
 `L-BFGS`的基本思想是只保存最近的`m`次迭代信息，从而大大减少数据的存储空间。对照`BFGS`，重新整理一下公式：
 
-<div  align="center"><img src="imgs/2.15.png" width = "220" height = "140" alt="2.15" align="center" /></div><br>
+<div  align="center"><img src="imgs/2.15.png" width = "200" height = "130" alt="2.15" align="center" /></div><br>
 
 &emsp;&emsp;之前的`BFGS`算法有如下公式**(2.8)**
 
-<div  align="center"><img src="imgs/2.16.png" width = "610" height = "62" alt="2.16" align="center" /></div><br>
+<div  align="center"><img src="imgs/2.16.png" width = "550" height = "55" alt="2.16" align="center" /></div><br>
 
 &emsp;&emsp;那么同样有
 
@@ -122,7 +122,7 @@
 
 &emsp;&emsp;将该式子带入到公式**(2.8)**中，可以推导出如下公式
 
-<div  align="center"><img src="imgs/2.18.png" width = "500" height = "150" alt="2.18" align="center" /></div><br>
+<div  align="center"><img src="imgs/2.18.png" width = "480" height = "150" alt="2.18" align="center" /></div><br>
 
 &emsp;&emsp;假设当前迭代为`k`，只保存最近的`m`次迭代信息，按照上面的方式迭代`m`次，可以得到如下的公式**(2.9)**
 
@@ -139,6 +139,8 @@
 &emsp;&emsp;算法`L-BFGS`的步骤如下所示。
 
 <div  align="center"><img src="imgs/2.22.png" width = "600" height = "385" alt="2.22" align="center" /></div><br>
+
+## 3 源码解析
 
 
 # 参考文献
