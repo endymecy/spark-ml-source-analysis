@@ -122,11 +122,11 @@
 
 &emsp;&emsp;将该式子带入到公式**(2.8)**中，可以推导出如下公式
 
-<div  align="center"><img src="imgs/2.18.png" width = "550" height = "160" alt="2.18" align="center" /></div><br>
+<div  align="center"><img src="imgs/2.18.png" width = "500" height = "150" alt="2.18" align="center" /></div><br>
 
 &emsp;&emsp;假设当前迭代为`k`，只保存最近的`m`次迭代信息，按照上面的方式迭代`m`次，可以得到如下的公式**(2.9)**
 
-<div  align="center"><img src="imgs/2.19.png" width = "600" height = "290" alt="2.19" align="center" /></div><br>
+<div  align="center"><img src="imgs/2.19.png" width = "500" height = "250" alt="2.19" align="center" /></div><br>
 
 &emsp;&emsp;上面迭代的最终目的就是找到`k`次迭代的可行方向，即
 
@@ -136,9 +136,20 @@
 
 <div  align="center"><img src="imgs/2.21.png" width = "225" height = "270" alt="2.21" align="center" /></div><br>
 
+&emsp;&emsp;算法`L-BFGS`的步骤如下所示。
+
+<div  align="center"><img src="imgs/2.22.png" width = "600" height = "385" alt="2.22" align="center" /></div><br>
 
 
+# 参考文献
 
+【1】陈宝林，最优化理论和算法
+
+【2】[L-BFGS算法](http://blog.csdn.net/acdreamers/article/details/44728041)
+
+【3】[BFGS算法](http://wenku.baidu.com/link?url=xyN5e-LMR2Ztq90-J95oKHUFBLP8gkLzlbFI6ptbgXMWYt5xTZHgXexWcbjQUmGahQpr39AIc0AomDeFqyY7mn7VqLoQj6gcDHDOccJGln3)
+
+【4】[逻辑回归模型及LBFGS的Sherman Morrison(SM) 公式推导](http://blog.csdn.net/zhirom/article/details/38332111)
 
 
 
