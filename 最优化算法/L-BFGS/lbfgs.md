@@ -132,7 +132,7 @@
 
 <div  align="center"><img src="imgs/2.20.png" width = "145" height = "30" alt="2.20" align="center" /></div><br>
 
-&emsp;&emsp;为了求可行方向`r`，可以使用`two-loop recursion`算法来求。该算法的计算过程如下：
+&emsp;&emsp;为了求可行方向`r`，可以使用`two-loop recursion`算法来求。该算法的计算过程如下，算法中出现的`y`即上文中提到的`t`：
 
 <div  align="center"><img src="imgs/2.21.png" width = "500" height = "350" alt="2.21" align="center" /></div><br>
 
