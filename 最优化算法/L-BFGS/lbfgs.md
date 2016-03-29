@@ -134,7 +134,7 @@
 
 &emsp;&emsp;为了求可行方向`r`，可以使用`two-loop recursion`算法来求。该算法的计算过程如下：
 
-<div  align="center"><img src="imgs/2.21.png" width = "225" height = "270" alt="2.21" align="center" /></div><br>
+<div  align="center"><img src="imgs/2.21.png" width = "500" height = "350" alt="2.21" align="center" /></div><br>
 
 &emsp;&emsp;算法`L-BFGS`的步骤如下所示。
 
@@ -142,6 +142,301 @@
 
 ## 3 源码解析
 
+### 3.1 实例
+
+```scala
+import org.apache.spark.mllib.classification.LogisticRegressionModel
+import org.apache.spark.mllib.evaluation.BinaryClassificationMetrics
+import org.apache.spark.mllib.linalg.Vectors
+import org.apache.spark.mllib.optimization.{LBFGS, LogisticGradient, SquaredL2Updater}
+import org.apache.spark.mllib.util.MLUtils
+val data = MLUtils.loadLibSVMFile(sc, "data/mllib/sample_libsvm_data.txt")
+val numFeatures = data.take(1)(0).features.size
+// Split data into training (60%) and test (40%).
+val splits = data.randomSplit(Array(0.6, 0.4), seed = 11L)
+// Append 1 into the training data as intercept.
+val training = splits(0).map(x => (x.label, MLUtils.appendBias(x.features))).cache()
+val test = splits(1)
+// Run training algorithm to build the model
+val numCorrections = 10
+val convergenceTol = 1e-4
+val maxNumIterations = 20
+val regParam = 0.1
+val initialWeightsWithIntercept = Vectors.dense(new Array[Double](numFeatures + 1))
+//计算LBFGS
+val (weightsWithIntercept, loss) = LBFGS.runLBFGS(
+  training,
+  new LogisticGradient(),
+  new SquaredL2Updater(),
+  numCorrections,
+  convergenceTol,
+  maxNumIterations,
+  regParam,
+  initialWeightsWithIntercept)
+val model = new LogisticRegressionModel(
+  Vectors.dense(weightsWithIntercept.toArray.slice(0, weightsWithIntercept.size - 1)),
+  weightsWithIntercept(weightsWithIntercept.size - 1))
+// Clear the default threshold.
+model.clearThreshold()
+// Compute raw scores on the test set.
+val scoreAndLabels = test.map { point =>
+  val score = model.predict(point.features)
+  (score, point.label)
+}
+// Get evaluation metrics.
+val metrics = new BinaryClassificationMetrics(scoreAndLabels)
+val auROC = metrics.areaUnderROC()
+loss.foreach(println)
+```
+
+### 3.2 算法实现
+
+&emsp;&emsp;通过上文的实例，`LBFGS`通过方法`LBFGS.runLBFGS`来实现。我们来看这个入口函数。
+
+```scala
+ def runLBFGS(
+      data: RDD[(Double, Vector)],
+      gradient: Gradient,
+      updater: Updater,
+      numCorrections: Int,
+      convergenceTol: Double,
+      maxNumIterations: Int,
+      regParam: Double,
+      initialWeights: Vector): (Vector, Array[Double]) = {
+    val lossHistory = mutable.ArrayBuilder.make[Double]
+    val numExamples = data.count()
+    //计算梯度和损失
+    val costFun = new CostFun(data, gradient, updater, regParam, numExamples)
+    val lbfgs = new BreezeLBFGS[BDV[Double]](maxNumIterations, numCorrections, convergenceTol)
+    val states =
+      lbfgs.iterations(new CachedDiffFunction(costFun), initialWeights.toBreeze.toDenseVector)
+    var state = states.next()
+    while (states.hasNext) {
+      lossHistory += state.value
+      state = states.next()
+    }
+    lossHistory += state.value
+    val weights = Vectors.fromBreeze(state.x)
+    val lossHistoryArray = lossHistory.result()
+    (weights, lossHistoryArray)
+  }
+```
+
+&emsp;&emsp;上文的`CostFun`类用于计算梯度和损失函数的值,我们在梯度下降算法中有介绍。`lbfgs.iterations`用于计算权重。下面分别分析这两部分。
+
+#### 3.2.1 CostFun
+
+```scala
+private class CostFun(
+    data: RDD[(Double, Vector)],
+    gradient: Gradient,
+    updater: Updater,
+    regParam: Double,
+    numExamples: Long) extends DiffFunction[BDV[Double]] {
+    override def calculate(weights: BDV[Double]): (Double, BDV[Double]) = {
+      // Have a local copy to avoid the serialization of CostFun object which is not serializable.
+      val w = Vectors.fromBreeze(weights)
+      val n = w.size
+      val bcW = data.context.broadcast(w)
+      val localGradient = gradient
+      //通过localGradient.compute计算梯度和损失值
+      val (gradientSum, lossSum) = data.treeAggregate((Vectors.zeros(n), 0.0))(
+          seqOp = (c, v) => (c, v) match { case ((grad, loss), (label, features)) =>
+            val l = localGradient.compute(
+              features, label, bcW.value, grad)
+            (grad, loss + l)
+          },
+          combOp = (c1, c2) => (c1, c2) match { case ((grad1, loss1), (grad2, loss2)) =>
+            axpy(1.0, grad2, grad1)
+            (grad1, loss1 + loss2)
+          })
+      //更新权重并计算正则化值
+      val regVal = updater.compute(w, Vectors.zeros(n), 0, 1, regParam)._2
+      val loss = lossSum / numExamples + regVal
+      val gradientTotal = w.copy
+      //更新权重
+      axpy(-1.0, updater.compute(w, Vectors.zeros(n), 1, 1, regParam)._1, gradientTotal)
+      // gradientTotal = gradientSum / numExamples + gradientTotal
+      axpy(1.0 / numExamples, gradientSum, gradientTotal)
+      (loss, gradientTotal.toBreeze.asInstanceOf[BDV[Double]])
+    }
+}
+```
+&emsp;&emsp;`localGradient.compute`用于计算每个样本的梯度。不同的损失函数的实现不同。查看[逻辑回归](../../分类和回归/线性模型/逻辑回归/logic-regression.md)了解`LogisticGradient`的实现。
+`updater.compute`用于更新权重值并计算正则化值。最常用的正则化函数是`L2`。
+
+```scala
+class SquaredL2Updater extends Updater {
+  override def compute(
+      weightsOld: Vector,
+      gradient: Vector,
+      stepSize: Double,
+      iter: Int,
+      regParam: Double): (Vector, Double) = {
+    // w' = w - thisIterStepSize * (gradient + regParam * w)
+    // w' = (1 - thisIterStepSize * regParam) * w - thisIterStepSize * gradient
+    val thisIterStepSize = stepSize / math.sqrt(iter)
+    val brzWeights: BV[Double] = weightsOld.toBreeze.toDenseVector
+    //正则化
+    brzWeights :*= (1.0 - thisIterStepSize * regParam)
+    //y += x * a，即brzWeights -= gradient * thisInterStepSize
+    brzAxpy(-thisIterStepSize, gradient.toBreeze, brzWeights)
+    //norm
+    val norm = brzNorm(brzWeights, 2.0)
+    (Vectors.fromBreeze(brzWeights), 0.5 * regParam * norm * norm)
+  }
+}
+```
+&emsp;&emsp;调用`updater.compute(w, Vectors.zeros(n), 0, 1, regParam)`，即`stepSize`为0，`iter`为1时，`regVal`即为权重平方之和`norm * norm`。否则权重需要减去`thisIterStepSize * (gradient + regParam * w)`。
+
+#### 3.2.2 BreezeLBFGS
+
+&emsp;&emsp;`BreezeLBFGS`使用上文分析的`CostFun`计算梯度并迭代更新权重。
+
+```scala
+val lbfgs = new BreezeLBFGS[BDV[Double]](maxNumIterations, numCorrections, convergenceTol)
+val states =
+      lbfgs.iterations(new CachedDiffFunction(costFun), initialWeights.toBreeze.toDenseVector)
+```
+&emsp;&emsp;下面重点分析`lbfgs.iterations`的实现。
+
+```scala
+def iterations(f: DF, init: T): Iterator[State] = {
+    val adjustedFun = adjustFunction(f)
+    infiniteIterations(f, initialState(adjustedFun, init)).takeUpToWhere(_.converged)
+}
+//调用infiniteIterations，其中State是一个样本类
+def infiniteIterations(f: DF, state: State): Iterator[State] = {
+    var failedOnce = false
+    val adjustedFun = adjustFunction(f)
+    //无限迭代
+    Iterator.iterate(state) { state => try {
+        //1 选择梯度下降方向
+        val dir = chooseDescentDirection(state, adjustedFun)
+        //2 计算步长
+        val stepSize = determineStepSize(state, adjustedFun, dir)
+        //3 更新权重
+        val x = takeStep(state,dir,stepSize)
+        //4 利用CostFun.calculate计算损失值和梯度
+        val (value,grad) = calculateObjective(adjustedFun, x, state.history)
+        val (adjValue,adjGrad) = adjust(x,grad,value)
+        val oneOffImprovement = (state.adjustedValue - adjValue)/(state.adjustedValue.abs max adjValue.abs max 1E-6 * state.initialAdjVal.abs)
+        //5 计算s和t
+        val history = updateHistory(x,grad,value, adjustedFun, state)
+        //6 只保存m个需要的s和t
+        val newAverage = updateFValWindow(state, adjValue)
+        failedOnce = false
+        var s = State(x,value,grad,adjValue,adjGrad,state.iter + 1, state.initialAdjVal, history, newAverage, 0)
+        val improvementFailure = (state.fVals.length >= minImprovementWindow && state.fVals.nonEmpty && state.fVals.last > state.fVals.head * (1-improvementTol))
+        if(improvementFailure)
+          s = s.copy(fVals = IndexedSeq.empty, numImprovementFailures = state.numImprovementFailures + 1)
+        s
+      } catch {
+        case x: FirstOrderException if !failedOnce =>
+          failedOnce = true
+          logger.error("Failure! Resetting history: " + x)
+          state.copy(history = initialHistory(adjustedFun, state.x))
+        case x: FirstOrderException =>
+          logger.error("Failure again! Giving up and returning. Maybe the objective is just poorly behaved?")
+          state.copy(searchFailed = true)
+      }
+    }
+  }
+```
+&emsp;&emsp;看上面的代码注释，它的流程可以分五步来分析。
+
+- **1** 选择梯度下降方向
+
+```scala
+protected def chooseDescentDirection(state: State, fn: DiffFunction[T]):T = {
+    state.history * state.grad
+}
+```
+&emsp;&emsp;这里的`*`是重写的方法，它的实现如下：
+
+```scala
+def *(grad: T) = {
+     val diag = if(historyLength > 0) {
+       val prevStep = memStep.head
+       val prevGradStep = memGradDelta.head
+       val sy = prevStep dot prevGradStep
+       val yy = prevGradStep dot prevGradStep
+       if(sy < 0 || sy.isNaN) throw new NaNHistory
+       sy/yy
+     } else {
+       1.0
+     }
+     val dir = space.copy(grad)
+     val as = new Array[Double](m)
+     val rho = new Array[Double](m)
+     //第一次递归
+     for(i <- 0 until historyLength) {
+       rho(i) = (memStep(i) dot memGradDelta(i))
+       as(i) = (memStep(i) dot dir)/rho(i)
+       if(as(i).isNaN) {
+         throw new NaNHistory
+       }
+       axpy(-as(i), memGradDelta(i), dir)
+     }
+     dir *= diag
+     //第二次递归
+     for(i <- (historyLength - 1) to 0 by (-1)) {
+       val beta = (memGradDelta(i) dot dir)/rho(i)
+       axpy(as(i) - beta, memStep(i), dir)
+     }
+     dir *= -1.0
+     dir
+    }
+  }
+```
+&emsp;&emsp;非常明显，该方法就是实现了上文提到的`two-loop recursion`算法。
+
+- **2** 计算步长
+
+```scala
+protected def determineStepSize(state: State, f: DiffFunction[T], dir: T) = {
+    val x = state.x
+    val grad = state.grad
+    val ff = LineSearch.functionFromSearchDirection(f, x, dir)
+    val search = new StrongWolfeLineSearch(maxZoomIter = 10, maxLineSearchIter = 10) // TODO: Need good default values here.
+    val alpha = search.minimize(ff, if(state.iter == 0.0) 1.0/norm(dir) else 1.0)
+    if(alpha * norm(grad) < 1E-10)
+      throw new StepSizeUnderflow
+    alpha
+  }
+```
+&emsp;&emsp;这一步对应`L-BFGS`的步骤的`Step 5`，通过一维搜索计算步长。
+
+- **3** 更新权重
+
+```scala
+protected def takeStep(state: State, dir: T, stepSize: Double) = state.x + dir * stepSize
+```
+&emsp;&emsp;这一步对应`L-BFGS`的步骤的`Step 5`，更新权重。
+
+- **4** 计算损失值和梯度
+
+```scala
+ protected def calculateObjective(f: DF, x: T, history: History): (Double, T) = {
+     f.calculate(x)
+  }
+```
+&emsp;&emsp;这一步对应`L-BFGS`的步骤的`Step 7`，利用上文介绍的`CostFun.calculate`计算梯度和损失值。并计算出`s`和`t`。
+
+- **5** 计算s和t，并更新history
+
+```scala
+//计算s和t
+protected def updateHistory(newX: T, newGrad: T, newVal: Double,  f: DiffFunction[T], oldState: State): History = {
+    oldState.history.updated(newX - oldState.x, newGrad :- oldState.grad)
+}
+//添加新的s和t，并删除过期的s和t
+protected def updateFValWindow(oldState: State, newAdjVal: Double):IndexedSeq[Double] = {
+    val interm = oldState.fVals :+ newAdjVal
+    if(interm.length > minImprovementWindow) interm.drop(1)
+    else interm
+  }
+```
 
 # 参考文献
 
