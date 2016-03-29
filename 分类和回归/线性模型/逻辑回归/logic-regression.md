@@ -299,6 +299,8 @@ class SquaredL2Updater extends Updater {
       stepSize: Double,
       iter: Int,
       regParam: Double): (Vector, Double) = {
+    // w' = w - thisIterStepSize * (gradient + regParam * w)
+    // w' = (1 - thisIterStepSize * regParam) * w - thisIterStepSize * gradient
     //表示步长，即负梯度方向的大小
     val thisIterStepSize = stepSize / math.sqrt(iter)
     val brzWeights: BV[Double] = weightsOld.toBreeze.toDenseVector
@@ -311,6 +313,12 @@ class SquaredL2Updater extends Updater {
     (Vectors.fromBreeze(brzWeights), 0.5 * regParam * norm * norm)
   }
 }
+```
+&emsp;&emsp;该函数的实现规则是：
+
+```scala
+w' = w - thisIterStepSize * (gradient + regParam * w)
+w' = (1 - thisIterStepSize * regParam) * w - thisIterStepSize * gradient
 ```
 &emsp;&emsp;这里`thisIterStepSize`表示参数沿负梯度方向改变的速率，它随着迭代次数的增多而减小。
 
