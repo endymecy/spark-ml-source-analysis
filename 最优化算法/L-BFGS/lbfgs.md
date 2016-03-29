@@ -138,7 +138,7 @@
 
 &emsp;&emsp;算法`L-BFGS`的步骤如下所示。
 
-<div  align="center"><img src="imgs/2.22.png" width = "600" height = "385" alt="2.22" align="center" /></div><br>
+<div  align="center"><img src="imgs/2.22.png" width = "500" height = "350" alt="2.22" align="center" /></div><br>
 
 ## 3 源码解析
 
@@ -263,7 +263,7 @@ private class CostFun(
 }
 ```
 &emsp;&emsp;`localGradient.compute`用于计算每个样本的梯度。不同的损失函数的实现不同。查看[逻辑回归](../../分类和回归/线性模型/逻辑回归/logic-regression.md)了解`LogisticGradient`的实现。
-`updater.compute`用于更新权重值并计算正则化值。最常用的正则化函数是`L2`。
+`updater.compute`用于更新权重值并计算正则化值。最常用的正则化函数是`L2`，即下文的`SquaredL2Updater`。
 
 ```scala
 class SquaredL2Updater extends Updater {
@@ -287,7 +287,8 @@ class SquaredL2Updater extends Updater {
   }
 }
 ```
-&emsp;&emsp;调用`updater.compute(w, Vectors.zeros(n), 0, 1, regParam)`，即`stepSize`为0，`iter`为1时，`regVal`即为权重平方之和`norm * norm`。否则权重需要减去`thisIterStepSize * (gradient + regParam * w)`。
+&emsp;&emsp;`compute`方法实现的逻辑就是`w' = w - thisIterStepSize * (gradient + regParam * w)`。所以，根据`stepSize`不同，计算得到的值有区别。
+当调用`updater.compute(w, Vectors.zeros(n), 0, 1, regParam)`，即`stepSize`为0，`iter`为1时，`regVal`即为权重平方之和`norm * norm`。否则权重需要减去`thisIterStepSize * (gradient + regParam * w)`。
 
 #### 3.2.2 BreezeLBFGS
 
