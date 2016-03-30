@@ -49,8 +49,8 @@
     * [Word2Vec](特征抽取和转换/Word2Vector.md)
     * [StandardScaler（特征缩放）](特征抽取和转换/StandardScaler.md)
     * [Normalizer(规则化)](特征抽取和转换/normalizer.md)
-    * ChiSqSelector
-    * ElementwiseProduct
+    * [ChiSqSelector(卡方选择器)](特征抽取和转换/chi-square-selector.md)
+    * [ElementwiseProduct(元素智能乘积)](特征抽取和转换/element-wise-product.md)
     
 ## 说明
 
