@@ -45,7 +45,7 @@
     * SVD（奇异值分解）
     * PCA（主成分分析）
 * 特征抽取和转换
-    * TF-IDF
+    * [TF-IDF](特征抽取和转换/TF-IDF.md)
     * Word2Vec
     * [StandardScaler（特征缩放）](特征抽取和转换/StandardScaler.md)
     * Normalizer
