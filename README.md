@@ -46,9 +46,9 @@
     * PCA（主成分分析）
 * 特征抽取和转换
     * [TF-IDF](特征抽取和转换/TF-IDF.md)
-    * Word2Vec
+    * [Word2Vec](特征抽取和转换/Word2Vector.md)
     * [StandardScaler（特征缩放）](特征抽取和转换/StandardScaler.md)
-    * Normalizer
+    * [Normalizer(规则化)](特征抽取和转换/normalizer.md)
     * ChiSqSelector
     * ElementwiseProduct
     
