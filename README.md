@@ -41,9 +41,9 @@
     * [梯度下降算法](最优化算法/梯度下降/gradient-descent.md)
     * [L-BFGS（限制内存BFGS）](最优化算法/L-BFGS/lbfgs.md)
     * [NNLS(非负最小二乘)](最优化算法/非负最小二乘/NNLS.md)
-* 降维
-    * SVD（奇异值分解）
-    * PCA（主成分分析）
+* [降维](降维/SVD/svd.md)
+    * [SVD（奇异值分解）](降维/SVD/svd.md)
+    * [PCA（主成分分析）](降维/PCA/pca.md)
 * [特征抽取和转换](特征抽取和转换/TF-IDF.md)
     * [TF-IDF](特征抽取和转换/TF-IDF.md)
     * [Word2Vec](特征抽取和转换/Word2Vector.md)
