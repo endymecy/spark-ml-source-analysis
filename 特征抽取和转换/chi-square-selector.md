@@ -138,7 +138,7 @@ def chiSquaredFeatures(data: RDD[LabeledPoint],
     results
   }
 ```
-&emsp;&emsp;上述代码主要对数据进行处理，真正获取卡方值的函数是`chiSquaredMatrix`。
+&emsp;&emsp;上述代码主要对数据进行处理，获取带有标签的特征的出现次数，并用这个次数计算卡方值。真正获取卡方值的函数是`chiSquaredMatrix`。
 
 ```scala
  def chiSquaredMatrix(counts: Matrix, methodName: String = PEARSON.name): ChiSqTestResult = {
