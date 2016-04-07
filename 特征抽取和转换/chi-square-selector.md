@@ -76,8 +76,138 @@ val filteredData = discretizedData.map { lp =>
 
 ## 2 卡方检测的源码实现
 
+&emsp;&emsp;在`MLlib`中，使用`chiSquaredFeatures`方法实现卡方检测。它为每个特征进行皮尔森独立检测。下面看它的代码实现。
 
+```scala
+def chiSquaredFeatures(data: RDD[LabeledPoint],
+      methodName: String = PEARSON.name): Array[ChiSqTestResult] = {
+    val maxCategories = 10000
+    val numCols = data.first().features.size
+    val results = new Array[ChiSqTestResult](numCols)
+    var labels: Map[Double, Int] = null
+    // 某个时刻至少1000列
+    val batchSize = 1000
+    var batch = 0
+    while (batch * batchSize < numCols) {
+      val startCol = batch * batchSize
+      val endCol = startCol + math.min(batchSize, numCols - startCol)
+      val pairCounts = data.mapPartitions { iter =>
+        val distinctLabels = mutable.HashSet.empty[Double]
+        val allDistinctFeatures: Map[Int, mutable.HashSet[Double]] =
+          Map((startCol until endCol).map(col => (col, mutable.HashSet.empty[Double])): _*)
+        var i = 1
+        iter.flatMap { case LabeledPoint(label, features) =>
+          if (i % 1000 == 0) {
+            if (distinctLabels.size > maxCategories) {
+              throw new SparkException
+            }
+            allDistinctFeatures.foreach { case (col, distinctFeatures) =>
+              if (distinctFeatures.size > maxCategories) {
+                throw new SparkException
+              }
+            }
+          }
+          i += 1
+          distinctLabels += label
+          features.toArray.view.zipWithIndex.slice(startCol, endCol).map { case (feature, col) =>
+            allDistinctFeatures(col) += feature
+            (col, feature, label)
+          }
+        }
+      }.countByValue()
+      if (labels == null) {
+        // Do this only once for the first column since labels are invariant across features.
+        labels =
+          pairCounts.keys.filter(_._1 == startCol).map(_._3).toArray.distinct.zipWithIndex.toMap
+      }
+      val numLabels = labels.size
+      pairCounts.keys.groupBy(_._1).map { case (col, keys) =>
+        val features = keys.map(_._2).toArray.distinct.zipWithIndex.toMap
+        val numRows = features.size
+        val contingency = new BDM(numRows, numLabels, new Array[Double](numRows * numLabels))
+        keys.foreach { case (_, feature, label) =>
+          val i = features(feature)
+          val j = labels(label)
+          //带有标签的特征的出现次数
+          contingency(i, j) += pairCounts((col, feature, label))
+        }
+        results(col) = chiSquaredMatrix(Matrices.fromBreeze(contingency), methodName)
+      }
+      batch += 1
+    }
+    results
+  }
+```
+&emsp;&emsp;上述代码主要对数据进行处理，真正获取卡方值的函数是`chiSquaredMatrix`。
+
+```scala
+ def chiSquaredMatrix(counts: Matrix, methodName: String = PEARSON.name): ChiSqTestResult = {
+    val method = methodFromString(methodName)
+    val numRows = counts.numRows
+    val numCols = counts.numCols
+    // get row and column sums
+    val colSums = new Array[Double](numCols)
+    val rowSums = new Array[Double](numRows)
+    val colMajorArr = counts.toArray
+    val colMajorArrLen = colMajorArr.length
+    var i = 0
+    while (i < colMajorArrLen) {
+      val elem = colMajorArr(i)
+      if (elem < 0.0) {
+        throw new IllegalArgumentException("Contingency table cannot contain negative entries.")
+      }
+      //每列的总数
+      colSums(i / numRows) += elem
+      //每行的总数
+      rowSums(i % numRows) += elem
+      i += 1
+    }
+    //所有元素的总和
+    val total = colSums.sum
+    // second pass to collect statistic
+    var statistic = 0.0
+    var j = 0
+    while (j < colMajorArrLen) {
+      val col = j / numRows
+      val colSum = colSums(col)
+      if (colSum == 0.0) {
+        throw new IllegalArgumentException("Chi-squared statistic undefined for input matrix due to"
+          + s"0 sum in column [$col].")
+      }
+      val row = j % numRows
+      val rowSum = rowSums(row)
+      if (rowSum == 0.0) {
+        throw new IllegalArgumentException("Chi-squared statistic undefined for input matrix due to"
+          + s"0 sum in row [$row].")
+      }
+      //期望值
+      val expected = colSum * rowSum / total
+      //PEARSON
+      statistic += method.chiSqFunc(colMajorArr(j), expected)
+      j += 1
+    }
+    //自由度
+    val df = (numCols - 1) * (numRows - 1)
+    if (df == 0) {
+      // 1 column or 1 row. Constant distribution is independent of anything.
+      // pValue = 1.0 and statistic = 0.0 in this case.
+      new ChiSqTestResult(1.0, 0, 0.0, methodName, NullHypothesis.independence.toString)
+    } else {
+      //计算累积概率
+      val pValue = 1.0 - new ChiSquaredDistribution(df).cumulativeProbability(statistic)
+      new ChiSqTestResult(pValue, df, statistic, methodName, NullHypothesis.independence.toString)
+    }
+  }
+  //上述代码中的method.chiSqFunc(colMajorArr(j), expected)，调用下面的代码
+  val PEARSON = new Method("pearson", (observed: Double, expected: Double) => {
+      val dev = observed - expected
+      dev * dev / expected
+    })
+```
+&emsp;&emsp;上述代码的实现和参考文献【2】中`Test of independence`的描述一致。
 
 ## 参考文献
 
 【1】[卡方检验](http://wiki.mbalib.com/wiki/%E5%8D%A1%E6%96%B9%E6%A3%80%E9%AA%8C)
+
+【2】[Pearson's chi-squared test](https://en.wikipedia.org/wiki/Pearson%27s_chi-squared_test)
