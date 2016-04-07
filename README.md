@@ -44,7 +44,7 @@
 * 降维
     * SVD（奇异值分解）
     * PCA（主成分分析）
-* 特征抽取和转换
+* [特征抽取和转换](特征抽取和转换/TF-IDF.md)
     * [TF-IDF](特征抽取和转换/TF-IDF.md)
     * [Word2Vec](特征抽取和转换/Word2Vector.md)
     * [StandardScaler（特征缩放）](特征抽取和转换/StandardScaler.md)
