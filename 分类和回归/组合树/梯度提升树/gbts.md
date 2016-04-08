@@ -13,20 +13,20 @@
 
 &emsp;&emsp;根据参考文献【1】的介绍，梯度提升算法的算法流程如下所示：
 
-<div  align="center"><img src="imgs/1.1.png" width = "830" height = "370" alt="1.1" align="center" /></div>
+<div  align="center"><img src="imgs/1.1.png" width = "800" height = "350" alt="1.1" align="center" /></div>
 
 &emsp;&emsp;在上述的流程中，`psi`表示的是损失函数。在`MLlib`中，提供的损失函数有三种。如下图所示。
 
 <div  align="center"><img src="imgs/1.3.png" width = "800" height = "190" alt="1.3" align="center" /></div>
 
-&emsp;&emsp;第一个损失函数用于分类，后两个用于回归。
+&emsp;&emsp;第一个对数损失用于分类，后两个平方误差和绝对误差用于回归。
 
 ## 2 随机梯度提升
 
-&emsp;&emsp;有文献证明，注入随机性到上述的过程中可以提高函数估计的性能。受到`Breiman`的影响，我们将随机性作为一个考虑的因素。在每次迭代中，我们随机的在训练集中抽取一个子样本集，然后在后续的操作中用这个子样本集代替全体样本。
+&emsp;&emsp;有文献证明，注入随机性到上述的过程中可以提高函数估计的性能。受到`Breiman`的影响，将随机性作为一个考虑的因素。在每次迭代中，随机的在训练集中抽取一个子样本集，然后在后续的操作中用这个子样本集代替全体样本。
 这就形成了随机梯度提升算法。它的流程如下所示：
 
-<div  align="center"><img src="imgs/1.2.png" width = "900" height = "400" alt="1.2" align="center" /></div>
+<div  align="center"><img src="imgs/1.2.png" width = "800" height = "350" alt="1.2" align="center" /></div>
 
 ## 3 实例和源码分析
 
