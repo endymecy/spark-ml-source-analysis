@@ -42,6 +42,7 @@
     * [L-BFGS（限制内存BFGS）](最优化算法/L-BFGS/lbfgs.md)
     * [NNLS(非负最小二乘)](最优化算法/非负最小二乘/NNLS.md)
 * [降维](降维/SVD/svd.md)
+    * [EVD（特征值分解）](降维/EVD/evd.md)
     * [SVD（奇异值分解）](降维/SVD/svd.md)
     * [PCA（主成分分析）](降维/PCA/pca.md)
 * [特征抽取和转换](特征抽取和转换/TF-IDF.md)
