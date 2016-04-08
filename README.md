@@ -26,9 +26,9 @@
         * 线性回归
     * 朴素贝叶斯
     * [决策树](分类和回归/决策树/decision-tree.md)
-    * 多种树
-        * 随机森林
-        * 梯度增强树
+    * [组合树](分类和回归/随机森林/random-forests.md)
+        * [随机森林](分类和回归/随机森林/random-forests.md)
+        * [梯度提升树](分类和回归/梯度提升树/gbts.md)
     * 保序回归
 * [聚类](聚类/readme.md)
     * [k-means算法](聚类/k-means/k-means.md)
