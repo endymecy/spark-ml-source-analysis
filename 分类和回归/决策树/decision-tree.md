@@ -32,3 +32,107 @@
 15:    end if
 16: end for
 ```
+&emsp;&emsp;决策树的生成是一个递归的过程。有三种情况会导致递归的返回：（1）当前节点包含的样本全属于同一个类别。（2）当前属性值为空，或者所有样本在所有属性上取相同的值。
+（3）当前节点包含的样本集合为空。在第（2）中情形下，我们把当前节点标记为叶节点，并将其类别设定为该节点所含样本最多的类别。在第（3）中情形下，同样把当前节点标记为叶节点，
+但是将其类别设定为其父节点所含样本最多的类别。这两种处理实质不同，前者利用当前节点的后验分布，后者则把父节点的样本分布作为当前节点的先验分布。
+
+### 1.3 划分选择
+
+&emsp;&emsp;在决策树算法中，如何选择最优划分属性是最关键的一步。一般而言，随着划分过程的不断进行，我们希望决策树的分支节点所包含的样本尽可能属于同一类别，即节点的“纯度(purity)”越来越高。
+有几种度量样本集合纯度的指标。在`MLlib`中，信息熵和基尼指数用于决策树分类，方差用于决策树回归。
+
+#### 1.3.1 信息熵
+
+&emsp;&emsp;信息熵是度量样本集合纯度最常用的一种指标，假设当前样本集合`D`中第`k`类样本所占的比例为`p_k`，则`D`的信息熵定义为：
+
+<div  align="center"><img src="imgs/1.1.png" width = "220" height = "75" alt="1.1" align="center" /></div>
+
+&emsp;&emsp;`Ent(D)`的值越小，则`D`的纯度越高。
+
+#### 1.3.2 基尼系数
+
+&emsp;&emsp;采样和上式相同的符号，基尼系数可以用来度量数据集`D`的纯度。
+
+<div  align="center"><img src="imgs/1.2.png" width = "310" height = "90" alt="1.2" align="center" /></div>
+
+&emsp;&emsp;直观来说，`Gini(D)`反映了从数据集`D`中随机取样两个样本，其类别标记不一致的概率。因此，`Gini(D)`越小，则数据集`D`的纯度越高。
+
+#### 1.3.3 方差
+
+&emsp;&emsp;`MLlib`中使用方差来度量纯度。如下所示
+
+<div  align="center"><img src="imgs/1.3.png" width = "255" height = "70" alt="1.3" align="center" /></div>
+
+#### 1.3.4 信息增益
+
+&emsp;&emsp;假设切分大小为`N`的数据集`D`为两个数据集`D_left`和`D_right`，那么信息增益可以表示为如下的形式。
+
+<div  align="center"><img src="imgs/1.4.png" width = "600" height = "60" alt="1.4" align="center" /></div>
+
+&emsp;&emsp;一般情况下，信息增益越大，则意味着使用属性`a`来进行划分所获得的纯度提升越大。因此我们可以用信息增益来进行决策树的划分属性选择。即流程中的第8步。
+
+## 2 实例与源码分析
+
+### 2.1 实例
+
+&emsp;&emsp;下面的例子用于分类。
+
+```scala
+import org.apache.spark.mllib.tree.DecisionTree
+import org.apache.spark.mllib.tree.model.DecisionTreeModel
+import org.apache.spark.mllib.util.MLUtils
+// Load and parse the data file.
+val data = MLUtils.loadLibSVMFile(sc, "data/mllib/sample_libsvm_data.txt")
+// Split the data into training and test sets (30% held out for testing)
+val splits = data.randomSplit(Array(0.7, 0.3))
+val (trainingData, testData) = (splits(0), splits(1))
+// Train a DecisionTree model.
+//  Empty categoricalFeaturesInfo indicates all features are continuous.
+val numClasses = 2
+val categoricalFeaturesInfo = Map[Int, Int]()
+val impurity = "gini"
+val maxDepth = 5
+val maxBins = 32
+val model = DecisionTree.trainClassifier(trainingData, numClasses, categoricalFeaturesInfo,
+  impurity, maxDepth, maxBins)
+// Evaluate model on test instances and compute test error
+val labelAndPreds = testData.map { point =>
+  val prediction = model.predict(point.features)
+  (point.label, prediction)
+}
+val testErr = labelAndPreds.filter(r => r._1 != r._2).count().toDouble / testData.count()
+println("Test Error = " + testErr)
+println("Learned classification tree model:\n" + model.toDebugString)
+```
+
+&emsp;&emsp;下面的例子用于回归。
+
+```scala
+import org.apache.spark.mllib.tree.DecisionTree
+import org.apache.spark.mllib.tree.model.DecisionTreeModel
+import org.apache.spark.mllib.util.MLUtils
+// Load and parse the data file.
+val data = MLUtils.loadLibSVMFile(sc, "data/mllib/sample_libsvm_data.txt")
+// Split the data into training and test sets (30% held out for testing)
+val splits = data.randomSplit(Array(0.7, 0.3))
+val (trainingData, testData) = (splits(0), splits(1))
+// Train a DecisionTree model.
+//  Empty categoricalFeaturesInfo indicates all features are continuous.
+val categoricalFeaturesInfo = Map[Int, Int]()
+val impurity = "variance"
+val maxDepth = 5
+val maxBins = 32
+val model = DecisionTree.trainRegressor(trainingData, categoricalFeaturesInfo, impurity,
+  maxDepth, maxBins)
+// Evaluate model on test instances and compute test error
+val labelsAndPredictions = testData.map { point =>
+  val prediction = model.predict(point.features)
+  (point.label, prediction)
+}
+val testMSE = labelsAndPredictions.map{ case (v, p) => math.pow(v - p, 2) }.mean()
+println("Test Mean Squared Error = " + testMSE)
+println("Learned regression tree model:\n" + model.toDebugString)
+```
+
+### 2.2 源码分析
+
