@@ -45,7 +45,7 @@
 
 &emsp;&emsp;这个优化目标和上文的优化目标是等价的。对优化目标使用拉格朗日乘子法可得
 
-<div  align="center"><img src="imgs/1.8.png" width = "135" height = "60" alt="1.8" align="center" /></div><br>
+<div  align="center"><img src="imgs/1.8.png" width = "115" height = "25" alt="1.8" align="center" /></div><br>
 
 &emsp;&emsp;于是，只需要对协方差矩阵进行特征值分解，将得到的特征值排序，在取前`d'`个特征值对应的特征向量，即得到主成分分析的解。
 
