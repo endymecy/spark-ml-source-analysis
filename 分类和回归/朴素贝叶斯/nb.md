@@ -89,7 +89,7 @@
 
 &emsp;&emsp;根据参考文献【2】，我们以文本分类的训练和测试为例子来介绍多元朴素贝叶斯的训练和测试过程。如下图所示。
 
-<div  align="center"><img src="imgs/3.1.png" width = "555" height = "450" alt="3.2" align="center" /></div>
+<div  align="center"><img src="imgs/3.2.png" width = "555" height = "450" alt="3.2" align="center" /></div>
 
 ## 4 源码分析
 
