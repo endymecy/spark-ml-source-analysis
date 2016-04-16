@@ -95,8 +95,6 @@
 
 <div  align="center"><img src="imgs/3.2.png" width = "555" height = "450" alt="3.2" align="center" /></div>
 
-&emsp;&emsp;这里的`T_ct`即上文中的`P(C|x)`。`+1`就是平滑手段。
-
 
 ## 4 源码分析
 
