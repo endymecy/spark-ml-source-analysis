@@ -79,6 +79,10 @@
 
 <div  align="center"><img src="imgs/2.3.png" width = "460" height = "390" alt="2.3" align="center" /></div>
 
+&emsp;&emsp;这里的`CondProb[t][c]`即上文中的`P(x|C)`。`T_ct`表示类别为`c`的文档中`t`出现的次数。`+1`就是平滑手段。
+
+
+
 ### 3.3 伯努利朴素贝叶斯
 
 &emsp;&emsp;在多变量伯努利事件模型中，特征是独立的二值变量。和多元模型一样，这个模型在文本分类中也非常流行。它的似然函数如下所示。
@@ -90,6 +94,9 @@
 &emsp;&emsp;根据参考文献【2】，我们以文本分类的训练和测试为例子来介绍多元朴素贝叶斯的训练和测试过程。如下图所示。
 
 <div  align="center"><img src="imgs/3.2.png" width = "555" height = "450" alt="3.2" align="center" /></div>
+
+&emsp;&emsp;这里的`T_ct`即上文中的`P(C|x)`。`+1`就是平滑手段。
+
 
 ## 4 源码分析
 
