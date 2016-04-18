@@ -98,7 +98,199 @@
 
 ## 4 源码分析
 
-&emsp;&emsp;`MLlib`中实现了多元朴素贝叶斯和伯努利朴素贝叶斯。
+&emsp;&emsp;`MLlib`中实现了多元朴素贝叶斯和伯努利朴素贝叶斯。下面先看看朴素贝叶斯的使用实例。
+
+### 4.1 实例
+
+```scala
+import org.apache.spark.mllib.classification.{NaiveBayes, NaiveBayesModel}
+import org.apache.spark.mllib.linalg.Vectors
+import org.apache.spark.mllib.regression.LabeledPoint
+//读取并处理数据
+val data = sc.textFile("data/mllib/sample_naive_bayes_data.txt")
+val parsedData = data.map { line =>
+  val parts = line.split(',')
+  LabeledPoint(parts(0).toDouble, Vectors.dense(parts(1).split(' ').map(_.toDouble)))
+}
+// 切分数据为训练数据和测试数据
+val splits = parsedData.randomSplit(Array(0.6, 0.4), seed = 11L)
+val training = splits(0)
+val test = splits(1)
+//训练模型
+val model = NaiveBayes.train(training, lambda = 1.0, modelType = "multinomial")
+//测试数据
+val predictionAndLabel = test.map(p => (model.predict(p.features), p.label))
+val accuracy = 1.0 * predictionAndLabel.filter(x => x._1 == x._2).count() / test.count()
+```
+
+### 4.2 训练模型
+
+&emsp;&emsp;从上文的原理分析我们可以知道，朴素贝叶斯模型的训练过程就是获取概率`p(C)`和`p(F|C)`的过程。根据`MLlib`的源码，我们可以将训练过程分为两步。
+第一步是聚合计算每个标签对应的`term`的频率，第二步是迭代计算`p(C)`和`p(F|C)`。
+
+- **1** 计算每个标签对应的`term`的频率
+
+```scala
+val aggregated = data.map(p => (p.label, p.features)).combineByKey[(Long, DenseVector)](
+      createCombiner = (v: Vector) => {
+        if (modelType == Bernoulli) {
+          requireZeroOneBernoulliValues(v)
+        } else {
+          requireNonnegativeValues(v)
+        }
+        (1L, v.copy.toDense)
+      },
+      mergeValue = (c: (Long, DenseVector), v: Vector) => {
+        requireNonnegativeValues(v)
+        //c._2 = v*1 + c._2
+        BLAS.axpy(1.0, v, c._2)
+        (c._1 + 1L, c._2)
+      },
+      mergeCombiners = (c1: (Long, DenseVector), c2: (Long, DenseVector)) => {
+        BLAS.axpy(1.0, c2._2, c1._2)
+        (c1._1 + c2._1, c1._2)
+      }
+    //根据标签进行排序
+    ).collect().sortBy(_._1)
+```
+
+&emsp;&emsp;这里我们需要先了解`combineByKey`函数的作用。`createCombiner`的作用是将原`RDD`中的`Vector`类型转换为`(long,Vector)`类型。
+
+&emsp;&emsp;如果`modelType`为`Bernoulli`，那么`v`中包含的值只能为0或者1。如果`modelType`为`multinomial`，那么`v`中包含的值必须大于0。
+
+```scala
+//值非负
+val requireNonnegativeValues: Vector => Unit = (v: Vector) => {
+      val values = v match {
+        case sv: SparseVector => sv.values
+        case dv: DenseVector => dv.values
+      }
+      if (!values.forall(_ >= 0.0)) {
+        throw new SparkException(s"Naive Bayes requires nonnegative feature values but found $v.")
+      }
+}
+//值为0或者1
+val requireZeroOneBernoulliValues: Vector => Unit = (v: Vector) => {
+      val values = v match {
+        case sv: SparseVector => sv.values
+        case dv: DenseVector => dv.values
+      }
+      if (!values.forall(v => v == 0.0 || v == 1.0)) {
+        throw new SparkException(
+          s"Bernoulli naive Bayes requires 0 or 1 feature values but found $v.")
+      }
+}
+```
+&emsp;&emsp;`mergeValue`函数的作用是将新来的`Vector`累加到已有向量中，并更新词率。`mergeCombiners`则是合并不同分区的`(long,Vector)`数据。
+通过这个函数，我们就找到了每个标签对应的词频率，并得到了标签对应的所有文档的累加向量。
+
+- **2** 迭代计算`p(C)`和`p(F|C)`
+
+```scala
+//标签数
+val numLabels = aggregated.length
+//文档数
+var numDocuments = 0L
+aggregated.foreach { case (_, (n, _)) =>
+  numDocuments += n
+}
+//特征维数
+val numFeatures = aggregated.head match { case (_, (_, v)) => v.size }
+val labels = new Array[Double](numLabels)
+//表示logP(C)
+val pi = new Array[Double](numLabels)
+//表示logP(F|C)
+val theta = Array.fill(numLabels)(new Array[Double](numFeatures))
+val piLogDenom = math.log(numDocuments + numLabels * lambda)
+var i = 0
+aggregated.foreach { case (label, (n, sumTermFreqs)) =>
+      labels(i) = label
+      //训练步骤的第5步
+      pi(i) = math.log(n + lambda) - piLogDenom
+      val thetaLogDenom = modelType match {
+        case Multinomial => math.log(sumTermFreqs.values.sum + numFeatures * lambda)
+        case Bernoulli => math.log(n + 2.0 * lambda)
+        case _ =>
+          // This should never happen.
+          throw new UnknownError(s"Invalid modelType: $modelType.")
+      }
+      //训练步骤的第6步
+      var j = 0
+      while (j < numFeatures) {
+        theta(i)(j) = math.log(sumTermFreqs(j) + lambda) - thetaLogDenom
+        j += 1
+      }
+      i += 1
+    }
+```
+&emsp;&emsp;这段代码计算上文提到的`p(C)`和`p(F|C)`。这里的`lambda`表示平滑因子，一般情况下，我们将它设置为1。代码中，`p(c_i)=log (n+lambda)/(numDocs+numLabels*lambda)`，这对应上文训练过程的第5步`prior(c)=N_c/N`。
+
+&emsp;&emsp;根据`modelType`类型的不同，`p(F|C)`的实现则不同。当`modelType`为`Multinomial`时，`P(F|C)=T_ct/sum(T_ct)`，这里`sum(T_ct)=sumTermFreqs.values.sum + numFeatures * lambda`。这对应训练过程的第10步。
+当`modelType`为`Bernoulli`时，`P(F|C)=(N_ct+lambda)/(N_c+2*lambda)`。这对应上文训练算法的第8行。
+
+&emsp;&emsp;需要注意的是，代码中的所有计算都是取对数计算的。
+
+## 4.3 预测数据
+
+```scala
+override def predict(testData: Vector): Double = {
+    modelType match {
+      case Multinomial =>
+        labels(multinomialCalculation(testData).argmax)
+      case Bernoulli =>
+        labels(bernoulliCalculation(testData).argmax)
+    }
+}
+```
+
+&emsp;&emsp;预测也是根据`modelType`的不同作不同的处理。当`modelType`为`Multinomial`时，调用`multinomialCalculation`函数。
+
+```scala
+private def multinomialCalculation(testData: Vector) = {
+    val prob = thetaMatrix.multiply(testData)
+    BLAS.axpy(1.0, piVector, prob)
+    prob
+  }
+```
+&emsp;&emsp;这里的`thetaMatrix`和`piVector`即上文中训练得到的`P(F|C)`和`P(C)`，根据`P(C|F)=P(F|C)*P(C)`即可以得到预测数据归属于某类别的概率。
+注意，这些概率都是基于对数结果计算的。
+
+&emsp;&emsp;当`modelType`为`Bernoulli`时，实现代码略有不同。
+
+```scala
+private def bernoulliCalculation(testData: Vector) = {
+    testData.foreachActive((_, value) =>
+      if (value != 0.0 && value != 1.0) {
+        throw new SparkException(
+          s"Bernoulli naive Bayes requires 0 or 1 feature values but found $testData.")
+      }
+    )
+    val prob = thetaMinusNegTheta.get.multiply(testData)
+    BLAS.axpy(1.0, piVector, prob)
+    BLAS.axpy(1.0, negThetaSum.get, prob)
+    prob
+  }
+```
+
+&emsp;&emsp;当词在训练数据中出现与否处理的过程不同。见伯努利模型测试过程。这里用矩阵和向量的操作来实现这个过程，需要仔细体会。
+
+```scala
+ private val (thetaMinusNegTheta, negThetaSum) = modelType match {
+    case Multinomial => (None, None)
+    case Bernoulli =>
+      val negTheta = thetaMatrix.map(value => math.log(1.0 - math.exp(value)))
+      val ones = new DenseVector(Array.fill(thetaMatrix.numCols){1.0})
+      val thetaMinusNegTheta = thetaMatrix.map { value =>
+        value - math.log(1.0 - math.exp(value))
+      }
+      (Option(thetaMinusNegTheta), Option(negTheta.multiply(ones)))
+    case _ =>
+      // This should never happen.
+      throw new UnknownError(s"Invalid modelType: $modelType.")
+  }
+```
+
+&emsp;&emsp;这里`math.exp(value)`将对数概率恢复成真实的概率。
 
 # 参考文献
 
