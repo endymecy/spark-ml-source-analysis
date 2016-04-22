@@ -30,19 +30,47 @@
 
 &emsp;&emsp;有下面一个引理成立。
 
-<div  align="center"><img src="imgs/1.4.png" width = "1000" height = "60" alt="1.4" align="center" /></div><br>
+<div  align="center"><img src="imgs/1.4.png" width = "900" height = "60" alt="1.4" align="center" /></div><br>
 
 &emsp;&emsp;这个引理证明的事实极大地简化了近似保序解路径（`solution path`）的构造。假设在参数值为`lambda`的情况下，有`K_lambda`个连接块，我们用`A_1,A_2,..,A_K_lambda`表示。这样我们可以重写（2）为如下（3）的形式。
 
-<div  align="center"><img src="imgs/1.5.png" width = "800" height = "100" alt="1.5" align="center" /></div><br>
+<div  align="center"><img src="imgs/1.5.png" width = "700" height = "85" alt="1.5" align="center" /></div><br>
 
 &emsp;&emsp;上面的公式，对`beta`求偏导，可以得到下面的次梯度公式。通过这个公式即可以求得`beta`。
 
-<div  align="center"><img src="imgs/1.6.png" width = "800" height = "70" alt="1.6" align="center" /></div><br>
+<div  align="center"><img src="imgs/1.6.png" width = "800" height = "65" alt="1.6" align="center" /></div><br>
 
 &emsp;&emsp;为了符合方便，令`s_0 = s_K_lambda = 0`。并且，
 
-<div  align="center"><img src="imgs/1.7.png" width = "360" height = "45" alt="1.7" align="center" /></div><br>
+<div  align="center"><img src="imgs/1.7.png" width = "300" height = "40" alt="1.7" align="center" /></div><br>
+
+&emsp;&emsp;现在假设，当`lambda`在一个区间内增长时，组`A_1,A_2,...,A_K_lambda`不会改变。我们可以通过相应的`lambda`区分（4）。
+
+<div  align="center"><img src="imgs/1.8.png" width = "600" height = "70" alt="1.8" align="center" /></div><br>
+
+&emsp;&emsp;这个公式的值本身是一个常量，它意味着上式的`beta`是`lambda`的线性函数。
+
+&emsp;&emsp;随着`lambda`的增长，方程（5）将连续的给出解决方案的斜率直到组`A_1,A_2,...,A_K_lambda`改变。更加引理1，只有两个组合并时，这才会发生。`m_i`表示斜率，那么对于每一个`i=1,...,K_lambda - 1`，`A_i`和`A_i+1`合并之后得到的公式如下
+
+<div  align="center"><img src="imgs/1.9.png" width = "600" height = "80" alt="1.9" align="center" /></div><br>
+
+&emsp;&emsp;因此我们可以一直移动，直到`lambda` “下一个”值的到来
+
+<div  align="center"><img src="imgs/1.10.png" width = "600" height = "50" alt="1.10" align="center" /></div><br>
+
+&emsp;&emsp;并且合并`A_i^star`和`A_i^star+1`,其中
+
+<div  align="center"><img src="imgs/1.11.png" width = "600" height = "55" alt="1.11" align="center" /></div><br>
+
+&emsp;&emsp;注意，可能有超过一对组别到达了这个最小值，在这种情况下，会组合所有满足条件的组别。公式（7）和（8）成立的条件是`t_i,i+1`大于`lambda`，如果没有`t_i,i+1`大于`lambda`，说明没有组别可以合并，算法将会终止。
+
+&emsp;&emsp;算法的流程如下：
+
+
+
+
+
+
 
 
 
