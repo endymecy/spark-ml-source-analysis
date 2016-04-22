@@ -20,7 +20,7 @@
 
 &emsp;&emsp;在公式（2）中，隐含着一个假设，即使用等距的网格测量数据点。如果情况不是这样，那么可以修改惩罚项为下面的形式
 
-<div  align="center"><img src="imgs/1.3.png" width = "250" height = "95" alt="1.3" align="center" /></div><br>
+<div  align="center"><img src="imgs/1.3.png" width = "200" height = "75" alt="1.3" align="center" /></div><br>
 
 &emsp;&emsp;`x_i`表示`y_i`测量得到的值。
 
@@ -30,5 +30,21 @@
 
 &emsp;&emsp;有下面一个引理成立。
 
-<div  align="center"><img src="imgs/1.4.png" width = "1000" height = "60" alt="1.3" align="center" /></div><br>
+<div  align="center"><img src="imgs/1.4.png" width = "1000" height = "60" alt="1.4" align="center" /></div><br>
+
+&emsp;&emsp;这个引理证明的事实极大地简化了近似保序解路径（`solution path`）的构造。假设在参数值为`lambda`的情况下，有`K_lambda`个连接块，我们用`A_1,A_2,..,A_K_lambda`表示。这样我们可以重写（2）为如下（3）的形式。
+
+<div  align="center"><img src="imgs/1.5.png" width = "800" height = "100" alt="1.5" align="center" /></div><br>
+
+&emsp;&emsp;上面的公式，对`beta`求偏导，可以得到下面的次梯度公式。通过这个公式即可以求得`beta`。
+
+<div  align="center"><img src="imgs/1.6.png" width = "800" height = "70" alt="1.6" align="center" /></div><br>
+
+&emsp;&emsp;为了符合方便，令`s_0 = s_K_lambda = 0`。并且，
+
+<div  align="center"><img src="imgs/1.7.png" width = "360" height = "45" alt="1.7" align="center" /></div><br>
+
+
+
+
 
