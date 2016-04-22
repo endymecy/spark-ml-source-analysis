@@ -68,17 +68,17 @@
 
 - 初始时，`lambda=0`，`K_lambda=n`,`A_i={i},i=1,2,...,n`。对于每个i，解是`beta_lambda,i = y_i`
 
-- 重复过程
+- 重复下面过程
 
-&emsp;&emsp;（1）通过公式（5）计算每个组的斜率`m_i`
+&emsp;&emsp;**1、**通过公式（5）计算每个组的斜率`m_i`
 
-&emsp;&emsp;（2）通过公式（6）计算没对相邻组的碰撞次数`t_i,i+1`
+&emsp;&emsp;**2、**通过公式（6）计算没对相邻组的碰撞次数`t_i,i+1`
 
-&emsp;&emsp;（3）如果`t_i,i+1 < lambda`，终止
+&emsp;&emsp;**3、**如果`t_i,i+1 < lambda`，终止
 
-&emsp;&emsp;（4）计算公式（7）中的临界点`lambda^star`,并根据斜率更新解
+&emsp;&emsp;**4、**计算公式（7）中的临界点`lambda^star`,并根据斜率更新解
 
-<div  align="center"><img src="imgs/1.12.png" width = "400" height = "55" alt="1.12" align="center" /></div><br>
+<div  align="center"><img src="imgs/1.12.png" width = "300" height = "40" alt="1.12" align="center" /></div><br>
 
 &emsp;&emsp;对于每个`i`，更加公式（8）合并合适的组别（所以`K_lambda^star = K_lambda - 1`），并设置`lambda = lambda^star`。
 
