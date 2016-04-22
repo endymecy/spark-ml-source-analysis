@@ -23,7 +23,7 @@
     * [线性模型](分类和回归/线性模型/readme.md)
         * [SVMs(支持向量机)](分类和回归/线性模型/支持向量机/lsvm.md)
         * [逻辑回归](分类和回归/线性模型/逻辑回归/logic-regression.md)
-        * [回归](分类和回归/线性模型/回归/regression.md)
+        * [线性回归](分类和回归/线性模型/回归/regression.md)
     * [朴素贝叶斯](分类和回归/朴素贝叶斯/nb.md)
     * [决策树](分类和回归/决策树/decision-tree.md)
     * [组合树](分类和回归/组合树/随机森林/random-forests.md)
