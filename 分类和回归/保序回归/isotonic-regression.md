@@ -1,12 +1,12 @@
 # 保序回归
 
-## 1 介绍
+## 1 保序回归
 
 &emsp;&emsp;保序回归解决了下面的问题：给定包含`n`个数据点的序列`y_1,y_2,...,y_n`,怎样通过一个单调的序列`beta_1,beta_2,...,beta_n`来归纳这个问题。形式上，这个问题就是为了找到
 
 <div  align="center"><img src="imgs/1.1.png" width = "700" height = "70" alt="1.1" align="center" /></div><br>
 
-&emsp;&emsp;解决这个问题的一个方法就是`pool adjacent violators algorithm(PAVA)`算法。粗略的讲，`PAVA`算法的过程描述如下。
+&emsp;&emsp;大部分时候，我们会在括号前加上权重`w_i`。解决这个问题的一个方法就是`pool adjacent violators algorithm(PAVA)`算法。粗略的讲，`PAVA`算法的过程描述如下。
 
 &emsp;&emsp;我们从左边的`y_1`开始，右移`y_1`直到我们遇到第一个违例(`violation`)`y_i < y_i+1`，然后，我们用他们的平方替换他们，并且将这个平方值放到左边以满足单调性。我们继续这个过程，直到我们最后到达`y_n`。
 
@@ -83,6 +83,8 @@
 &emsp;&emsp;对于每个`i`，根据公式（8）合并合适的组别（所以`K_lambda^star = K_lambda - 1`），并设置`lambda = lambda^star`。
 
 ## 4 源码分析
+
+&emsp;&emsp;在`1.6.x`版本中，并没有实现近似保序回归，后续会实现。现在我们只介绍一般的保序回归算法实现。
 
 ### 4.1 实例
 
@@ -161,7 +163,7 @@ while (i < len) {
 def pool(input: Array[(Double, Double, Double)], start: Int, end: Int): Unit = {
       //取得i到j之间的元组组成的子序列
       val poolSubArray = input.slice(start, end + 1)
-      //求子序列sum（y * w）之和
+      //求子序列sum（label * w）之和
       val weightedSum = poolSubArray.map(lp => lp._1 * lp._3).sum
       //求权重之和
       val weight = poolSubArray.map(_._3).sum
