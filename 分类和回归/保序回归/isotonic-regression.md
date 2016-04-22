@@ -78,11 +78,173 @@
 
 &emsp;&emsp;**4、**计算公式（7）中的临界点`lambda^star`,并根据斜率更新解
 
-<div  align="center"><img src="imgs/1.12.png" width = "300" height = "40" alt="1.12" align="center" /></div><br>
+<div  align="center"><img src="imgs/1.12.png" width = "350" height = "45" alt="1.12" align="center" /></div><br>
 
-&emsp;&emsp;对于每个`i`，更加公式（8）合并合适的组别（所以`K_lambda^star = K_lambda - 1`），并设置`lambda = lambda^star`。
+&emsp;&emsp;对于每个`i`，根据公式（8）合并合适的组别（所以`K_lambda^star = K_lambda - 1`），并设置`lambda = lambda^star`。
 
+## 4 源码分析
 
+### 4.1 实例
+
+```scala
+import org.apache.spark.mllib.regression.{IsotonicRegression, IsotonicRegressionModel}
+val data = sc.textFile("data/mllib/sample_isotonic_regression_data.txt")
+// 创建（label, feature, weight） tuples ，权重默认设置为1.0
+val parsedData = data.map { line =>
+  val parts = line.split(',').map(_.toDouble)
+  (parts(0), parts(1), 1.0)
+}
+// Split data into training (60%) and test (40%) sets.
+val splits = parsedData.randomSplit(Array(0.6, 0.4), seed = 11L)
+val training = splits(0)
+val test = splits(1)
+// Create isotonic regression model from training data.
+// Isotonic parameter defaults to true so it is only shown for demonstration
+val model = new IsotonicRegression().setIsotonic(true).run(training)
+// Create tuples of predicted and real labels.
+val predictionAndLabel = test.map { point =>
+  val predictedLabel = model.predict(point._2)
+  (predictedLabel, point._1)
+}
+// Calculate mean squared error between predicted and real labels.
+val meanSquaredError = predictionAndLabel.map { case (p, l) => math.pow((p - l), 2) }.mean()
+println("Mean Squared Error = " + meanSquaredError)
+```
+
+### 4.2 训练过程分析
+
+&emsp;&emsp;`parallelPoolAdjacentViolators`方法用于实现保序回归的训练。`parallelPoolAdjacentViolators`方法的代码如下：
+
+```scala
+private def parallelPoolAdjacentViolators(
+      input: RDD[(Double, Double, Double)]): Array[(Double, Double, Double)] = {
+    val parallelStepResult = input
+      //以（feature，label）为key进行排序
+      .sortBy(x => (x._2, x._1))
+      .glom()//合并不同分区的数据为一个数组
+      .flatMap(poolAdjacentViolators)
+      .collect()
+      .sortBy(x => (x._2, x._1)) // Sort again because collect() doesn't promise ordering.
+    poolAdjacentViolators(parallelStepResult)
+  }
+```
+&emsp;&emsp;`parallelPoolAdjacentViolators`方法的主要实现是`poolAdjacentViolators`方法，该方法主要的实现过程如下：
+
+```scala
+var i = 0
+val len = input.length
+while (i < len) {
+     var j = i
+     //找到破坏单调性的元祖的index
+     while (j < len - 1 && input(j)._1 > input(j + 1)._1) {
+       j = j + 1
+     }
+     // 如果没有找到违规点，移动到下一个数据点
+     if (i == j) {
+       i = i + 1
+     } else {
+       // 否则用pool方法处理违规的节点
+       // 并且检查pool之后，之前处理过的节点是否违反了单调性约束
+       while (i >= 0 && input(i)._1 > input(i + 1)._1) {
+          pool(input, i, j)
+          i = i - 1
+       }
+       i = j
+     }
+}
+```
+
+&emsp;&emsp;`pool`方法的实现如下所示。
+
+```scala
+//输入数据是以
+def pool(input: Array[(Double, Double, Double)], start: Int, end: Int): Unit = {
+      //取得i到j之间的元组组成的子序列
+      val poolSubArray = input.slice(start, end + 1)
+      //求子序列sum（y * w）之和
+      val weightedSum = poolSubArray.map(lp => lp._1 * lp._3).sum
+      //求权重之和
+      val weight = poolSubArray.map(_._3).sum
+      var i = start
+      //子区间的所有元组标签相同，即拥有相同的预测
+      while (i <= end) {
+        //修改标签值为两者之商
+        input(i) = (weightedSum / weight, input(i)._2, input(i)._3)
+        i = i + 1
+      }
+}
+```
+&emsp;&emsp;经过上文的处理之后，`input`根据中的`label`和`feature`均是按升序排列。对于拥有相同预测的点，我们只保留两个特征边界点。
+
+```scala
+val compressed = ArrayBuffer.empty[(Double, Double, Double)]
+var (curLabel, curFeature, curWeight) = input.head
+var rightBound = curFeature
+def merge(): Unit = {
+    compressed += ((curLabel, curFeature, curWeight))
+    if (rightBound > curFeature) {
+        compressed += ((curLabel, rightBound, 0.0))
+    }
+}
+i = 1
+while (i < input.length) {
+    val (label, feature, weight) = input(i)
+    if (label == curLabel) {
+       //权重叠加
+       curWeight += weight
+       rightBound = feature
+    } else {//如果标签不同，合并
+       merge()
+       curLabel = label
+       curFeature = feature
+       curWeight = weight
+       rightBound = curFeature
+    }
+    i += 1
+}
+merge()
+```
+
+&emsp;&emsp;最后将训练的结果保存为模型。
+
+```scala
+//标签集
+val predictions = if (isotonic) pooled.map(_._1) else pooled.map(-_._1)
+//特征集
+val boundaries = pooled.map(_._2)
+new IsotonicRegressionModel(boundaries, predictions, isotonic)
+```
+
+### 4.3 预测过程分析
+
+```scala
+def predict(testData: Double): Double = {
+    def linearInterpolation(x1: Double, y1: Double, x2: Double, y2: Double, x: Double): Double = {
+      y1 + (y2 - y1) * (x - x1) / (x2 - x1)
+    }
+    //二分查找index
+    val foundIndex = binarySearch(boundaries, testData)
+    val insertIndex = -foundIndex - 1
+    // Find if the index was lower than all values,
+    // higher than all values, in between two values or exact match.
+    if (insertIndex == 0) {
+      predictions.head
+    } else if (insertIndex == boundaries.length){
+      predictions.last
+    } else if (foundIndex < 0) {
+      linearInterpolation(
+        boundaries(insertIndex - 1),
+        predictions(insertIndex - 1),
+        boundaries(insertIndex),
+        predictions(insertIndex),
+        testData)
+    } else {
+      predictions(foundIndex)
+    }
+  }
+```
+&emsp;&emsp;当测试数据精确匹配一个边界，那么返回相应的特征。如果测试数据比所有边界都大或者小，那么分别返回第一个和最后一个特征。当测试数据位于两个边界之间，使用`linearInterpolation`方法计算特征。
+这个方法是线性内插法。
 
 
 
