@@ -24,7 +24,7 @@
 
 &emsp;&emsp;`x_i`表示`y_i`测量得到的值。
 
-## 3 算法流程
+## 3 近似保序算法流程
 
 &emsp;&emsp;这个算法是标准`PAVA`算法的修改版本，它并不从数据的左端开始，而是在需要时连接相邻的点，以产生近似保序最优的顺序。相比一下，`PAVA`对中间的序列并不特别感兴趣，只关心最后的序列。
 
@@ -46,13 +46,13 @@
 
 &emsp;&emsp;现在假设，当`lambda`在一个区间内增长时，组`A_1,A_2,...,A_K_lambda`不会改变。我们可以通过相应的`lambda`区分（4）。
 
-<div  align="center"><img src="imgs/1.8.png" width = "600" height = "70" alt="1.8" align="center" /></div><br>
+<div  align="center"><img src="imgs/1.8.png" width = "600" height = "65" alt="1.8" align="center" /></div><br>
 
 &emsp;&emsp;这个公式的值本身是一个常量，它意味着上式的`beta`是`lambda`的线性函数。
 
 &emsp;&emsp;随着`lambda`的增长，方程（5）将连续的给出解决方案的斜率直到组`A_1,A_2,...,A_K_lambda`改变。更加引理1，只有两个组合并时，这才会发生。`m_i`表示斜率，那么对于每一个`i=1,...,K_lambda - 1`，`A_i`和`A_i+1`合并之后得到的公式如下
 
-<div  align="center"><img src="imgs/1.9.png" width = "600" height = "80" alt="1.9" align="center" /></div><br>
+<div  align="center"><img src="imgs/1.9.png" width = "600" height = "75" alt="1.9" align="center" /></div><br>
 
 &emsp;&emsp;因此我们可以一直移动，直到`lambda` “下一个”值的到来
 
@@ -64,10 +64,23 @@
 
 &emsp;&emsp;注意，可能有超过一对组别到达了这个最小值，在这种情况下，会组合所有满足条件的组别。公式（7）和（8）成立的条件是`t_i,i+1`大于`lambda`，如果没有`t_i,i+1`大于`lambda`，说明没有组别可以合并，算法将会终止。
 
-&emsp;&emsp;算法的流程如下：
+&emsp;&emsp;**算法的流程如下**：
 
+- 初始时，`lambda=0`，`K_lambda=n`,`A_i={i},i=1,2,...,n`。对于每个i，解是`beta_lambda,i = y_i`
 
+- 重复过程
 
+&emsp;&emsp;（1）通过公式（5）计算每个组的斜率`m_i`
+
+&emsp;&emsp;（2）通过公式（6）计算没对相邻组的碰撞次数`t_i,i+1`
+
+&emsp;&emsp;（3）如果`t_i,i+1 < lambda`，终止
+
+&emsp;&emsp;（4）计算公式（7）中的临界点`lambda^star`,并根据斜率更新解
+
+<div  align="center"><img src="imgs/1.12.png" width = "400" height = "55" alt="1.12" align="center" /></div><br>
+
+&emsp;&emsp;对于每个`i`，更加公式（8）合并合适的组别（所以`K_lambda^star = K_lambda - 1`），并设置`lambda = lambda^star`。
 
 
 
