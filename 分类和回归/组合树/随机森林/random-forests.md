@@ -66,7 +66,7 @@ val data = MLUtils.loadLibSVMFile(sc, "data/mllib/sample_libsvm_data.txt")
 val splits = data.randomSplit(Array(0.7, 0.3))
 val (trainingData, testData) = (splits(0), splits(1))
 // Train a RandomForest model.
-// Empty categoricalFeaturesInfo indicates all features are continuous.
+// 空的类别特征信息表示所有的特征都是连续的.
 val numClasses = 2
 val categoricalFeaturesInfo = Map[Int, Int]()
 val numTrees = 3 // Use more in practice.
@@ -98,7 +98,7 @@ val data = MLUtils.loadLibSVMFile(sc, "data/mllib/sample_libsvm_data.txt")
 val splits = data.randomSplit(Array(0.7, 0.3))
 val (trainingData, testData) = (splits(0), splits(1))
 // Train a RandomForest model.
-// Empty categoricalFeaturesInfo indicates all features are continuous.
+// 空的类别特征信息表示所有的特征都是连续的
 val numClasses = 2
 val categoricalFeaturesInfo = Map[Int, Int]()
 val numTrees = 3 // Use more in practice.
@@ -126,8 +126,364 @@ println("Learned regression forest model:\n" + model.toDebugString)
 
 #### 6.1.1 初始化
 
+```scala
+val retaggedInput = input.retag(classOf[LabeledPoint])
+//建立决策树的元数据信息（分裂点位置、箱子数及各箱子包含特征属性的值等）
+val metadata =
+    DecisionTreeMetadata.buildMetadata(retaggedInput, strategy, numTrees, featureSubsetStrategy)
+//找到切分点（splits）及箱子信息（Bins）
+//对于连续型特征，利用切分点抽样统计简化计算
+//对于离散型特征，如果是无序的，则最多有个 splits=2^(numBins-1)-1 划分
+//如果是有序的，则最多有 splits=numBins-1 个划分
+val (splits, bins) = DecisionTree.findSplitsBins(retaggedInput, metadata)
+//转换成树形的 RDD 类型，转换后，所有样本点已经按分裂点条件分到了各自的箱子中
+val treeInput = TreePoint.convertToTreeRDD(retaggedInput, bins, metadata)
+val withReplacement = if (numTrees > 1) true else false
+// convertToBaggedRDD 方法使得每棵树就是样本的一个子集
+val baggedInput = BaggedPoint.convertToBaggedRDD(treeInput,
+          strategy.subsamplingRate, numTrees,
+          withReplacement, seed).persist(StorageLevel.MEMORY_AND_DISK)
+//决策树的深度，最大为30
+val maxDepth = strategy.maxDepth
+//聚合的最大内存
+val maxMemoryUsage: Long = strategy.maxMemoryInMB * 1024L * 1024L
+val maxMemoryPerNode = {
+    val featureSubset: Option[Array[Int]] = if (metadata.subsamplingFeatures) {
+        // Find numFeaturesPerNode largest bins to get an upper bound on memory usage.
+        Some(metadata.numBins.zipWithIndex.sortBy(- _._1)
+          .take(metadata.numFeaturesPerNode).map(_._2))
+    } else {
+        None
+    }
+    //计算聚合操作时节点的内存
+    RandomForest.aggregateSizeForNode(metadata, featureSubset) * 8L
+}
+```
 
+&emsp;&emsp;初始化的第一步就是决策树元数据信息的构建。它的代码如下所示。
 
+```scala
+def buildMetadata(
+      input: RDD[LabeledPoint],
+      strategy: Strategy,
+      numTrees: Int,
+      featureSubsetStrategy: String): DecisionTreeMetadata = {
+    //特征数
+    val numFeatures = input.map(_.features.size).take(1).headOption.getOrElse {
+      throw new IllegalArgumentException(s"DecisionTree requires size of input RDD > 0, " +
+        s"but was given by empty one.")
+    }
+    val numExamples = input.count()
+    val numClasses = strategy.algo match {
+      case Classification => strategy.numClasses
+      case Regression => 0
+    }
+    //最大可能的装箱数
+    val maxPossibleBins = math.min(strategy.maxBins, numExamples).toInt
+    if (maxPossibleBins < strategy.maxBins) {
+      logWarning(s"DecisionTree reducing maxBins from ${strategy.maxBins} to $maxPossibleBins" +
+        s" (= number of training instances)")
+    }
+    // We check the number of bins here against maxPossibleBins.
+    // This needs to be checked here instead of in Strategy since maxPossibleBins can be modified
+    // based on the number of training examples.
+    //最大分类数要小于最大可能装箱数
+    //这里categoricalFeaturesInfo是传入的信息，这个map保存特征的类别信息。
+    //例如，(n->k)表示特征k包含的类别有（0,1,...,k-1）
+    if (strategy.categoricalFeaturesInfo.nonEmpty) {
+      val maxCategoriesPerFeature = strategy.categoricalFeaturesInfo.values.max
+      val maxCategory =
+        strategy.categoricalFeaturesInfo.find(_._2 == maxCategoriesPerFeature).get._1
+      require(maxCategoriesPerFeature <= maxPossibleBins,
+        s"DecisionTree requires maxBins (= $maxPossibleBins) to be at least as large as the " +
+        s"number of values in each categorical feature, but categorical feature $maxCategory " +
+        s"has $maxCategoriesPerFeature values. Considering remove this and other categorical " +
+        "features with a large number of values, or add more training examples.")
+    }
+    val unorderedFeatures = new mutable.HashSet[Int]()
+    val numBins = Array.fill[Int](numFeatures)(maxPossibleBins)
+    if (numClasses > 2) {
+      // 多分类
+      val maxCategoriesForUnorderedFeature =
+        ((math.log(maxPossibleBins / 2 + 1) / math.log(2.0)) + 1).floor.toInt
+      strategy.categoricalFeaturesInfo.foreach { case (featureIndex, numCategories) =>
+        //如果类别特征只有1个类，我们把它看成连续的特征
+        if (numCategories > 1) {
+          // Decide if some categorical features should be treated as unordered features,
+          //  which require 2 * ((1 << numCategories - 1) - 1) bins.
+          // We do this check with log values to prevent overflows in case numCategories is large.
+          // The next check is equivalent to: 2 * ((1 << numCategories - 1) - 1) <= maxBins
+          if (numCategories <= maxCategoriesForUnorderedFeature) {
+            unorderedFeatures.add(featureIndex)
+            numBins(featureIndex) = numUnorderedBins(numCategories)
+          } else {
+            numBins(featureIndex) = numCategories
+          }
+        }
+      }
+    } else {
+      // 二分类或者回归
+      strategy.categoricalFeaturesInfo.foreach { case (featureIndex, numCategories) =>
+        //如果类别特征只有1个类，我们把它看成连续的特征
+        if (numCategories > 1) {
+          numBins(featureIndex) = numCategories
+        }
+      }
+    }
+    // 设置每个节点的特征数 (对随机森林而言).
+    val _featureSubsetStrategy = featureSubsetStrategy match {
+      case "auto" =>
+        if (numTrees == 1) {//决策树时，使用所有特征
+          "all"
+        } else {
+          if (strategy.algo == Classification) {//分类时，使用开平方
+            "sqrt"
+          } else { //回归时，使用1/3的特征
+            "onethird"
+          }
+        }
+      case _ => featureSubsetStrategy
+    }
+    val numFeaturesPerNode: Int = _featureSubsetStrategy match {
+      case "all" => numFeatures
+      case "sqrt" => math.sqrt(numFeatures).ceil.toInt
+      case "log2" => math.max(1, (math.log(numFeatures) / math.log(2)).ceil.toInt)
+      case "onethird" => (numFeatures / 3.0).ceil.toInt
+    }
+    new DecisionTreeMetadata(numFeatures, numExamples, numClasses, numBins.max,
+      strategy.categoricalFeaturesInfo, unorderedFeatures.toSet, numBins,
+      strategy.impurity, strategy.quantileCalculationStrategy, strategy.maxDepth,
+      strategy.minInstancesPerNode, strategy.minInfoGain, numTrees, numFeaturesPerNode)
+  }
+```
+
+&emsp;&emsp;初始化的第二步就是找到切分点（`splits`）及箱子信息（`Bins`）。这时，调用了`DecisionTree.findSplitsBins`方法，进入该方法了解详细信息。
+
+```scala
+/**
+   * Returns splits and bins for decision tree calculation.
+   * Continuous and categorical features are handled differently.
+   *
+   * Continuous features:
+   *   For each feature, there are numBins - 1 possible splits representing the possible binary
+   *   decisions at each node in the tree.
+   *   This finds locations (feature values) for splits using a subsample of the data.
+   *
+   * Categorical features:
+   *   For each feature, there is 1 bin per split.
+   *   Splits and bins are handled in 2 ways:
+   *   (a) "unordered features"
+   *       For multiclass classification with a low-arity feature
+   *       (i.e., if isMulticlass && isSpaceSufficientForAllCategoricalSplits),
+   *       the feature is split based on subsets of categories.
+   *   (b) "ordered features"
+   *       For regression and binary classification,
+   *       and for multiclass classification with a high-arity feature,
+   *       there is one bin per category.
+   *
+   * @param input Training data: RDD of [[org.apache.spark.mllib.regression.LabeledPoint]]
+   * @param metadata Learning and dataset metadata
+   * @return A tuple of (splits, bins).
+   *         Splits is an Array of [[org.apache.spark.mllib.tree.model.Split]]
+   *          of size (numFeatures, numSplits).
+   *         Bins is an Array of [[org.apache.spark.mllib.tree.model.Bin]]
+   *          of size (numFeatures, numBins).
+   */
+  protected[tree] def findSplitsBins(
+      input: RDD[LabeledPoint],
+      metadata: DecisionTreeMetadata): (Array[Array[Split]], Array[Array[Bin]]) = {
+    //特征数
+    val numFeatures = metadata.numFeatures
+    // Sample the input only if there are continuous features.
+    // 判断特征中是否存在连续特征
+    val continuousFeatures = Range(0, numFeatures).filter(metadata.isContinuous)
+    val sampledInput = if (continuousFeatures.nonEmpty) {
+      // Calculate the number of samples for approximate quantile calculation.
+      //采样样本数量，最少有 10000 个
+      val requiredSamples = math.max(metadata.maxBins * metadata.maxBins, 10000)
+      //计算采样比例
+      val fraction = if (requiredSamples < metadata.numExamples) {
+        requiredSamples.toDouble / metadata.numExamples
+      } else {
+        1.0
+      }
+      //采样数据，有放回采样
+      input.sample(withReplacement = false, fraction, new XORShiftRandom().nextInt())
+    } else {
+      input.sparkContext.emptyRDD[LabeledPoint]
+    }
+    //分裂点策略，目前 Spark 中只实现了一种策略：排序 Sort
+    metadata.quantileStrategy match {
+      case Sort =>
+        findSplitsBinsBySorting(sampledInput, metadata, continuousFeatures)
+      case MinMax =>
+        throw new UnsupportedOperationException("minmax not supported yet.")
+      case ApproxHist =>
+        throw new UnsupportedOperationException("approximate histogram not supported yet.")
+    }
+  }
+```
+&emsp;&emsp;我们进入`findSplitsBinsBySorting`方法了解`Sort`分裂测量的实现。
+
+```scala
+private def findSplitsBinsBySorting(
+      input: RDD[LabeledPoint],
+      metadata: DecisionTreeMetadata,
+      continuousFeatures: IndexedSeq[Int]): (Array[Array[Split]], Array[Array[Bin]]) = {
+    def findSplits(
+        featureIndex: Int,
+        featureSamples: Iterable[Double]): (Int, (Array[Split], Array[Bin])) = {
+      //每个特征分别对应一组切分点位置
+      val splits = {
+        // findSplitsForContinuousFeature 返回连续特征的所有切分位置
+        val featureSplits = findSplitsForContinuousFeature(
+          featureSamples.toArray,
+          metadata,
+          featureIndex)
+        featureSplits.map(threshold => new Split(featureIndex, threshold, Continuous, Nil))
+      }
+      //存放切分点位置对应的箱子信息
+      val bins = {
+        //采用最小阈值 Double.MinValue 作为最左边的分裂位置并进行装箱
+        val lowSplit = new DummyLowSplit(featureIndex, Continuous)
+        //最后一个箱子的计算采用最大阈值 Double.MaxValue 作为最右边的切分位置
+        val highSplit = new DummyHighSplit(featureIndex, Continuous)
+        // tack the dummy splits on either side of the computed splits
+        val allSplits = lowSplit +: splits.toSeq :+ highSplit
+        //将切分点两两结合成一个箱子
+        allSplits.sliding(2).map {
+          case Seq(left, right) => new Bin(left, right, Continuous, Double.MinValue)
+        }.toArray
+      }
+      (featureIndex, (splits, bins))
+    }
+    val continuousSplits = {
+      // reduce the parallelism for split computations when there are less
+      // continuous features than input partitions. this prevents tasks from
+      // being spun up that will definitely do no work.
+      val numPartitions = math.min(continuousFeatures.length, input.partitions.length)
+      input
+        .flatMap(point => continuousFeatures.map(idx => (idx, point.features(idx))))
+        .groupByKey(numPartitions)
+        .map { case (k, v) => findSplits(k, v) }
+        .collectAsMap()
+    }
+    val numFeatures = metadata.numFeatures
+    //遍历所有特征
+    val (splits, bins) = Range(0, numFeatures).unzip {
+      //处理连续特征的情况
+      case i if metadata.isContinuous(i) =>
+        val (split, bin) = continuousSplits(i)
+        metadata.setNumSplits(i, split.length)
+        (split, bin)
+      //处理离散特征且无序的情况
+      case i if metadata.isCategorical(i) && metadata.isUnordered(i) =>
+        // Unordered features
+        // 2^(maxFeatureValue - 1) - 1 combinations
+        val featureArity = metadata.featureArity(i)
+        val split = Range(0, metadata.numSplits(i)).map { splitIndex =>
+          val categories = extractMultiClassCategories(splitIndex + 1, featureArity)
+          new Split(i, Double.MinValue, Categorical, categories)
+        }
+        // For unordered categorical features, there is no need to construct the bins.
+        // since there is a one-to-one correspondence between the splits and the bins.
+        (split.toArray, Array.empty[Bin])
+      //处理离散特征且有序的情况
+      case i if metadata.isCategorical(i) =>
+        //有序特征无需处理，箱子与特征值对应
+        // Ordered features
+        // Bins correspond to feature values, so we do not need to compute splits or bins
+        // beforehand.  Splits are constructed as needed during training.
+        (Array.empty[Split], Array.empty[Bin])
+    }
+    (splits.toArray, bins.toArray)
+  }
+```
+
+&emsp;&emsp;计算连续特征的所有切分位置需要调用方法`findSplitsForContinuousFeature`方法。
+
+```scala
+private[tree] def findSplitsForContinuousFeature(
+      featureSamples: Array[Double],
+      metadata: DecisionTreeMetadata,
+      featureIndex: Int): Array[Double] = {
+    val splits = {
+      val numSplits = metadata.numSplits(featureIndex)
+      // （特征，特征出现的次数）
+      val valueCountMap = featureSamples.foldLeft(Map.empty[Double, Int]) { (m, x) =>
+        m + ((x, m.getOrElse(x, 0) + 1))
+      }
+      // 根据特征进行排序
+      val valueCounts = valueCountMap.toSeq.sortBy(_._1).toArray
+      // if possible splits is not enough or just enough, just return all possible splits
+      val possibleSplits = valueCounts.length
+      //如果特征数小于切分数，所有特征均作为切分点
+      if (possibleSplits <= numSplits) {
+        valueCounts.map(_._1)
+      } else {
+        // 切分点之间的步长
+        val stride: Double = featureSamples.length.toDouble / (numSplits + 1)
+        val splitsBuilder = Array.newBuilder[Double]
+        var index = 1
+        // currentCount: sum of counts of values that have been visited
+        //第一个特征的出现次数
+        var currentCount = valueCounts(0)._2
+        // targetCount: target value for `currentCount`.
+        // If `currentCount` is closest value to `targetCount`,
+        // then current value is a split threshold.
+        // After finding a split threshold, `targetCount` is added by stride.
+        var targetCount = stride
+        while (index < valueCounts.length) {
+          val previousCount = currentCount
+          currentCount += valueCounts(index)._2
+          val previousGap = math.abs(previousCount - targetCount)
+          val currentGap = math.abs(currentCount - targetCount)
+          // If adding count of current value to currentCount
+          // makes the gap between currentCount and targetCount smaller,
+          // previous value is a split threshold.
+          if (previousGap < currentGap) {
+            splitsBuilder += valueCounts(index - 1)._1
+            targetCount += stride
+          }
+          index += 1
+        }
+        splitsBuilder.result()
+      }
+    }
+    splits
+  }
+```
+
+#### 6.1.2 迭代构建随机森林
+
+```scala
+// Create an RDD of node Id cache.
+// At first, all the rows belong to the root nodes (node Id == 1).
+val nodeIdCache = if (strategy.useNodeIdCache) {
+   Some(NodeIdCache.init(
+        data = baggedInput,
+        numTrees = numTrees,
+        checkpointInterval = strategy.checkpointInterval,
+        initVal = 1))
+} else {
+   None
+}
+// FIFO queue of nodes to train: (treeIndex, node)
+val nodeQueue = new mutable.Queue[(Int, Node)]()
+val rng = new scala.util.Random()
+rng.setSeed(seed)
+// Allocate and queue root nodes.
+val topNodes: Array[Node] = Array.fill[Node](numTrees)(Node.emptyNode(nodeIndex = 1))
+Range(0, numTrees).foreach(treeIndex => nodeQueue.enqueue((treeIndex, topNodes(treeIndex))))
+while (nodeQueue.nonEmpty) {
+    // Collect some nodes to split, and choose features for each node (if subsampling).
+    // Each group of nodes may come from one or multiple trees, and at multiple levels.
+    val (nodesForGroup, treeToNodeToIndexInfo) =
+        RandomForest.selectNodesToSplit(nodeQueue, maxMemoryUsage, metadata, rng)
+    DecisionTree.findBestSplits(baggedInput, metadata, topNodes, nodesForGroup,
+        treeToNodeToIndexInfo, splits, bins, nodeQueue, timer, nodeIdCache = nodeIdCache)
+}
+```
 
 
 # 参考文献
