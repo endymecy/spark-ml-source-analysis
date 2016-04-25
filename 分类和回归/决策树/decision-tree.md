@@ -222,3 +222,7 @@ class Strategy @Since("1.3.0") (
     @Since("1.2.0") @BeanProperty var checkpointInterval: Int = 10) extends Serializable
 ```
 
+&emsp;&emsp;决策树的实现我们在[随机森林](../组合树/随机森林/random-forests.md)专题介绍。这里我们只需要知道，当随机森林的树个数为1时，它即为决策树，
+并且此时，树的训练所用的特征是全部特征，而不是随机选择的部分特征。即`featureSubsetStrategy = "all"`。
+
+
