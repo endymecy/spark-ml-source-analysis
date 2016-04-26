@@ -323,7 +323,7 @@ def buildMetadata(
     }
   }
 ```
-&emsp;&emsp;我们进入`findSplitsBinsBySorting`方法了解`Sort`分裂测量的实现。
+&emsp;&emsp;我们进入`findSplitsBinsBySorting`方法了解`Sort`分裂策略的实现。
 
 ```scala
 private def findSplitsBinsBySorting(
@@ -333,7 +333,7 @@ private def findSplitsBinsBySorting(
     def findSplits(
         featureIndex: Int,
         featureSamples: Iterable[Double]): (Int, (Array[Split], Array[Bin])) = {
-      //每个特征分别对应一组切分点位置
+      //每个特征分别对应一组切分点位置，这里splits是有序的
       val splits = {
         // findSplitsForContinuousFeature 返回连续特征的所有切分位置
         val featureSplits = findSplitsForContinuousFeature(
@@ -569,7 +569,7 @@ val partitionAggregates : RDD[(Int, DTStatsAggregator)] = if (nodeIdCache.nonEmp
           // DTStatsAggregator，其中引用了 ImpurityAggregator，给出计算不纯度 impurity 的逻辑
           new DTStatsAggregator(metadata, featuresForNode)
       }
-      // 迭代当前分区的所有对象，更新聚合统计信息
+      // 迭代当前分区的所有对象，更新聚合统计信息，统计信息即采样数据的权重值
       points.foreach(binSeqOpWithNodeIdCache(nodeStatsAggregators, _))
       // transform nodeStatsAggregators array to (nodeIndex, nodeAggregateStats) pairs,
       // which can be combined with other partition using `reduceByKey`
@@ -651,7 +651,7 @@ private def binsToBestSplit(
             //求 impurity 的预测值，采用的是平均值计算
             predictWithImpurity = Some(predictWithImpurity.getOrElse(
               calculatePredictImpurity(leftChildStats, rightChildStats)))
-            //求信息增益 information gain 值，用于评估切分点是否最优
+            //求信息增益 information gain 值，用于评估切分点是否最优,请参考决策树中1.4.4章节的介绍
             val gainStats = calculateGainForSplit(leftChildStats,
               rightChildStats, binAggregates.metadata, predictWithImpurity.get._2)
             (splitIdx, gainStats)
