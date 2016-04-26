@@ -26,7 +26,7 @@
         * [线性回归](分类和回归/线性模型/回归/regression.md)
     * [朴素贝叶斯](分类和回归/朴素贝叶斯/nb.md)
     * [决策树](分类和回归/决策树/decision-tree.md)
-    * [组合树](分类和回归/组合树/随机森林/random-forests.md)
+    * [组合树](分类和回归/组合树/readme.md)
         * [随机森林](分类和回归/组合树/随机森林/random-forests.md)
         * [梯度提升树](分类和回归/组合树/梯度提升树/gbts.md)
     * [保序回归](分类和回归/保序回归/isotonic-regression.md)
