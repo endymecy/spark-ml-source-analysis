@@ -13,12 +13,12 @@
 
 * 分类和回归
     * [线性模型](线性模型/readme.md)
-        * SVMs
-        * 逻辑回归
-        * 线性回归
-    * 朴素贝叶斯
-    * 决策树
-    * [多种树]()
-        * 随机森林
-        * 梯度增强树
-    * 保序回归
+        * [SVMs(支持向量机)](线性模型/支持向量机/lsvm.md)
+        * [逻辑回归](线性模型/逻辑回归/logic-regression.md)
+        * [线性回归](线性模型/回归/regression.md)
+    * [朴素贝叶斯](朴素贝叶斯/nb.md)
+    * [决策树](决策树/decision-tree.md)
+    * [组合树](组合树/readme.md)
+        * [随机森林](组合树/随机森林/random-forests.md)
+        * [梯度提升树](组合树/梯度提升树/gbts.md)
+    * [保序回归](保序回归/isotonic-regression.md)
