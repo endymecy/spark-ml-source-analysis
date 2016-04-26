@@ -797,3 +797,5 @@ private def predictByVoting(features: Vector): Double = {
 【1】机器学习.周志华
 
 【2】[Spark 随机森林算法原理、源码分析及案例实战](https://www.ibm.com/developerworks/cn/opensource/os-cn-spark-random-forest/)
+
+【3】[Scalable Distributed Decision Trees in Spark MLlib](https://spark-summit.org/wp-content/uploads/2014/07/Scalable-Distributed-Decision-Trees-in-Spark-Made-Das-Sparks-Talwalkar.pdf)
