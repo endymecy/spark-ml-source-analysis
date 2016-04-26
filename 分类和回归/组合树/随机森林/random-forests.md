@@ -408,6 +408,7 @@ private[tree] def findSplitsForContinuousFeature(
       metadata: DecisionTreeMetadata,
       featureIndex: Int): Array[Double] = {
     val splits = {
+      //切分数是特征数减1，即m-1
       val numSplits = metadata.numSplits(featureIndex)
       // （特征，特征出现的次数）
       val valueCountMap = featureSamples.foldLeft(Map.empty[Double, Int]) { (m, x) =>
@@ -457,8 +458,7 @@ private[tree] def findSplitsForContinuousFeature(
 #### 6.1.2 迭代构建随机森林
 
 ```scala
-// Create an RDD of node Id cache.
-// At first, all the rows belong to the root nodes (node Id == 1).
+//节点是否使用缓存，节点 ID 从 1 开始，1 即为这颗树的根节点，左节点为 2，右节点为 3，依次递增下去
 val nodeIdCache = if (strategy.useNodeIdCache) {
    Some(NodeIdCache.init(
         data = baggedInput,
@@ -473,18 +473,324 @@ val nodeQueue = new mutable.Queue[(Int, Node)]()
 val rng = new scala.util.Random()
 rng.setSeed(seed)
 // Allocate and queue root nodes.
+//创建树的根节点
 val topNodes: Array[Node] = Array.fill[Node](numTrees)(Node.emptyNode(nodeIndex = 1))
+//将（树的索引，树的根节点）入队，树索引从 0 开始，根节点从 1 开始
 Range(0, numTrees).foreach(treeIndex => nodeQueue.enqueue((treeIndex, topNodes(treeIndex))))
 while (nodeQueue.nonEmpty) {
     // Collect some nodes to split, and choose features for each node (if subsampling).
     // Each group of nodes may come from one or multiple trees, and at multiple levels.
+    // 取得每个树所有需要切分的节点,nodesForGroup表示需要切分的节点
     val (nodesForGroup, treeToNodeToIndexInfo) =
         RandomForest.selectNodesToSplit(nodeQueue, maxMemoryUsage, metadata, rng)
+    //找出最优切点
     DecisionTree.findBestSplits(baggedInput, metadata, topNodes, nodesForGroup,
         treeToNodeToIndexInfo, splits, bins, nodeQueue, timer, nodeIdCache = nodeIdCache)
 }
 ```
 
+&emsp;&emsp;这里有两点需要重点介绍，第一点是取得每个树所有需要切分的节点，通过`RandomForest.selectNodesToSplit`方法实现；第二点是找出最优切点，通过`DecisionTree.findBestSplits`方法实现。下面分别介绍这两点。
+
+- 取得每个树所有需要切分的节点
+
+```scala
+ private[tree] def selectNodesToSplit(
+      nodeQueue: mutable.Queue[(Int, Node)],
+      maxMemoryUsage: Long,
+      metadata: DecisionTreeMetadata,
+      rng: scala.util.Random): (Map[Int, Array[Node]], Map[Int, Map[Int, NodeIndexInfo]]) = {
+    // nodesForGroup保存需要切分的节点，treeIndex --> nodes
+    val mutableNodesForGroup = new mutable.HashMap[Int, mutable.ArrayBuffer[Node]]()
+    // mutableTreeToNodeToIndexInfo保存每个节点中选中特征的索引
+    // treeIndex --> (global) node index --> (node index in group, feature indices)
+    //(global) node index是树中的索引，组中节点索引的范围是[0, numNodesInGroup)
+    val mutableTreeToNodeToIndexInfo =
+      new mutable.HashMap[Int, mutable.HashMap[Int, NodeIndexInfo]]()
+    var memUsage: Long = 0L
+    var numNodesInGroup = 0
+    while (nodeQueue.nonEmpty && memUsage < maxMemoryUsage) {
+      val (treeIndex, node) = nodeQueue.head
+      // Choose subset of features for node (if subsampling).
+      // 选中特征子集
+      val featureSubset: Option[Array[Int]] = if (metadata.subsamplingFeatures) {
+        Some(SamplingUtils.reservoirSampleAndCount(Range(0,
+          metadata.numFeatures).iterator, metadata.numFeaturesPerNode, rng.nextLong)._1)
+      } else {
+        None
+      }
+      // Check if enough memory remains to add this node to the group.
+      // 检查是否有足够的内存
+      val nodeMemUsage = RandomForest.aggregateSizeForNode(metadata, featureSubset) * 8L
+      if (memUsage + nodeMemUsage <= maxMemoryUsage) {
+        nodeQueue.dequeue()
+        mutableNodesForGroup.getOrElseUpdate(treeIndex, new mutable.ArrayBuffer[Node]()) += node
+        mutableTreeToNodeToIndexInfo
+          .getOrElseUpdate(treeIndex, new mutable.HashMap[Int, NodeIndexInfo]())(node.id)
+          = new NodeIndexInfo(numNodesInGroup, featureSubset)
+      }
+      numNodesInGroup += 1
+      memUsage += nodeMemUsage
+    }
+    // 将可变map转换为不可变map
+    val nodesForGroup: Map[Int, Array[Node]] = mutableNodesForGroup.mapValues(_.toArray).toMap
+    val treeToNodeToIndexInfo = mutableTreeToNodeToIndexInfo.mapValues(_.toMap).toMap
+    (nodesForGroup, treeToNodeToIndexInfo)
+  }
+```
+
+- 选中最优切点
+
+```scala
+//所有可切分的节点
+val nodes = new Array[Node](numNodes)
+nodesForGroup.foreach { case (treeIndex, nodesForTree) =>
+   nodesForTree.foreach { node =>
+     nodes(treeToNodeToIndexInfo(treeIndex)(node.id).nodeIndexInGroup) = node
+   }
+}
+// In each partition, iterate all instances and compute aggregate stats for each node,
+// yield an (nodeIndex, nodeAggregateStats) pair for each node.
+// After a `reduceByKey` operation,
+// stats of a node will be shuffled to a particular partition and be combined together,
+// then best splits for nodes are found there.
+// Finally, only best Splits for nodes are collected to driver to construct decision tree.
+//获取节点对应的特征
+val nodeToFeatures = getNodeToFeatures(treeToNodeToIndexInfo)
+val nodeToFeaturesBc = input.sparkContext.broadcast(nodeToFeatures)
+val partitionAggregates : RDD[(Int, DTStatsAggregator)] = if (nodeIdCache.nonEmpty) {
+    input.zip(nodeIdCache.get.nodeIdsForInstances).mapPartitions { points =>
+      // Construct a nodeStatsAggregators array to hold node aggregate stats,
+      // each node will have a nodeStatsAggregator
+      val nodeStatsAggregators = Array.tabulate(numNodes) { nodeIndex =>
+          //节点对应的特征集
+          val featuresForNode = nodeToFeaturesBc.value.flatMap { nodeToFeatures =>
+            Some(nodeToFeatures(nodeIndex))
+          }
+          // DTStatsAggregator，其中引用了 ImpurityAggregator，给出计算不纯度 impurity 的逻辑
+          new DTStatsAggregator(metadata, featuresForNode)
+      }
+      // 迭代当前分区的所有对象，更新聚合统计信息
+      points.foreach(binSeqOpWithNodeIdCache(nodeStatsAggregators, _))
+      // transform nodeStatsAggregators array to (nodeIndex, nodeAggregateStats) pairs,
+      // which can be combined with other partition using `reduceByKey`
+      nodeStatsAggregators.view.zipWithIndex.map(_.swap).iterator
+    }
+} else {
+      input.mapPartitions { points =>
+        // Construct a nodeStatsAggregators array to hold node aggregate stats,
+        // each node will have a nodeStatsAggregator
+        val nodeStatsAggregators = Array.tabulate(numNodes) { nodeIndex =>
+          //节点对应的特征集
+          val featuresForNode = nodeToFeaturesBc.value.flatMap { nodeToFeatures =>
+            Some(nodeToFeatures(nodeIndex))
+          }
+          // DTStatsAggregator，其中引用了 ImpurityAggregator，给出计算不纯度 impurity 的逻辑
+          new DTStatsAggregator(metadata, featuresForNode)
+        }
+        // 迭代当前分区的所有对象，更新聚合统计信息
+        points.foreach(binSeqOp(nodeStatsAggregators, _))
+        // transform nodeStatsAggregators array to (nodeIndex, nodeAggregateStats) pairs,
+        // which can be combined with other partition using `reduceByKey`
+        nodeStatsAggregators.view.zipWithIndex.map(_.swap).iterator
+      }
+}
+val nodeToBestSplits = partitionAggregates.reduceByKey((a, b) => a.merge(b))
+    .map { case (nodeIndex, aggStats) =>
+          val featuresForNode = nodeToFeaturesBc.value.map { nodeToFeatures =>
+            nodeToFeatures(nodeIndex)
+    }
+    // find best split for each node
+    val (split: Split, stats: InformationGainStats, predict: Predict) =
+        binsToBestSplit(aggStats, splits, featuresForNode, nodes(nodeIndex))
+    (nodeIndex, (split, stats, predict))
+}.collectAsMap()
+```
+
+&emsp;&emsp;该方法中的关键是对`binsToBestSplit`方法的调用，`binsToBestSplit`方法代码如下：
+
+```scala
+private def binsToBestSplit(
+      binAggregates: DTStatsAggregator,
+      splits: Array[Array[Split]],
+      featuresForNode: Option[Array[Int]],
+      node: Node): (Split, InformationGainStats, Predict) = {
+    // 如果当前节点是根节点，计算预测和不纯度
+    val level = Node.indexToLevel(node.id)
+    var predictWithImpurity: Option[(Predict, Double)] = if (level == 0) {
+      None
+    } else {
+      Some((node.predict, node.impurity))
+    }
+    // 对各特征及切分点，计算其信息增益并从中选择最优 (feature, split)
+    val (bestSplit, bestSplitStats) =
+      Range(0, binAggregates.metadata.numFeaturesPerNode).map { featureIndexIdx =>
+      val featureIndex = if (featuresForNode.nonEmpty) {
+        featuresForNode.get.apply(featureIndexIdx)
+      } else {
+        featureIndexIdx
+      }
+      val numSplits = binAggregates.metadata.numSplits(featureIndex)
+       //特征为连续值的情况
+      if (binAggregates.metadata.isContinuous(featureIndex)) {
+        // Cumulative sum (scanLeft) of bin statistics.
+        // Afterwards, binAggregates for a bin is the sum of aggregates for
+        // that bin + all preceding bins.
+        val nodeFeatureOffset = binAggregates.getFeatureOffset(featureIndexIdx)
+        var splitIndex = 0
+        while (splitIndex < numSplits) {
+          binAggregates.mergeForFeature(nodeFeatureOffset, splitIndex + 1, splitIndex)
+          splitIndex += 1
+        }
+        // Find best split.
+        val (bestFeatureSplitIndex, bestFeatureGainStats) =
+          Range(0, numSplits).map { case splitIdx =>
+            //计算 leftChild 及 rightChild 子节点的 impurity
+            val leftChildStats = binAggregates.getImpurityCalculator(nodeFeatureOffset, splitIdx)
+            val rightChildStats = binAggregates.getImpurityCalculator(nodeFeatureOffset, numSplits)
+            rightChildStats.subtract(leftChildStats)
+            //求 impurity 的预测值，采用的是平均值计算
+            predictWithImpurity = Some(predictWithImpurity.getOrElse(
+              calculatePredictImpurity(leftChildStats, rightChildStats)))
+            //求信息增益 information gain 值，用于评估切分点是否最优
+            val gainStats = calculateGainForSplit(leftChildStats,
+              rightChildStats, binAggregates.metadata, predictWithImpurity.get._2)
+            (splitIdx, gainStats)
+          }.maxBy(_._2.gain)
+        (splits(featureIndex)(bestFeatureSplitIndex), bestFeatureGainStats)
+      }
+      //无序离散特征时的情况
+      else if (binAggregates.metadata.isUnordered(featureIndex)) {
+        // Unordered categorical feature
+        val (leftChildOffset, rightChildOffset) =
+          binAggregates.getLeftRightFeatureOffsets(featureIndexIdx)
+        val (bestFeatureSplitIndex, bestFeatureGainStats) =
+          Range(0, numSplits).map { splitIndex =>
+            val leftChildStats = binAggregates.getImpurityCalculator(leftChildOffset, splitIndex)
+            val rightChildStats = binAggregates.getImpurityCalculator(rightChildOffset, splitIndex)
+            predictWithImpurity = Some(predictWithImpurity.getOrElse(
+              calculatePredictImpurity(leftChildStats, rightChildStats)))
+            val gainStats = calculateGainForSplit(leftChildStats,
+              rightChildStats, binAggregates.metadata, predictWithImpurity.get._2)
+            (splitIndex, gainStats)
+          }.maxBy(_._2.gain)
+        (splits(featureIndex)(bestFeatureSplitIndex), bestFeatureGainStats)
+      } else {//有序离散特征时的情况
+        // Ordered categorical feature
+        val nodeFeatureOffset = binAggregates.getFeatureOffset(featureIndexIdx)
+        val numBins = binAggregates.metadata.numBins(featureIndex)
+        /* Each bin is one category (feature value).
+         * The bins are ordered based on centroidForCategories, and this ordering determines which
+         * splits are considered.  (With K categories, we consider K - 1 possible splits.)
+         *
+         * centroidForCategories is a list: (category, centroid)
+         */
+        //多元分类时的情况
+        val centroidForCategories = if (binAggregates.metadata.isMulticlass) {
+          // For categorical variables in multiclass classification,
+          // the bins are ordered by the impurity of their corresponding labels.
+          Range(0, numBins).map { case featureValue =>
+            val categoryStats = binAggregates.getImpurityCalculator(nodeFeatureOffset, featureValue)
+            val centroid = if (categoryStats.count != 0) {
+              // impurity 求的就是均方差
+              categoryStats.calculate()
+            } else {
+              Double.MaxValue
+            }
+            (featureValue, centroid)
+          }
+        } else { // 回归或二元分类时的情况
+          // For categorical variables in regression and binary classification,
+          // the bins are ordered by the centroid of their corresponding labels.
+          Range(0, numBins).map { case featureValue =>
+            val categoryStats = binAggregates.getImpurityCalculator(nodeFeatureOffset, featureValue)
+            val centroid = if (categoryStats.count != 0) {
+              //求的就是平均值作为 impurity
+              categoryStats.predict
+            } else {
+              Double.MaxValue
+            }
+            (featureValue, centroid)
+          }
+        }
+        // bins sorted by centroids
+        val categoriesSortedByCentroid = centroidForCategories.toList.sortBy(_._2)
+        // Cumulative sum (scanLeft) of bin statistics.
+        // Afterwards, binAggregates for a bin is the sum of aggregates for
+        // that bin + all preceding bins.
+        var splitIndex = 0
+        while (splitIndex < numSplits) {
+          val currentCategory = categoriesSortedByCentroid(splitIndex)._1
+          val nextCategory = categoriesSortedByCentroid(splitIndex + 1)._1
+          //将两个箱子的状态信息进行合并
+          binAggregates.mergeForFeature(nodeFeatureOffset, nextCategory, currentCategory)
+          splitIndex += 1
+        }
+        // lastCategory = index of bin with total aggregates for this (node, feature)
+        val lastCategory = categoriesSortedByCentroid.last._1
+        // Find best split.
+        //通过信息增益值选择最优切分点
+        val (bestFeatureSplitIndex, bestFeatureGainStats) =
+          Range(0, numSplits).map { splitIndex =>
+            val featureValue = categoriesSortedByCentroid(splitIndex)._1
+            val leftChildStats =
+              binAggregates.getImpurityCalculator(nodeFeatureOffset, featureValue)
+            val rightChildStats =
+              binAggregates.getImpurityCalculator(nodeFeatureOffset, lastCategory)
+            rightChildStats.subtract(leftChildStats)
+            predictWithImpurity = Some(predictWithImpurity.getOrElse(
+              calculatePredictImpurity(leftChildStats, rightChildStats)))
+            val gainStats = calculateGainForSplit(leftChildStats,
+              rightChildStats, binAggregates.metadata, predictWithImpurity.get._2)
+            (splitIndex, gainStats)
+          }.maxBy(_._2.gain)
+        val categoriesForSplit =
+          categoriesSortedByCentroid.map(_._1.toDouble).slice(0, bestFeatureSplitIndex + 1)
+        val bestFeatureSplit =
+          new Split(featureIndex, Double.MinValue, Categorical, categoriesForSplit)
+        (bestFeatureSplit, bestFeatureGainStats)
+      }
+    }.maxBy(_._2.gain)
+    (bestSplit, bestSplitStats, predictWithImpurity.get._1)
+  }
+```
+
+### 6.2 预测分析
+
+&emsp;&emsp;在利用随机森林进行预测时，调用的`predict`方法扩展自`TreeEnsembleModel`，它是树结构组合模型的表示，其核心代码如下所示：
+
+```scala
+//不同的策略采用不同的预测方法
+def predict(features: Vector): Double = {
+    (algo, combiningStrategy) match {
+      case (Regression, Sum) =>
+        predictBySumming(features)
+      case (Regression, Average) =>
+        predictBySumming(features) / sumWeights
+      case (Classification, Sum) => // binary classification
+        val prediction = predictBySumming(features)
+        // TODO: predicted labels are +1 or -1 for GBT. Need a better way to store this info.
+        if (prediction > 0.0) 1.0 else 0.0
+      case (Classification, Vote) =>
+        predictByVoting(features)
+      case _ =>
+        throw new IllegalArgumentException()
+    }
+  }
+private def predictBySumming(features: Vector): Double = {
+    val treePredictions = trees.map(_.predict(features))
+    //两个向量的内集
+    blas.ddot(numTrees, treePredictions, 1, treeWeights, 1)
+}
+//通过投票选举
+private def predictByVoting(features: Vector): Double = {
+    val votes = mutable.Map.empty[Int, Double]
+    trees.view.zip(treeWeights).foreach { case (tree, weight) =>
+      val prediction = tree.predict(features).toInt
+      votes(prediction) = votes.getOrElse(prediction, 0.0) + weight
+    }
+    votes.maxBy(_._2)._1
+}
+```
 
 # 参考文献
 
