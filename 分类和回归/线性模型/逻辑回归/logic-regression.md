@@ -61,7 +61,12 @@
 
 <div  align="center"><img src="imgs/2.5.png" width = "500" height = "160" alt="2.5" align="center" /></div><br>
 
-## 3 实例
+## 3 逻辑回归的优缺点
+
+- 优点：计算代价低，速度快，容易理解和实现。
+- 缺点：容易过拟合，分类和回归的精度不高。
+
+## 4 实例
 
 &emsp;&emsp;下面的例子展示了如何使用逻辑回归。
 
@@ -96,9 +101,9 @@ model.save(sc, "myModelPath")
 val sameModel = LogisticRegressionModel.load(sc, "myModelPath")
 ```
 
-## 4 源码分析
+## 5 源码分析
 
-### 4.1 训练模型
+### 5.1 训练模型
 
 &emsp;&emsp;如上所述，在`MLlib`中，分别使用了梯度下降法和`L-BFGS`实现逻辑回归参数的计算。这两个算法的实现我们会在最优化章节介绍，这里我们介绍公共的部分。
 
@@ -125,7 +130,7 @@ def run(input: RDD[LabeledPoint]): M = {
 &emsp;&emsp;上面的代码初始化权重向量，向量的值均初始化为0。需要注意的是，`addIntercept`表示是否添加截距(`Intercept`，指函数图形与坐标的交点到原点的距离)，默认是不添加的。`numOfLinearPredictor`表示二元逻辑回归模型的个数。
 我们重点看`run(input, initialWeights)`的实现。它的实现分四步。
 
-#### 4.1.1 根据提供的参数缩放特征并添加截距
+#### 5.1.1 根据提供的参数缩放特征并添加截距
 
 ```scala
 val scaler = if (useFeatureScaling) {
@@ -184,7 +189,7 @@ def appendBias(vector: Vector): Vector = {
     }
 ```
 
-#### 4.1.2 使用最优化算法计算最终的权重值
+#### 5.1.2 使用最优化算法计算最终的权重值
 
 ```scala
 val weightsWithIntercept = optimizer.optimize(data, initialWeightsWithIntercept)
@@ -322,7 +327,7 @@ w' = (1 - thisIterStepSize * regParam) * w - thisIterStepSize * gradient
 ```
 &emsp;&emsp;这里`thisIterStepSize`表示参数沿负梯度方向改变的速率，它随着迭代次数的增多而减小。
 
-#### 4.1.3 对最终的权重值进行后处理
+#### 5.1.3 对最终的权重值进行后处理
 
 ```scala
 val intercept = if (addIntercept && numOfLinearPredictor == 1) {
@@ -361,13 +366,13 @@ if (useFeatureScaling) {
     }
 ```
 
-#### 4.1.4 创建模型
+#### 5.1.4 创建模型
 
 ```scala
 createModel(weights, intercept)
 ```
 
-### 4.2 预测
+### 5.2 预测
 
 &emsp;&emsp;训练完模型之后，我们就可以通过训练的模型计算得到测试数据的分类信息。`predictPoint`用来预测分类信息。它针对二分类和多分类，分别进行处理。
 
