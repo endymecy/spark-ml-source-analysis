@@ -11,7 +11,7 @@
 
 &emsp;&emsp;逻辑回归其实是在线性回归的基础上，套用了一个逻辑函数。上图的`g(z)`就是这个逻辑函数(或称为`Sigmoid`函数)。下面左图是一个线性的决策边界，右图是非线性的决策边界。
 
-<div  align="center"><img src="imgs/1.2.png" width = "780" height = "300" alt="1.2" align="center" /></div><br>
+<div  align="center"><img src="imgs/1.2.png" width = "700" height = "280" alt="1.2" align="center" /></div><br>
 
 &emsp;&emsp;对于线性边界的情况，边界形式可以归纳为如下公式**(1)**:
 
@@ -46,7 +46,7 @@
 
 &emsp;&emsp;对于`k`类的多分类问题，模型的权重`w = (w_1, w_2, ..., w_{K-1})`是一个矩阵，如果添加截距，矩阵的维度为`(K-1) * (N+1)`，否则为`(K-1) * N`。单个样本的目标函数的损失函数可以写成如下公式**(7)**的形式。
 
-<div  align="center"><img src="imgs/2.2.png" width = "720" height = "165" alt="2.2" align="center" /></div><br>
+<div  align="center"><img src="imgs/2.2.png" width = "720" height = "170" alt="2.2" align="center" /></div><br>
 
 &emsp;&emsp;对损失函数求一阶导数，我们可以得到下面的公式**(8)**:
 
