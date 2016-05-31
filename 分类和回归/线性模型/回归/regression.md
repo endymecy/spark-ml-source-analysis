@@ -172,7 +172,7 @@ class SquaredL2Updater extends Updater {
 &emsp;&emsp;该函数的实现规则是：
 
 ```scala
-w' = w - thisIterStepSize * (gradient + regParam * w)
-w' = (1 - thisIterStepSize * regParam) * w - thisIterStepSize * gradient
+ w1 = w - thisIterStepSize * (gradient + regParam * w)
+ w1 = (1 - thisIterStepSize * regParam) * w - thisIterStepSize * gradient
 ```
-&emsp;&emsp;这里`thisIterStepSize`表示参数沿负梯度方向改变的速率，它随着迭代次数的增多而减小。
+&emsp;&emsp;这里`thisIterStepSize`表示参数沿负梯度方向改变的速率（即步长），它随着迭代次数的增多而减小。
