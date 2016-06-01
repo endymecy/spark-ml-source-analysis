@@ -2,26 +2,26 @@
 
 # 前言
 
-&emsp;&emsp;`LDA`是一种概率主题模型：隐含狄利克雷分布（`Latent Dirichlet Allocation`，简称`LDA`）。`LDA`是2003年提出的一种[主题模型](http://zh.wikipedia.org/wiki/%E4%B8%BB%E9%A2%98%E6%A8%A1%E5%9E%8B)，它可以将文档集中每篇文档的主题以概率分布的形式给出。
+&emsp;&emsp;`LDA`是一种概率主题模型：隐式狄利克雷分布（`Latent Dirichlet Allocation`，简称`LDA`）。`LDA`是2003年提出的一种[主题模型](http://zh.wikipedia.org/wiki/%E4%B8%BB%E9%A2%98%E6%A8%A1%E5%9E%8B)，它可以将文档集中每篇文档的主题以概率分布的形式给出。
 通过分析一些文档，我们可以抽取出它们的主题（分布），根据主题（分布）进行主题聚类或文本分类。同时，它是一种典型的词袋模型，即一篇文档是由一组词构成，词与词之间没有先后顺序的关系。一篇文档可以包含多个主题，文档中每一个词都由其中的一个主题生成。
 
 &emsp;&emsp;举一个简单的例子，比如假设事先给定了这几个主题：`Arts、Budgets、Children、Education`，然后通过学习的方式，获取每个主题`Topic`对应的词语，如下图所示：
 
-<div  align="center"><img src="imgs/topic_words.png" width = "600" height = "300" alt="topic_words" align="center" /></div><br>
+<div  align="center"><img src="imgs/topic_words.png" width = "550" height = "300" alt="topic_words" align="center" /></div><br>
 
 &emsp;&emsp;然后以一定的概率选取上述某个主题，再以一定的概率选取那个主题下的某个单词，不断的重复这两步，最终生成如下图所示的一篇文章（不同颜色的词语分别表示不同主题）。
 
-<div  align="center"><img src="imgs/docs.png" width = "600" height = "315" alt="docs" align="center" /></div><br>
+<div  align="center"><img src="imgs/docs.png" width = "550" height = "310" alt="docs" align="center" /></div><br>
 
 &emsp;&emsp;我们看到一篇文章后，往往会推测这篇文章是如何生成的，我们通常认为作者会先确定几个主题，然后围绕这几个主题遣词造句写成全文。`LDA`要干的事情就是根据给定的文档，判断它的主题分别。在`LDA`模型中，生成文档的过程有如下几步：
 
-- 从狄利克雷分布<img src="http://www.forkosh.com/mathtex.cgi?{\alpha}">中生成文档i的主题分布<img src="http://www.forkosh.com/mathtex.cgi?{\theta}_{i}">；
+- 从狄利克雷分布<img src="http://www.forkosh.com/mathtex.cgi?{alpha}">中生成文档i的主题分布<img src="http://www.forkosh.com/mathtex.cgi?{theta}_{i}">；
 
-- 从主题的多项式分布<img src="http://www.forkosh.com/mathtex.cgi?{\theta}_{i}">中取样生成文档i第j个词的主题<img src="http://www.forkosh.com/mathtex.cgi?{Z}_{i,j}">；
+- 从主题的多项式分布<img src="http://www.forkosh.com/mathtex.cgi?{theta}_{i}">中取样生成文档i第j个词的主题<img src="http://www.forkosh.com/mathtex.cgi?{Z}_{i,j}">；
 
-- 从狄利克雷分布<img src="http://www.forkosh.com/mathtex.cgi?{\eta}">中取样生成主题<img src="http://www.forkosh.com/mathtex.cgi?{Z}_{i,j}">对应的词语分布<img src="http://www.forkosh.com/mathtex.cgi?{\beta}_{i,j}">；
+- 从狄利克雷分布<img src="http://www.forkosh.com/mathtex.cgi?{eta}">中取样生成主题<img src="http://www.forkosh.com/mathtex.cgi?{Z}_{i,j}">对应的词语分布<img src="http://www.forkosh.com/mathtex.cgi?{beta}_{i,j}">；
 
-- 从词语的多项式分布<img src="http://www.forkosh.com/mathtex.cgi?{\beta}_{i,j}">中采样最终生成词语<img src="http://www.forkosh.com/mathtex.cgi?{W}_{i,j}">
+- 从词语的多项式分布<img src="http://www.forkosh.com/mathtex.cgi?{beta}_{i,j}">中采样最终生成词语<img src="http://www.forkosh.com/mathtex.cgi?{W}_{i,j}">
 
 &emsp;&emsp;`LDA`的图模型结构如下图所示：
 
@@ -263,14 +263,14 @@
 
 &emsp;&emsp;其图模型为（图中被涂色的`w`表示可观测变量，未被涂色的`z`表示未知的隐变量，`N`表示一篇文档中总共`N`个单词，`M`表示`M`篇文档）：
 
-<div  align="center"><img src="imgs/2.2.2.png" width = "200" height = "115" alt="混合一元模型" align="center" /></div><br>
+<div  align="center"><img src="imgs/2.2.2.png" width = "210" height = "115" alt="混合一元模型" align="center" /></div><br>
 
 ## 2.3 pLSA模型
 
 &emsp;&emsp;在混合一元模型中，假定一篇文档只由一个主题生成，可实际中，一篇文章往往有多个主题，只是这多个主题各自在文档中出现的概率大小不一样。在`pLSA`中，假设文档由多个主题生成。下面通过一个投色子的游戏（取自文献【2】的例子）说明`pLSA`生成文档的过程。
 
 &emsp;&emsp;首先，假定你一共有`K`个可选的主题，有`V`个可选的词。假设你每写一篇文档会制作一颗`K`面的“文档-主题”骰子（扔此骰子能得到`K`个主题中的任意一个），和`K`个`V`面的“主题-词项”骰子（每个骰子对应一个主题，`K`个骰子对应之前的`K`个主题，且骰子的每一面对应要选择的词项，`V`个面对应着`V`个可选的词）。
-比如可令`K=3`，即制作1个含有3个主题的“文档-主题”骰子，这3个主题可以是：教育、经济、交通。然后令`V = 3`，制作3个有着3面的“主题-词项”骰子，其中，教育主题骰子的3个面上的词可以是：大学、老师、课程，经济主题骰子的3个面上的词可以是：市场、企业、金融，交通主题骰子的3个面上的词可以是：高铁、汽车、飞机。
+比如可令`K=3`，即制作1个含有3个主题的“文档-主题”骰子，这3个主题可以是：教育、经济、交通。然后令`V = 3`，制作3个有着3面的“主题-词项”骰子，其中，教育主题骰子的3个面上的词可以是：**大学、老师、课程**，经济主题骰子的3个面上的词可以是：**市场、企业、金融**，交通主题骰子的3个面上的词可以是：**高铁、汽车、飞机**。
 
 &emsp;&emsp;其次，每写一个词，先扔该“文档-主题”骰子选择主题，得到主题的结果后，使用和主题结果对应的那颗“主题-词项”骰子，扔该骰子选择要写的词。先扔“文档-主题”的骰子，假设以一定的概率得到的主题是：**教育**，所以下一步便是扔**教育**主题筛子，以一定的概率得到**教育**主题筛子对应的某个词**大学**。
 
@@ -315,7 +315,7 @@
 <div  align="center"><img src="imgs/2.3.3.png" width = "450" height = "70" alt="pLSA模型" align="center" /></div><br>
 
 &emsp;&emsp;<img src="http://www.forkosh.com/mathtex.cgi?P({d}_{i})">可以直接得出，而<img src="http://www.forkosh.com/mathtex.cgi?P({z}_{k}|{d}_{i})">和<img src="http://www.forkosh.com/mathtex.cgi?P({w}_{j}|{z}_{k})">未知，所以
-<img src="http://www.forkosh.com/mathtex.cgi?\theta=(P({z}_{k}|{d}_{i}),P({w}_{j}|{z}_{k}))">就是我们要估计的参数,我们要最大化这个参数。因为该待估计的参数中含有隐变量`z`，所以我们可以用`EM`算法来估计这个参数。
+<img src="http://www.forkosh.com/mathtex.cgi?theta=(P({z}_{k}|{d}_{i}),P({w}_{j}|{z}_{k}))">就是我们要估计的参数,我们要最大化这个参数。因为该待估计的参数中含有隐变量`z`，所以我们可以用`EM`算法来估计这个参数。
 
 ## 2.4 LDA模型
 
@@ -323,13 +323,13 @@
 
 - 1 按照<img src="http://www.forkosh.com/mathtex.cgi?P({d}_{i})">选择一篇文档<img src="http://www.forkosh.com/mathtex.cgi?{d}_{i}">；
 
-- 2 从狄利克雷分布<img src="http://www.forkosh.com/mathtex.cgi?{\alpha}">中生成文档i的主题分布<img src="http://www.forkosh.com/mathtex.cgi?{\theta}_{i}">；
+- 2 从狄利克雷分布<img src="http://www.forkosh.com/mathtex.cgi?{alpha}">中生成文档i的主题分布<img src="http://www.forkosh.com/mathtex.cgi?{theta}_{i}">；
 
-- 3 从主题的多项式分布<img src="http://www.forkosh.com/mathtex.cgi?{\theta}_{i}">中取样生成文档i第j个词的主题<img src="http://www.forkosh.com/mathtex.cgi?{Z}_{i,j}">；
+- 3 从主题的多项式分布<img src="http://www.forkosh.com/mathtex.cgi?{theta}_{i}">中取样生成文档i第j个词的主题<img src="http://www.forkosh.com/mathtex.cgi?{Z}_{i,j}">；
 
-- 4 从狄利克雷分布<img src="http://www.forkosh.com/mathtex.cgi?{\eta}">中取样生成主题<img src="http://www.forkosh.com/mathtex.cgi?{Z}_{i,j}">对应的词语分布<img src="http://www.forkosh.com/mathtex.cgi?{\beta}_{i,j}">；
+- 4 从狄利克雷分布<img src="http://www.forkosh.com/mathtex.cgi?{eta}">中取样生成主题<img src="http://www.forkosh.com/mathtex.cgi?{Z}_{i,j}">对应的词语分布<img src="http://www.forkosh.com/mathtex.cgi?{beta}_{i,j}">；
 
-- 5 从词语的多项式分布<img src="http://www.forkosh.com/mathtex.cgi?{\beta}_{i,j}">中采样最终生成词语<img src="http://www.forkosh.com/mathtex.cgi?{W}_{i,j}">
+- 5 从词语的多项式分布<img src="http://www.forkosh.com/mathtex.cgi?{beta}_{i,j}">中采样最终生成词语<img src="http://www.forkosh.com/mathtex.cgi?{W}_{i,j}">
 
 &emsp;&emsp;从上面的过程可以看出，`LDA`在`pLSA`的基础上，为主题分布和词分布分别加了两个`Dirichlet`先验。
 
