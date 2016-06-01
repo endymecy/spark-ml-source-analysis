@@ -117,7 +117,7 @@ def train(
     intermediateRDDStorageLevel: StorageLevel = StorageLevel.MEMORY_AND_DISK,
     finalRDDStorageLevel: StorageLevel = StorageLevel.MEMORY_AND_DISK,
     checkpointInterval: Int = 10,
-    seed: Long = 0L)
+    seed: Long = 0L): MatrixFactorizationModel
 ```
 
 &emsp;&emsp;以上定义中，`ratings`指用户提供的训练数据，它包括用户`id`集、商品`id`集以及相应的打分集。`rank`表示隐含因素的数量，也即特征的数量。`numUserBlocks`和`numItemBlocks`分别指用户和商品的块数量，即分区数量。`maxIter`表示迭代次数。`regParam`表示最小二乘法中`lambda`值的大小。
