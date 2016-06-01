@@ -60,7 +60,7 @@
 
 ## 3.1 实例
 
-&emsp;&emsp;在分析源码前，我们还是先看看官网高斯混合模型的使用。
+&emsp;&emsp;在分析源码前，我们还是先看看高斯混合模型如何使用。
 
 ```scala
 import org.apache.spark.mllib.clustering.GaussianMixture
