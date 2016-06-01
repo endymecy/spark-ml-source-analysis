@@ -15,7 +15,7 @@
 
 - （3）重新计算每个中心对象<img src="http://www.forkosh.com/mathtex.cgi?{C}_{i}">的值
 
-    <div  align="center"><img src="imgs/math.1.1.png" width = "200" height = "40" alt="1.1" align="center" /></div><br />
+    <div  align="center"><img src="imgs/math.1.1.png" width = "220" height = "40" alt="1.1" align="center" /></div><br />
 
 - （4）计算标准测度函数，当满足一定条件，如函数收敛时，则算法终止；如果条件不满足则重复步骤（2），（3）。
 
@@ -36,13 +36,13 @@
 
 - （1）从输入的数据点集合中随机选择一个点作为第一个聚类中心<img src="http://www.forkosh.com/mathtex.cgi?{c}_{1}">；
 
-- （2）对于数据集中的每一个点`x`，计算它与最近聚类中心(指已选择的聚类中心)的距离`D(x)`，并根据概率选择新的聚类中心<img src="http://www.forkosh.com/mathtex.cgi?{c}_{i}">。概率的计算公式如下所示：
+- （2）对于数据集中的每一个点`x`，计算它与最近聚类中心(指已选择的聚类中心)的距离`D(x)`，并根据以下概率选择新的聚类中心<img src="http://www.forkosh.com/mathtex.cgi?{c}_{i}">。概率的计算公式如下所示：
 
     <div  align="center"><img src="imgs/math.1.2.png" width = "100" height = "40" alt="1.2" align="center" /></div><br />
 
 - （3）重复过程（2）直到找到k个聚类中心。
 
-&emsp;&emsp;第(2)步中，依次计算每个数据点与最近的种子点（聚类中心）的距离，依次得到`D(1)、D(2)、...、D(n)`构成的集合`D`。在`D`中，为了避免噪声，不能直接选取值最大的元素，应该选择值较大的元素，然后将其对应的数据点作为种子点。
+&emsp;&emsp;第(2)步中，依次计算每个数据点与最近的种子点（聚类中心）的距离，依次得到`D(1)、D(2)、...、D(n)`构成的集合`D`，其中`n`表示数据集的大小。在`D`中，为了避免噪声，不能直接选取值最大的元素，应该选择值较大的元素，然后将其对应的数据点作为种子点。
 如何选择值较大的元素呢，下面是`spark`中实现的思路。
 
 - 求所有的距离和`Sum(D(x))`
@@ -59,13 +59,13 @@
 
 ## 3 `k-means||`算法原理分析
 
-&emsp;&emsp;`k-means||`算法是在`k-means++`算法的基础上做的改进，和`k-means++`算法不同的是，它采用了一个采样因子`l`，并且`l=A(k)`。这个算法首先如`k-means++`算法一样，随机选择一个初始中心，
-然后计算选定初始中心确定之后的初始花费（`cost`）`phi`。之后处理`log(phi)`次迭代，在每次迭代中，给定当前中心集，通过概率<img src="http://www.forkosh.com/mathtex.cgi?l{d}^{2}(x,C)/{phi}_{X}(C)">来
+&emsp;&emsp;`k-means||`算法是在`k-means++`算法的基础上做的改进，和`k-means++`算法不同的是，它采用了一个采样因子`l`，并且`l=A(k)`，在`spark`的实现中`l=2k`，。这个算法首先如`k-means++`算法一样，随机选择一个初始中心，
+然后计算选定初始中心确定之后的初始花费`phi`(指与最近中心点的距离)。之后处理`log(phi)`次迭代，在每次迭代中，给定当前中心集，通过概率<img src="http://www.forkosh.com/mathtex.cgi?l{d}^{2}(x,C)/{phi}_{X}(C)">来
 抽样`x`，将选定的`x`添加到初始化中心集中，并且更新<img src="http://www.forkosh.com/mathtex.cgi?{phi}_{X}(C)">。该算法的步骤如下图所示：
 
 <div  align="center"><img src="imgs/1.1.png" width = "450" height = "200" alt="1.1" align="center" /></div><br />
 
-&emsp;&emsp;第1步初始化一个中心点，第2-6步计算出满足概率条件的多个候选中心点`C`，候选中心点的个数可能大于`k`个，所以通过第7-8步来处理。第7步给`C`中所有点赋予一个权重值<img src="http://www.forkosh.com/mathtex.cgi?{w}_{x}">，这个权重值表示距离`x`点最近的点的个数。
+&emsp;&emsp;第1步随机初始化一个中心点，第2-6步计算出满足概率条件的多个候选中心点`C`，候选中心点的个数可能大于`k`个，所以通过第7-8步来处理。第7步给`C`中所有点赋予一个权重值<img src="http://www.forkosh.com/mathtex.cgi?{w}_{x}">，这个权重值表示距离`x`点最近的点的个数。
 第8步使用本地`k-means++`算法聚类出这些候选点的`k`个聚类中心。
 
 &emsp;&emsp;该算法与`k-means++`算法不同的地方是它每次迭代都会抽样出多个中心点而不是一个中心点，且每次迭代不互相依赖，这样我们可以并行的处理这个迭代过程。由于该过程产生出来的中心点的数量远远小于输入数据点的数量，
@@ -147,7 +147,7 @@ private def initRandom(data: RDD[VectorWithNorm])
 &emsp;&emsp;相比于随机初始化中心点，通过`k-means||`初始化`k`个中心点会麻烦很多，它需要依赖第三章的原理来实现。它的实现方法是`initKMeansParallel`。
 下面按照第三章的实现步骤来分析。
 
-- 第一步，我们要初始化一个中心点。
+- 第一步，我们要随机初始化第一个中心点。
 
 ```scala
 //初始化第一个中心点
@@ -216,7 +216,7 @@ while (step < initializationSteps) {
 &emsp;&emsp;在这段代码中，我们并没有选择使用`log(pha)`的大小作为迭代的次数，而是直接使用了人为确定的`initializationSteps`，这是与论文中不一致的地方。
 在迭代内部我们使用概率公式
 
-<div  align="center"><img src="imgs/math.1.3.png" width = "110" height = "30" alt="1.3" align="center" /></div><br />
+<div  align="center"><img src="imgs/math.1.3.png" width = "150" height = "40" alt="1.3" align="center" /></div><br />
 
 来计算满足要求的点，其中，`l=2k`。公式的实现如代码`rand.nextDouble() < 2.0 * c(r) * k / sumCosts(r)`。`sumCosts`表示所有点距离它所属类别的中心点的欧式距离之和。
 上述代码通过`aggregate`方法并行计算获得该值。
