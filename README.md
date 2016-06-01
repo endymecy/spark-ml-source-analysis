@@ -31,7 +31,7 @@
         * [梯度提升树](分类和回归/组合树/梯度提升树/gbts.md)
     * [保序回归](分类和回归/保序回归/isotonic-regression.md)
 * [聚类](聚类/readme.md)
-    * [k-means算法](聚类/k-means/k-means.md)
+    * [k-means||算法](聚类/k-means/k-means.md)
     * [GMM（高斯混合模型）](聚类/gaussian-mixture/gaussian-mixture.md)
     * [PIC（快速迭代聚类）](聚类/PIC/pic.md)
     * [LDA（隐式狄利克雷分布)](聚类/LDA/lda.md)
