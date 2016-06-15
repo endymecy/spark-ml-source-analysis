@@ -483,7 +483,7 @@ while (nodeQueue.nonEmpty) {
 }
 ```
 
-&emsp;&emsp;这里有两点需要重点介绍，第一点是取得每个树所有需要切分的节点，通过`RandomForest.selectNodesToSplit`方法实现；第二点是找出最优切点，通过`DecisionTree.findBestSplits`方法实现。下面分别介绍这两点。
+&emsp;&emsp;这里有两点需要重点介绍，第一点是取得每个树所有需要切分的节点，通过`RandomForest.selectNodesToSplit`方法实现；第二点是找出最优的切分，通过`DecisionTree.findBestSplits`方法实现。下面分别介绍这两点。
 
 - 取得每个树所有需要切分的节点
 
@@ -532,7 +532,7 @@ while (nodeQueue.nonEmpty) {
   }
 ```
 
-- 选中最优切点
+- 选中最优切分
 
 ```scala
 //所有可切分的节点
