@@ -2,8 +2,8 @@
 
 ## 1 Bagging
 
-&emsp;&emsp;`Bagging`采用自助采样法(`bootstrap sampling`)采样数据。给定包含`m`个样本的数据集，我们先随机取出一个样本放入采样集中，再把该样本放入初始数据集，使得下次采样时，样本仍可能被选中，
-这样，经过`m`次随机采样操作，我们得到汗`m`个样本的采样集。
+&emsp;&emsp;`Bagging`采用自助采样法(`bootstrap sampling`)采样数据。给定包含`m`个样本的数据集，我们先随机取出一个样本放入采样集中，再把该样本放回初始数据集，使得下次采样时，样本仍可能被选中，
+这样，经过`m`次随机采样操作，我们得到包含`m`个样本的采样集。
 
 &emsp;&emsp;按照此方式，我们可以采样出`T`个含`m`个训练样本的采样集，然后基于每个采样集训练出一个基本学习器，再将这些基本学习器进行结合。这就是`Bagging`的一般流程。在对预测输出进行结合时，`Bagging`通常使用简单投票法，
 对回归问题使用简单平均法。若分类预测时，出现两个类收到同样票数的情形，则最简单的做法是随机选择一个，也可以进一步考察学习器投票的置信度来确定最终胜者。
@@ -39,7 +39,7 @@
 
 <div  align="center"><img src="imgs/1.3.png" width = "600" height = "400" alt="1.3" align="center" /></div>
 
-- 逐层训练（`level-wise training`），如下图所示。单机版本的决策数生成过程是通过递归调用（本质上是深度优先）的方式构造树，在构造树的同时，需要移动数据，将同一个子节点的数据移动到一起。
+- 逐层训练（`level-wise training`），如下图所示。单机版本的决策树生成过程是通过递归调用（本质上是深度优先）的方式构造树，在构造树的同时，需要移动数据，将同一个子节点的数据移动到一起。
 此方法在分布式数据结构上无法有效的执行，而且也无法执行，因为数据太大，无法放在一起，所以在分布式环境下采用的策略是逐层构建树节点（本质上是广度优先），这样遍历所有数据的次数等于所有树中的最大层数。
 每次遍历时，只需要计算每个节点所有切分点统计参数，遍历完后，根据节点的特征划分，决定是否切分，以及如何切分。
 
@@ -401,7 +401,7 @@ private[tree] def findSplitsForContinuousFeature(
       metadata: DecisionTreeMetadata,
       featureIndex: Int): Array[Double] = {
     val splits = {
-      //切分数是特征数减1，即m-1
+      //切分数是bin的数量减1，即m-1
       val numSplits = metadata.numSplits(featureIndex)
       // （特征，特征出现的次数）
       val valueCountMap = featureSamples.foldLeft(Map.empty[Double, Int]) { (m, x) =>
@@ -426,6 +426,7 @@ private[tree] def findSplitsForContinuousFeature(
         // If `currentCount` is closest value to `targetCount`,
         // then current value is a split threshold.
         // After finding a split threshold, `targetCount` is added by stride.
+        // 如果currentCount离targetCount最近，那么当前值是切分点
         var targetCount = stride
         while (index < valueCounts.length) {
           val previousCount = currentCount
