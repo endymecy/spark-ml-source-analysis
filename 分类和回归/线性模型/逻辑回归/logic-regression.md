@@ -5,7 +5,7 @@
 &emsp;&emsp;回归是一种很容易理解的模型，就相当于`y=f(x)`，表明自变量`x`与因变量`y`的关系。最常见问题如医生治病时的望、闻、问、切，之后判定病人是否生病或生了什么病，
 其中的望、闻、问、切就是获取的自变量`x`，即特征数据，判断是否生病就相当于获取因变量`y`，即预测分类。最简单的回归是线性回归，但是线性回归的鲁棒性很差。
 
-&emsp;&emsp;逻辑回归是一种减小预测范围，将预测值限定为`[0,1]`间的一种回归模型，其回归方程与回归曲线如下图所示。逻辑曲线在`z=0`时，十分敏感，在`z>>0`或`z<<0`处，都不敏感。
+&emsp;&emsp;逻辑回归是一种减小预测范围，将预测值限定为`[0,1]`间的一种回归模型，其回归方程与回归曲线如下图所示。逻辑曲线在`z=0`时，十分敏感，在`z>>0`或`z<<0`时，都不敏感。
 
 <div  align="center"><img src="imgs/1.1.png" width = "590" height = "300" alt="1.1" align="center" /></div><br>
 
@@ -195,7 +195,7 @@ def appendBias(vector: Vector): Vector = {
 val weightsWithIntercept = optimizer.optimize(data, initialWeightsWithIntercept)
 ```
 &emsp;&emsp;有梯度下降算法和`L-BFGS`两种算法来计算最终的权重值，查看[梯度下降法](../../../最优化算法/梯度下降/gradient-descent.md)和[L-BFGS](../../../最优化算法/L-BFGS/lbfgs.md)了解详细实现。
-这两种算法均使用`Gradient`的实现类计算梯度，使用`Updater`的实现类更新参数。在`LogisticRegressionWithSGD`和`LogisticRegressionWithLBFGS`中，它们均使用`LogisticGradient`实现类计算梯度，使用`SquaredL2Updater`实现类更新参数。
+这两种算法均使用`Gradient`的实现类计算梯度，使用`Updater`的实现类更新参数。在 `LogisticRegressionWithSGD` 和 `LogisticRegressionWithLBFGS` 中，它们均使用 `LogisticGradient` 实现类计算梯度，使用 `SquaredL2Updater` 实现类更新参数。
 
 ```scala
 //在GradientDescent中
@@ -341,8 +341,8 @@ var weights = if (addIntercept && numOfLinearPredictor == 1) {
       weightsWithIntercept
     }
 ```
-&emsp;&emsp;该段代码获得了`intercept`以及最终的权重值。由于`intercept`和权重是在收缩的空间进行训练的，所以我们需要再把它们转换到元素的空间。数学显示，如果我们仅仅执行标准化而没有减去均值，即`withStd = true, withMean = false`，
-那么`intercept`的值并不会发送改变。所以下面的代码仅仅处理权重向量。
+&emsp;&emsp;该段代码获得了截距（`intercept`）以及最终的权重值。由于截距（`intercept`）和权重是在收缩的空间进行训练的，所以我们需要再把它们转换到原始的空间。数学知识告诉我们，如果我们仅仅执行标准化而没有减去均值，即`withStd = true, withMean = false`，
+那么截距（`intercept`）的值并不会发送改变。所以下面的代码仅仅处理权重向量。
 
 ```scala
 if (useFeatureScaling) {
