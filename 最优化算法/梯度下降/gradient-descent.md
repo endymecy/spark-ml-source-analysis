@@ -18,7 +18,7 @@
 
 <div  align="center"><img src="imgs/1.3.png" width = "260" height = "65" alt="1.3" align="center" /></div><br>
 
-&emsp;&emsp;从上面公式可以看到，虽然它得到的是一个全局最优解，但是每迭代一步，都要用到训练集所有的数据，如果`m`很大，迭代速度会非常慢。
+&emsp;&emsp;从上面公式可以看到，虽然它得到的是一个全局最优解，但是每迭代一步（即修改`j`个`theta`参数中的一个），都要用到训练集所有的数据，如果`m`很大，迭代速度会非常慢。
 
 ## 2 随机梯度下降算法
 
@@ -72,6 +72,9 @@ val (gradientSum, lossSum, miniBatchSize) = data.sample(false, miniBatchFraction
             (c1._1 += c2._1, c1._2 + c2._2, c1._3 + c2._3)
           })
 ```
+
+&emsp;&emsp;这里`treeAggregate`类似于`aggregate`方法，不同的是在每个分区，该函数会做两次（默认两次）或两次以上的`merge`聚合操作，避免将所有的局部值传回`driver`端。
+
 &emsp;&emsp;该步按照上文提到的偏导公式求参数的梯度，但是根据提供的`h`函数的不同，计算结果会有所不同。`MLlib`现在提供的求导方法分别有`HingeGradient`、`LeastSquaresGradient`、`LogisticGradient`以及
 `ANNGradient`。这些类的实现会在具体的算法中介绍。
 
