@@ -27,7 +27,7 @@
 
 &emsp;&emsp;根据上面的式子，如果我们要从`GMM`分布中随机地取一个点，需要两步：
 
-- 随机地在这`K`个组件之中选一个，每个组件被选中的概率实际上就是它的系数`pi`；
+- 随机地在这`K`个组件之中选一个，每个组件被选中的概率实际上就是它的系数`pi_k`；
 
 - 选中了组件之后，再单独地考虑从这个组件的分布中选取一个点。
 
@@ -100,7 +100,7 @@ val (weights, gaussians) = initialModel match {
       }
     }
 ```
-&emsp;&emsp;在上面的代码中，当`initialModel`为空时，用所有值均为`1.0 / k`的数组初始化权重，用值为`MultivariateGaussian`对象的数组初始化所有的高斯分布（即上文中提到的组件）。
+&emsp;&emsp;在上面的代码中，当`initialModel`为空时，用所有值均为`1.0/k`的数组初始化权重，用值为`MultivariateGaussian`对象的数组初始化所有的高斯分布（即上文中提到的组件）。
 每一个`MultivariateGaussian`对象都由从数据集中抽样的子集计算而来。这里用样本数据的均值和方差初始化`MultivariateGaussian`的`mu`和`sigma`。
 
 ```scala
@@ -211,7 +211,7 @@ class MultivariateGaussian @Since("1.3.0") (
     @Since("1.3.0") val mu: Vector,
     @Since("1.3.0") val sigma: Matrix) extends Serializable
 ```
-&emsp;&emsp;`MultivariateGaussian`包含一个向量`mu`和一个矩阵`sigma`，分别表示期望和方差。`MultivariateGaussian`最重要的方法是`pdf`，顾名思义就是计算给定数据的概率密度函数。它的实现如下：
+&emsp;&emsp;`MultivariateGaussian`包含一个向量`mu`和一个矩阵`sigma`，分别表示期望和协方差。`MultivariateGaussian`最重要的方法是`pdf`，顾名思义就是计算给定数据的概率密度函数。它的实现如下：
 
 ```scala
 private[mllib] def pdf(x: BV[Double]): Double = {
