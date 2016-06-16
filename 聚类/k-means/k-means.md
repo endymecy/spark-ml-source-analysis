@@ -36,9 +36,7 @@
 
 - （1）从输入的数据点集合中随机选择一个点作为第一个聚类中心<img src="http://www.forkosh.com/mathtex.cgi?{c}_{1}">；
 
-- （2）对于数据集中的每一个点`x`，计算它与最近聚类中心(指已选择的聚类中心)的距离`D(x)`，并根据以下概率选择新的聚类中心<img src="http://www.forkosh.com/mathtex.cgi?{c}_{i}">。概率的计算公式如下所示：
-
-    <div  align="center"><img src="imgs/math.1.2.png" width = "100" height = "40" alt="1.2" align="center" /></div><br />
+- （2）对于数据集中的每一个点`x`，计算它与最近聚类中心(指已选择的聚类中心)的距离`D(x)`，并根据以下概率选择新的聚类中心<img src="http://www.forkosh.com/mathtex.cgi?{c}_{i}">。
 
 - （3）重复过程（2）直到找到k个聚类中心。
 
