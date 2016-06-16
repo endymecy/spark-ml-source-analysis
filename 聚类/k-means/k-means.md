@@ -64,7 +64,7 @@
 <div  align="center"><img src="imgs/1.1.png" width = "450" height = "200" alt="1.1" align="center" /></div><br />
 
 &emsp;&emsp;第1步随机初始化一个中心点，第2-6步计算出满足概率条件的多个候选中心点`C`，候选中心点的个数可能大于`k`个，所以通过第7-8步来处理。第7步给`C`中所有点赋予一个权重值<img src="http://www.forkosh.com/mathtex.cgi?{w}_{x}">，这个权重值表示距离`x`点最近的点的个数。
-第8步使用本地`k-means++`算法聚类出这些候选点的`k`个聚类中心。
+第8步使用本地`k-means++`算法聚类出这些候选点的`k`个聚类中心。在`spark`的源码中，迭代次数是人为设定的，默认是5。
 
 &emsp;&emsp;该算法与`k-means++`算法不同的地方是它每次迭代都会抽样出多个中心点而不是一个中心点，且每次迭代不互相依赖，这样我们可以并行的处理这个迭代过程。由于该过程产生出来的中心点的数量远远小于输入数据点的数量，
 所以第8步可以通过本地`k-means++`算法很快的找出`k`个初始化中心点。何为本地`k-means++`算法？就是运行在单个机器节点上的`k-means++`。
@@ -161,6 +161,7 @@ var step = 0
 while (step < initializationSteps) {
     val bcNewCenters = data.context.broadcast(newCenters)
     val preCosts = costs
+    //每个点距离最近中心的代价
     costs = data.zip(preCosts).map { case (point, cost) =>
           Array.tabulate(runs) { r =>
             //pointCost获得与最近中心点的距离
@@ -168,8 +169,7 @@ while (step < initializationSteps) {
             math.min(KMeans.pointCost(bcNewCenters.value(r), point), cost(r))
           }
         }.persist(StorageLevel.MEMORY_AND_DISK)
-        
-    //所有已选中心点的欧式距离之和
+    //所有点的代价和
     val sumCosts = costs.aggregate(new Array[Double](runs))(
           //分区内迭代
           seqOp = (s, v) => {
