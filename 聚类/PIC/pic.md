@@ -218,19 +218,13 @@ def kMeans(v: VertexRDD[Double], k: Int): VertexRDD[Int] = {
   }
 ```
 
-&emsp;&emsp;如果对`graphX`不太了解，可以参看文献【2,3,4】
+&emsp;&emsp;如果对`graphX`不太了解，可以阅读[spark graph使用和源码解析](https://github.com/endymecy/spark-graphx-source-analysis)
 
 ## 4 参考文献
 
 [【1】Frank Lin,William W. Cohen.Power Iteration Clustering](papers/Power Iteration Clustering.pdf)
 
-[【2】官方文档](https://spark.apache.org/docs/latest/graphx-programming-guide.html)
-
-[【3】GraphX:基于Spark的弹性分布式图计算系统 ](http://lidrema.blog.163.com/blog/static/20970214820147199643788/)
-
-[【4】快刀初试：Spark GraphX在淘宝的实践](http://www.csdn.net/article/2014-08-07/2821097)
-
-[【5】漫谈 Clustering (4): Spectral Clustering](http://blog.pluskid.org/?p=287)
+[【2】漫谈 Clustering (4): Spectral Clustering](http://blog.pluskid.org/?p=287)
 
 
 
