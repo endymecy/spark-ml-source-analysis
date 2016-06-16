@@ -13,7 +13,7 @@
 
 <div  align="center"><img src="imgs/docs.png" width = "550" height = "310" alt="docs" align="center" /></div><br>
 
-&emsp;&emsp;我们看到一篇文章后，往往会推测这篇文章是如何生成的，我们通常认为作者会先确定几个主题，然后围绕这几个主题遣词造句写成全文。`LDA`要干的事情就是根据给定的文档，判断它的主题分别。在`LDA`模型中，生成文档的过程有如下几步：
+&emsp;&emsp;我们看到一篇文章后，往往会推测这篇文章是如何生成的，我们通常认为作者会先确定几个主题，然后围绕这几个主题遣词造句写成全文。`LDA`要干的事情就是根据给定的文档，判断它的主题分布。在`LDA`模型中，生成文档的过程有如下几步：
 
 - 从狄利克雷分布<img src="http://www.forkosh.com/mathtex.cgi?{alpha}">中生成文档i的主题分布<img src="http://www.forkosh.com/mathtex.cgi?{theta}_{i}">；
 
@@ -317,9 +317,14 @@
 &emsp;&emsp;<img src="http://www.forkosh.com/mathtex.cgi?P({d}_{i})">可以直接得出，而<img src="http://www.forkosh.com/mathtex.cgi?P({z}_{k}|{d}_{i})">和<img src="http://www.forkosh.com/mathtex.cgi?P({w}_{j}|{z}_{k})">未知，所以
 <img src="http://www.forkosh.com/mathtex.cgi?theta=(P({z}_{k}|{d}_{i}),P({w}_{j}|{z}_{k}))">就是我们要估计的参数,我们要最大化这个参数。因为该待估计的参数中含有隐变量`z`，所以我们可以用`EM`算法来估计这个参数。
 
+&emsp;&emsp;
+
 ## 2.4 LDA模型
 
-&emsp;&emsp;`LDA`就是在`pLSA`的基础上加层贝叶斯框架，即`LDA`就是`pLSA`的贝叶斯版本,正因为`LDA`被贝叶斯化了，所以才会加的两个先验参数。`LDA`模型中一篇文档生成的方式如下所示:
+&emsp;&emsp;`LDA`的不同之处在于，`pLSA`的主题的概率分布`P(c|d)`是一个确定的概率分布，也就是虽然主题`c`不确定，但是`c`符合的概率分布是确定的，比如符合高斯分布，这个高斯分布的各参数是确定的。
+但是在`LDA`中，这个高斯分布都是不确定的，高斯分布又服从一个狄利克雷先验分布`(Dirichlet prior)`。即`LDA`就是`pLSA`的贝叶斯版本,正因为`LDA`被贝叶斯化了，所以才会加的两个先验参数。
+
+&emsp;&emsp;`LDA`模型中一篇文档生成的方式如下所示:
 
 - 1 按照<img src="http://www.forkosh.com/mathtex.cgi?P({d}_{i})">选择一篇文档<img src="http://www.forkosh.com/mathtex.cgi?{d}_{i}">；
 
@@ -354,13 +359,16 @@
 
 <div  align="center"><img src="imgs/LDA.png" width = "415" height = "195" alt="topic_words" align="center" /></div><br>
 
+
 # 3 LDA 参数估计
 
 &emsp;&emsp;在`spark`中，提供了两种方法来估计参数，分别是变分`EM`（期望最大）算法（见文献【3】【4】）和在线学习算法（见文献【5】）。下面将分别介绍这两种算法以及其源码实现。
 
 ## 3.1 变分EM算法
 
-&emsp;&emsp;在上文中，我们知道`LDA`将变量`theta`和`phi`（为了方便起见，我们将上文LDA图模型中的`beta`改为了`phi`）看做随机变量，并且为`theta`添加一个超参数为`alpha`的`Dirichlet`先验，为`phi`添加一个超参数为`eta`的`Dirichlet`先验来估计`theta`和`beta`的最大后验（`MAP`）。
+&emsp;&emsp;变分贝叶斯算法的详细信息可以参考文献【9】。
+
+&emsp;&emsp;在上文中，我们知道`LDA`将变量`theta`和`phi`（为了方便起见，我们将上文`LDA`图模型中的`beta`改为了`phi`）看做随机变量，并且为`theta`添加一个超参数为`alpha`的`Dirichlet`先验，为`phi`添加一个超参数为`eta`的`Dirichlet`先验来估计`theta`和`beta`的最大后验（`MAP`）。
 可以通过最优化最大后验估计来估计参数。我们首先来定义几个变量：
 
 - 下式的`gamma`表示词为`w`，文档为`j`时，主题为`k`的概率，如公式**（3.1.1）**
@@ -867,6 +875,8 @@ private def updateAlpha(gammat: BDM[Double]): Unit = {
 【7】[Spark GraphX介绍]()
 
 【8】[Maximum Likelihood Estimation of Dirichlet Distribution Parameters](docs/dirichlet.pdf)
+
+【9】[Variational Bayes](http://www.blog.huajh7.com/variational-bayes/)
 
 
 
