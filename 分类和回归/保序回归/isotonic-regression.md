@@ -2,13 +2,13 @@
 
 ## 1 保序回归
 
-&emsp;&emsp;保序回归解决了下面的问题：给定包含`n`个数据点的序列`y_1,y_2,...,y_n`,怎样通过一个单调的序列`beta_1,beta_2,...,beta_n`来归纳这个问题。形式上，这个问题就是为了找到
+&emsp;&emsp;保序回归解决了下面的问题：给定包含`n`个数据点的序列 `y_1,y_2,...,y_n` , 怎样通过一个单调的序列 `beta_1,beta_2,...,beta_n` 来归纳这个问题。形式上，这个问题就是为了找到
 
 <div  align="center"><img src="imgs/1.1.png" width = "700" height = "70" alt="1.1" align="center" /></div><br>
 
-&emsp;&emsp;大部分时候，我们会在括号前加上权重`w_i`。解决这个问题的一个方法就是`pool adjacent violators algorithm(PAVA)`算法。粗略的讲，`PAVA`算法的过程描述如下。
+&emsp;&emsp;大部分时候，我们会在括号前加上权重`w_i`。解决这个问题的一个方法就是 `pool adjacent violators algorithm(PAVA)` 算法。粗略的讲，`PAVA`算法的过程描述如下：
 
-&emsp;&emsp;我们从左边的`y_1`开始，右移`y_1`直到我们遇到第一个违例(`violation`)`y_i < y_i+1`，然后，我们用他们的平方替换他们，并且将这个平方值放到左边以满足单调性。我们继续这个过程，直到我们最后到达`y_n`。
+&emsp;&emsp;我们从左边的`y_1`开始，右移`y_1`直到我们遇到第一个违例(`violation`)即`y_i < y_i+1`，然后，我们用违例之前的所有`y`的平方替换这些`y`，以满足单调性。我们继续这个过程，直到我们最后到达`y_n`。
 
 ## 2 近似保序
 
@@ -159,7 +159,6 @@ while (i < len) {
 &emsp;&emsp;`pool`方法的实现如下所示。
 
 ```scala
-//输入数据是以
 def pool(input: Array[(Double, Double, Double)], start: Int, end: Int): Unit = {
       //取得i到j之间的元组组成的子序列
       val poolSubArray = input.slice(start, end + 1)
