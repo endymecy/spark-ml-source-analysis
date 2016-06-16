@@ -872,7 +872,7 @@ private def updateAlpha(gammat: BDM[Double]): Unit = {
 
 【6】[Spark官方文档](https://spark.apache.org/docs/latest/mllib-clustering.html#latent-dirichlet-allocation-lda)
 
-【7】[Spark GraphX介绍]()
+【7】[Spark GraphX介绍](https://github.com/endymecy/spark-graphx-source-analysis)
 
 【8】[Maximum Likelihood Estimation of Dirichlet Distribution Parameters](docs/dirichlet.pdf)
 
