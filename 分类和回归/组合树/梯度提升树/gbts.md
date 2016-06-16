@@ -18,13 +18,13 @@
 
 &emsp;&emsp;根据参考文献【1】的介绍，梯度提升算法的算法流程如下所示：
 
-<div  align="center"><img src="imgs/1.1.png" width = "800" height = "350" alt="1.1" align="center" /></div>
+<div  align="center"><img src="imgs/1.1.png" width = "700" height = "300" alt="1.1" align="center" /></div>
 
 &emsp;&emsp;在上述的流程中，`F(x)`表示学习器，`psi`表示损失函数，第3行的`y_im`表示负梯度方向，第4行的`R_lm`表示原数据改变分布后的数据。
 
 &emsp;&emsp;在`MLlib`中，提供的损失函数有三种。如下图所示。
 
-<div  align="center"><img src="imgs/1.3.png" width = "800" height = "190" alt="1.3" align="center" /></div>
+<div  align="center"><img src="imgs/1.3.png" width = "700" height = "150" alt="1.3" align="center" /></div>
 
 &emsp;&emsp;第一个对数损失用于分类，后两个平方误差和绝对误差用于回归。
 
@@ -33,7 +33,7 @@
 &emsp;&emsp;有文献证明，注入随机性到上述的过程中可以提高函数估计的性能。受到`Breiman`的影响，将随机性作为一个考虑的因素。在每次迭代中，随机的在训练集中抽取一个子样本集，然后在后续的操作中用这个子样本集代替全体样本。
 这就形成了随机梯度提升算法。它的流程如下所示：
 
-<div  align="center"><img src="imgs/1.2.png" width = "800" height = "350" alt="1.2" align="center" /></div>
+<div  align="center"><img src="imgs/1.2.png" width = "700" height = "300" alt="1.2" align="center" /></div>
 
 ## 4 实例
 
@@ -119,7 +119,7 @@ def run(input: RDD[LabeledPoint]): GradientBoostedTreesModel = {
 }
 ```
 
-&emsp;&emsp;在`MLlib`中，梯度提升树只能用于二分类和回归。所以，在上面的代码中，将标签映射为`-1,+1`，那么二分类训练也可以被当做回归训练。整个训练过程在`GradientBoostedTrees.boost`中实现。
+&emsp;&emsp;在`MLlib`中，梯度提升树只能用于二分类和回归。所以，在上面的代码中，将标签映射为`-1,+1`，那么二分类也可以被当做回归。整个训练过程在`GradientBoostedTrees.boost`中实现。
 `GradientBoostedTrees.boost`的过程分为三步，第一步，初始化参数；第二步，训练第一棵树；第三步，迭代训练后续的树。下面分别介绍这三步。
 
 - 初始化参数
@@ -212,9 +212,9 @@ var m = 1
 var doneLearning = false
 while (m < numIterations && !doneLearning) {
     // Update data with pseudo-residuals
-    // 调整训练数据
+    // 根据梯度调整训练数据
     val data = predError.zip(input).map { case ((pred, _), point) =>
-      //标签为负梯度方向
+      //标签为上一棵树预测的数据的负梯度方向
       LabeledPoint(-loss.gradient(pred, point.label), point.features)
     }
     //训练下一棵树
