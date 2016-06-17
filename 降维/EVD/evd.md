@@ -4,7 +4,7 @@
 
 <div  align="center"><img src="imgs/1.1.png" width = "85" height = "30" alt="1.1" align="center" /></div><br>
 
-&emsp;&emsp;这里`lambda`表示特征向量`v`所对应的特征值。并且一个矩阵的一组特征向量是一组正交向量。特征值分解是将一个向量分解为下面的形式：
+&emsp;&emsp;这里`lambda`表示特征向量`v`所对应的特征值。并且一个矩阵的一组特征向量是一组正交向量。特征值分解是将一个矩阵分解为下面的形式：
 
 <div  align="center"><img src="imgs/1.2.png" width = "160" height = "25" alt="1.2" align="center" /></div><br>
 
