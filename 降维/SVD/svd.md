@@ -2,7 +2,7 @@
 
 ## 1 奇异值分解
 
-&emsp;&emsp;在了解[特征值分解](../EVD/evd.md)之后，我们知道，将矩阵`A`的转置乘以该矩阵可以得到一个方阵。利用上面的公式可以得到：
+&emsp;&emsp;在了解[特征值分解](../EVD/evd.md)之后，我们知道，矩阵`A`不一定是方阵。为了得到方阵，可以将矩阵`A`的转置乘以该矩阵。从而可以得到公式：
 
 <div  align="center"><img src="imgs/1.3.png" width = "110" height = "25" alt="1.3" align="center" /></div><br>
 
