@@ -83,7 +83,7 @@
 
 <div  align="center"><img src="imgs/math.1.15.png" width = "300" height = "30" alt="1.15" align="center" /></div><br />
 
-&emsp;&emsp;求出步长<img src="http://www.forkosh.com/mathtex.cgi?{\lambda}^{(k)}">后，令
+&emsp;&emsp;求出步长<img src="http://www.forkosh.com/mathtex.cgi?{lambda}^{(k)}">后，令
 
 <div  align="center"><img src="imgs/math.1.16.png" width = "300" height = "25" alt="1.16" align="center" /></div><br />
 
@@ -96,9 +96,9 @@
 - （3）	解方程组（1.14）求得`Gauss-Newton`方向<img src="http://www.forkosh.com/mathtex.cgi?{d}^{(k)}">
 
 - （4）从<img src="http://www.forkosh.com/mathtex.cgi?{x}^{(k)}">出发，沿着<img src="http://www.forkosh.com/mathtex.cgi?{d}^{(k)}">作一维搜索，求出步长<img src="http://www.forkosh.com/mathtex.cgi?{\lambda}^{(k)}">，并令
-<img src="http://www.forkosh.com/mathtex.cgi?{x}^{(k+1)}={x}^{(k)}- \lambda{d}^{(k)}">
+<img src="http://www.forkosh.com/mathtex.cgi?{x}^{(k+1)}={x}^{(k)}-lambda{d}^{(k)}">
 
-- （5）若<img src="http://www.forkosh.com/mathtex.cgi?||{x}^{(k+1)}-{x}^{(k)}|| <= \varepsilon "> 停止迭代，求出`x`，否则，`k=k+1`，返回步骤（2）
+- （5）若<img src="http://www.forkosh.com/mathtex.cgi?||{x}^{(k+1)}-{x}^{(k)}||<=ε"> 停止迭代，求出`x`，否则，`k=k+1`，返回步骤（2）
 
 &emsp;&emsp;在某些情况下，矩阵<img src="http://www.forkosh.com/mathtex.cgi?{A}^{T}A">是奇异的，这种情况下，我们无法求出它的逆矩阵，因此我们需要对其进行修改。用到的基本技巧是将一个正定对角矩阵添加到<img src="http://www.forkosh.com/mathtex.cgi?{A}^{T}A">上，改变原来矩阵的特征值结构，使其变成条件较好的对称正定矩阵。
 典型的算法是`Marquardt`。
