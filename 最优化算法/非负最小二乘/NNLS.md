@@ -156,7 +156,7 @@
 <div  align="center"><img src="imgs/math.2.4.png" width = "280" height = "28" alt="2.4" align="center" /></div><br />
 
 &emsp;&emsp;沿方向<img src="http://www.forkosh.com/mathtex.cgi?{d}^{(1)}">搜索，得到点<img src="http://www.forkosh.com/mathtex.cgi?{x}^{(2)}">。计算<img src="http://www.forkosh.com/mathtex.cgi?{x}^{(2)}">处的梯度，
-若<img src="http://www.forkosh.com/mathtex.cgi?||{g}_{(1)}||!=0}">，则利用<img src="http://www.forkosh.com/mathtex.cgi?{g}_{(2)}">和<img src="http://www.forkosh.com/mathtex.cgi?{d}^{(1)}">构造第二个搜索方向<img src="http://www.forkosh.com/mathtex.cgi?{d}^{(1)}">，再沿<img src="http://www.forkosh.com/mathtex.cgi?{d}^{(1)}">搜索。
+若<img src="http://www.forkosh.com/mathtex.cgi?||{g}_{(1)}||!=0}">，则利用<img src="http://www.forkosh.com/mathtex.cgi?{g}_{(2)}">和<img src="http://www.forkosh.com/mathtex.cgi?{d}^{(1)}">构造第二个搜索方向<img src="http://www.forkosh.com/mathtex.cgi?{d}^{(2)}">，再沿<img src="http://www.forkosh.com/mathtex.cgi?{d}^{(2)}">搜索。
 
 &emsp;&emsp;一般的，若已知<img src="http://www.forkosh.com/mathtex.cgi?{x}^{(k)}">和搜索方向<img src="http://www.forkosh.com/mathtex.cgi?{d}^{(k)}">，则从<img src="http://www.forkosh.com/mathtex.cgi?{x}^{(k)}">出发，沿方向<img src="http://www.forkosh.com/mathtex.cgi?{d}^{(k)}">搜索，得到
 
