@@ -23,7 +23,7 @@
 
 <div  align="center"><img src="imgs/math.1.3.png" width = "365" height = "25" alt="1.3" align="center" /></div><br />
 
-&emsp;&emsp;其中，`p`是维列向量，`bi`是实数，这样我们可以用矩阵的形式表示（1.1）式。令
+&emsp;&emsp;其中，`p`是n维列向量，`bi`是实数，这样我们可以用矩阵的形式表示（1.1）式。令
 
 <div  align="center"><img src="imgs/math.1.3.1.png" width = "190" height = "65" alt="1.3" align="center" /></div><br />
 
