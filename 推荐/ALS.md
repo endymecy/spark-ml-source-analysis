@@ -178,11 +178,18 @@ private[recommendation] class LocalIndexEncoder(numBlocks: Int) extends Serializ
 
 - **(2) 根据`nonnegative`参数选择解决矩阵分解的方法**。
 
-&emsp;&emsp;如果需要解的值为非负,即`nonnegative`为`true`，那么用非负正则化最小二乘来解，如果没有这个限制，用乔里斯基（`Cholesky`）分解来解。这两个算法我们在最优化模块作了详细讲解。
+&emsp;&emsp;如果需要解的值为非负,即`nonnegative`为`true`，那么用非负最小二乘（`NNLS`）来解，如果没有这个限制，用乔里斯基（`Cholesky`）分解来解。
 
 ```scala
 val solver = if (nonnegative) new NNLSSolver else new CholeskySolver
 ```
+&emsp;&emsp;乔里斯基分解分解是把一个对称正定的矩阵表示成一个上三角矩阵`U`的转置和其本身的乘积的分解。在`ml`代码中，直接调用[netlib-java](https://github.com/fommil/netlib-java)封装的`dppsv`方法实现。
+
+```scala
+lapack.dppsv(“u”, k, 1, ne.ata, ne.atb, k, info)
+```
+
+&emsp;&emsp;可以深入`dppsv`代码（`Fortran`代码）了解更深的细节。我们分析的重点是非负正则化最小二乘的实现，因为在某些情况下，方程组的解为负数是没有意义的。虽然方程组可以得到精确解，但却不能取负值解。在这种情况下，其非负最小二乘解比方程的精确解更有意义。``NNLS`在最优化模块会作详细讲解。
 
 - **(3) 将`ratings`数据转换为分区的格式**。
 
