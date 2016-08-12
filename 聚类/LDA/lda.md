@@ -540,11 +540,11 @@ def run(documents: RDD[(Long, Vector)]): LDAModel = {
 
 &emsp;&emsp;在`spark`中，使用`GraphX`来实现`EMLDAOptimizer`，这个图是有两种类型的顶点的二分图。这两类顶点分别是文档顶点（`Document vertices`）和词顶点（`Term vertices`）。
 
-- 文档顶点使用大于0的唯一的指标来索引，保存长度为`k`（主题格式）的向量
+- 文档顶点使用大于0的唯一的指标来索引，保存长度为`k`（主题个数）的向量
 
-- 词顶点使用`{-1, -2, ..., -vocabSize}`来索引，保存长度为`k`（主题格式）的向量
+- 词顶点使用`{-1, -2, ..., -vocabSize}`来索引，保存长度为`k`（主题个数）的向量
 
-- 边（`edges`）对应词出现在文档中的情况。边的方向是`document -> term`，并且根据文档进行分区
+- 边（`edges`）对应词出现在文档中的情况。边的方向是`document -> term`，并且根据`document`进行分区
 
 &emsp;&emsp;我们可以根据3.1节中介绍的算法流程来解析源代码。
 
@@ -563,10 +563,11 @@ def run(documents: RDD[(Long, Vector)]): LDAModel = {
 &emsp;&emsp;上面的代码初始化了超参数`alpha`和`eta`，根据文献【4】，当`alpha`未指定时，初始化其为`(50.0 / k) + 1.0`，其中`k`表示主题个数。当`eta`未指定时，初始化其为1.1。
 
 ```scala
-//对于每个文档，为每一个唯一的Term创建一个(文档->Term)的边
+//对于每个文档，为每一个唯一的Term创建一个(Document->Term)的边
 val edges: RDD[Edge[TokenCount]] = docs.flatMap { case (docID: Long, termCounts: Vector) =>
       // Add edges for terms with non-zero counts.
       termCounts.toBreeze.activeIterator.filter(_._2 != 0.0).map { case (term, cnt) =>
+        //文档id，termindex，词频
         Edge(docID, term2index(term), cnt)
       }
 }
