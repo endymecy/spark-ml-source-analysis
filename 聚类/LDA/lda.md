@@ -422,7 +422,7 @@
 
 <div  align="center"><img src="imgs/3.2.1.png" width = "500" height = "25" alt="topic_words" align="center" /></div><br>
 
-&emsp;&emsp;最大化`ELBO`就是最大化`q(z,theta,beta)`和`p(z,theta,beta|w,alpha,eta)`的`KL`距离。根据文献【3】，我们将`q`因式分解为如下**（3.2.2）**的形式：
+&emsp;&emsp;最大化`ELBO`就是最小化`q(z,theta,beta)`和`p(z,theta,beta|w,alpha,eta)`的`KL`距离。根据文献【3】，我们将`q`因式分解为如下**（3.2.2）**的形式：
 
 <div  align="center"><img src="imgs/3.2.2.png" width = "500" height = "20" alt="topic_words" align="center" /></div><br>
 
