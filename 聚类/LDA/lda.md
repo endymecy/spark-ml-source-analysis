@@ -426,11 +426,11 @@
 
 <div  align="center"><img src="imgs/3.2.2.png" width = "500" height = "20" alt="topic_words" align="center" /></div><br>
 
-&emsp;&emsp;后验`z`通过`phi`来参数化，后验`theta`通过`gamma`来参数化，后验`beta`通过`lambda`来参数化。简单的说，我们把`lambda`作为“主题”。公式**(3.2.1)**分解为如下**(3.2.3)**形式：
+&emsp;&emsp;后验`z`通过`phi`来参数化，后验`theta`通过`gamma`来参数化，后验`beta`通过`lambda`来参数化。为了简单描述，我们把`lambda`当作“主题”来看待。公式**(3.2.2)**分解为如下**(3.2.3)**形式：
 
 <div  align="center"><img src="imgs/3.2.3.png" width = "550" height = "50" alt="topic_words" align="center" /></div><br>
 
-&emsp;&emsp;我们现在将上面的期望扩展为变分参数的函数形式。这反映了变分目标只依赖于<img src="http://www.forkosh.com/mathtex.cgi?{n}_{dw}">，即词`w`出现在文档`d`中的次数。当使用`VB`算法时，文档可以通过它们的词频来概括，如公式**(3.2.4)**
+&emsp;&emsp;我们现在将上面的期望扩展为变分参数的函数形式。这反映了变分目标只依赖于<img src="http://www.forkosh.com/mathtex.cgi?{n}_{dw}">，即词`w`出现在文档`d`中的次数。当使用`VB`算法时，文档可以通过它们的词频来汇总（`summarized`），如公式**(3.2.4)**
 
 <div  align="center"><img src="imgs/3.2.4.png" width = "500" height = "110" alt="topic_words" align="center" /></div><br>
 
