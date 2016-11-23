@@ -79,11 +79,11 @@
 <br />
 <div  align="center"><img src="imgs/math.1.14.png" width = "320" height = "25" alt="1.14" align="center" /></div><br />
 
-&emsp;&emsp;称为点<img src="http://www.forkosh.com/mathtex.cgi?{x}^{(k)}">处的`Gauss-Newton`方向。为保证每次迭代能使目标函数值下降（至少不能上升），在求出<img src="http://www.forkosh.com/mathtex.cgi?{d}^{(k)}">后，不直接使用<img src="http://www.forkosh.com/mathtex.cgi?{x}^{(k)}+{d}^{(k)}">作为k+1次近似，而是从<img src="http://www.forkosh.com/mathtex.cgi?{x}^{(k)}">出发，沿<img src="http://www.forkosh.com/mathtex.cgi?{d}^{(k)}">方向进行一维搜索。
+&emsp;&emsp;称为点<img src="http://www.forkosh.com/mathtex.cgi?{x}^{(k)}">处的`Gauss-Newton`方向。为保证每次迭代能使目标函数值下降（至少不能上升），在求出$d_{(k)}$后，不直接使用$x^{(k)}+d^{(k)}$作为k+1次近似，而是从$x^{(k)}$出发，沿$d^{(k)}$方向进行一维搜索。
 
 <div  align="center"><img src="imgs/math.1.15.png" width = "300" height = "30" alt="1.15" align="center" /></div><br />
 
-&emsp;&emsp;求出步长<img src="http://www.forkosh.com/mathtex.cgi?{lambda}^{(k)}">后，令
+&emsp;&emsp;求出步长$\lambda ^{(k)}$后，令
 
 <div  align="center"><img src="imgs/math.1.16.png" width = "300" height = "25" alt="1.16" align="center" /></div><br />
 
