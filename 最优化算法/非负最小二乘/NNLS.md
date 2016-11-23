@@ -79,7 +79,7 @@
 <br />
 <div  align="center"><img src="imgs/math.1.14.png" width = "320" height = "25" alt="1.14" align="center" /></div><br />
 
-&emsp;&emsp;称为点<img src="http://www.forkosh.com/mathtex.cgi?{x}^{(k)}">处的`Gauss-Newton`方向。为保证每次迭代能使目标函数值下降（至少不能上升），在求出$d_{(k)}$后，不直接使用$x^{(k)}+d^{(k)}$作为k+1次近似，而是从$x^{(k)}$出发，沿$d^{(k)}$方向进行一维搜索。
+&emsp;&emsp;称为点$x^{(k)}$处的`Gauss-Newton`方向。为保证每次迭代能使目标函数值下降（至少不能上升），在求出$d^{(k)}$后，不直接使用$x^{(k)}+d^{(k)}$作为k+1次近似，而是从$x^{(k)}$出发，沿$d^{(k)}$方向进行一维搜索。
 
 <div  align="center"><img src="imgs/math.1.15.png" width = "300" height = "30" alt="1.15" align="center" /></div><br />
 
@@ -89,16 +89,15 @@
 
 **&emsp;&emsp;最小二乘的计算步骤如下:**
 
-- （1）	给定初始点<img src="http://www.forkosh.com/mathtex.cgi?{x}^{(1)}">，允许误差`ε>0，k=1`
+- （1）	给定初始点$x^{(1)}$，允许误差`ε>0，k=1`
 
-- （2）	计算函数值<img src="http://www.forkosh.com/mathtex.cgi?{f}_{i}(x)">，得到向量<img src="http://www.forkosh.com/mathtex.cgi?{f}^{(k)}">，再计算一阶偏导，得到`m*n`矩阵<img src="http://www.forkosh.com/mathtex.cgi?{A}_{(k)}">
+- （2）	计算函数值$f_{i}(x)$，得到向量$f^{(k)}$，再计算一阶偏导，得到`m*n`矩阵$A_{(k)}$
 
-- （3）	解方程组（1.14）求得`Gauss-Newton`方向<img src="http://www.forkosh.com/mathtex.cgi?{d}^{(k)}">
+- （3）	解方程组（1.14）求得`Gauss-Newton`方向$d^{(k)}$
 
-- （4）从<img src="http://www.forkosh.com/mathtex.cgi?{x}^{(k)}">出发，沿着<img src="http://www.forkosh.com/mathtex.cgi?{d}^{(k)}">作一维搜索，求出步长<img src="http://www.forkosh.com/mathtex.cgi?{\lambda}^{(k)}">，并令
-<img src="http://www.forkosh.com/mathtex.cgi?{x}^{(k+1)}={x}^{(k)}-lambda{d}^{(k)}">
+- （4）从$x^{(k)}$出发，沿着$d^{(k)}$作一维搜索，求出步长$\lambda ^{(k)}$ ，并令$x^{(k+1)}=x^{(k)-\lambda{d}^{(k)}$
 
-- （5）若<img src="http://www.forkosh.com/mathtex.cgi?||{x}^{(k+1)}-{x}^{(k)}||<=ε"> 停止迭代，求出`x`，否则，`k=k+1`，返回步骤（2）
+- （5）若$||x^{(k+1)}-x^{(k)}||<=\epsilon$停止迭代，求出`x`，否则，`k=k+1`，返回步骤（2）
 
 &emsp;&emsp;在某些情况下，矩阵<img src="http://www.forkosh.com/mathtex.cgi?{A}^{T}A">是奇异的，这种情况下，我们无法求出它的逆矩阵，因此我们需要对其进行修改。用到的基本技巧是将一个正定对角矩阵添加到<img src="http://www.forkosh.com/mathtex.cgi?{A}^{T}A">上，改变原来矩阵的特征值结构，使其变成条件较好的对称正定矩阵。
 典型的算法是`Marquardt`。
