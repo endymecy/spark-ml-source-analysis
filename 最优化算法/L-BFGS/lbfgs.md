@@ -2,12 +2,12 @@
 
 # 1 牛顿法
 
-&emsp;&emsp;设`f(x)`是二次可微实函数，又设<img src="http://www.forkosh.com/mathtex.cgi?{x}^{(k)}">是`f(x)`一个极小点的估计，我们把`f(x)`在<img src="http://www.forkosh.com/mathtex.cgi?{x}^{(k)}">展开成`Taylor`级数，
+&emsp;&emsp;设`f(x)`是二次可微实函数，又设$x^{(k)}$是`f(x)`一个极小点的估计，我们把`f(x)`在$x^{(k)}$展开成`Taylor`级数，
 并取二阶近似。
 
 <div  align="center"><img src="imgs/1.1.png" width = "615" height = "45" alt="1.1" align="center" /></div><br>
 
-&emsp;&emsp;上式中最后一项的中间部分表示`f(x)`在<img src="http://www.forkosh.com/mathtex.cgi?{x}^{(k)}">处的`Hesse`矩阵。令上式等于0，可以的到下式：
+&emsp;&emsp;上式中最后一项的中间部分表示`f(x)`在$x^{(k)}$处的`Hesse`矩阵。令上式等于0，可以的到下式：
 
 <div  align="center"><img src="imgs/1.2.png" width = "280" height = "40" alt="1.2" align="center" /></div><br>
 
@@ -34,12 +34,12 @@
 
 &emsp;&emsp;下面分析怎样构造近似矩阵并用它取代牛顿法中的`Hesse`矩阵的逆。上文**(1.2)**已经给出了牛顿法的迭代公式，为了构造`Hesse`矩阵逆矩阵的近似矩阵<img src="http://www.forkosh.com/mathtex.cgi?{H}_{(k)}">，需要先分析该逆矩阵与一阶导数的关系。
 
-&emsp;&emsp;设在第`k`次迭代之后，得到<img src="http://www.forkosh.com/mathtex.cgi?{x}^{(k+1)}">，我们将目标函数`f(x)`在点<img src="http://www.forkosh.com/mathtex.cgi?{x}^{(k+1)}">展开成`Taylor`级数，
+&emsp;&emsp;设在第`k`次迭代之后，得到$x^{(k+1)}$ ，我们将目标函数`f(x)`在点$x^{(k+1)}$展开成`Taylor`级数，
 并取二阶近似，得到
 
 <div  align="center"><img src="imgs/2.1.png" width = "630" height = "50" alt="2.1" align="center" /></div><br>
 
-&emsp;&emsp;由此可知，在<img src="http://www.forkosh.com/mathtex.cgi?{x}^{(k+1)}">附近有，
+&emsp;&emsp;由此可知，在$x^{(k+1)}$附近有，
 
 <div  align="center"><img src="imgs/2.2.png" width = "420" height = "60" alt="2.2" align="center" /></div><br>
 
@@ -55,7 +55,7 @@
 
 <div  align="center"><img src="imgs/2.5.png" width = "215" height = "35" alt="2.5" align="center" /></div><br>
 
-&emsp;&emsp;这样，计算出`p`和`q`之后，就可以通过上面的式子估计`Hesse`矩阵的逆矩阵。因此，为了用不包含二阶导数的矩阵<img src="http://www.forkosh.com/mathtex.cgi?{H}_{(k+1)}">取代牛顿法中`Hesse`矩阵的逆矩阵，有理由令<img src="http://www.forkosh.com/mathtex.cgi?{H}_{(k+1)}">满足公式**(2.1)**：
+&emsp;&emsp;这样，计算出`p`和`q`之后，就可以通过上面的式子估计`Hesse`矩阵的逆矩阵。因此，为了用不包含二阶导数的矩阵$H^{(k+1)}$取代牛顿法中`Hesse`矩阵的逆矩阵，有理由令$H^{(k+1)}$满足公式**(2.1)**：
 
 <div  align="center"><img src="imgs/2.6.png" width = "140" height = "35" alt="2.6" align="center" /></div><br>
 
@@ -63,8 +63,7 @@
 
 ## 2.2 秩1校正
 
-&emsp;&emsp;当`Hesse`矩阵的逆矩阵是对称正定矩阵时，满足拟牛顿条件的矩阵<img src="http://www.forkosh.com/mathtex.cgi?{H}_{(k)}">也应该是对称正定矩阵。构造这样近似矩阵的一般策略是，
-<img src="http://www.forkosh.com/mathtex.cgi?{H}_{(1)}">取为任意一个`n`阶对称正定矩阵，通常选择`n`阶单位矩阵`I`，然后通过修正<img src="http://www.forkosh.com/mathtex.cgi?{H}_{(k)}">给定<img src="http://www.forkosh.com/mathtex.cgi?{H}_{(k+1)}">。
+&emsp;&emsp;当`Hesse`矩阵的逆矩阵是对称正定矩阵时，满足拟牛顿条件的矩阵$H^{(k)}$也应该是对称正定矩阵。构造这样近似矩阵的一般策略是，$H^{(1)}$取为任意一个`n`阶对称正定矩阵，通常选择`n`阶单位矩阵`I`，然后通过修正$H^{(k)}$给定$H^{(k+1)}$。
 令，
 
 <div  align="center"><img src="imgs/2.7.png" width = "150" height = "30" alt="2.7" align="center" /></div><br>
@@ -87,7 +86,7 @@
 
 ## 2.4 BFGS算法
 
-&emsp;&emsp;前面利用拟牛顿条件**(2.1)**推导出了`DFP`公式**(2.4)**。下面我们用不含二阶导数的矩阵<img src="http://www.forkosh.com/mathtex.cgi?{B}_{(k+1)}">近似`Hesse`矩阵，从而给出另一种形式的拟牛顿条件**(2.5)**:
+&emsp;&emsp;前面利用拟牛顿条件**(2.1)**推导出了`DFP`公式**(2.4)**。下面我们用不含二阶导数的矩阵$B_{(k+1)}$近似`Hesse`矩阵，从而给出另一种形式的拟牛顿条件**(2.5)**:
 
 <div  align="center"><img src="imgs/2.11.png" width = "140" height = "35" alt="2.11" align="center" /></div><br>
 
@@ -95,7 +94,7 @@
 
 <div  align="center"><img src="imgs/2.12.png" width = "320" height = "65" alt="2.12" align="center" /></div><br>
 
-&emsp;&emsp;这个公式称关于矩阵`B`的`BFGS`修正公式，也称为`DFP`公式的对偶公式。设<img src="http://www.forkosh.com/mathtex.cgi?{B}_{(k+1)}">可逆，由公式**(2.1)**以及**(2.5)**可以推出：
+&emsp;&emsp;这个公式称关于矩阵`B`的`BFGS`修正公式，也称为`DFP`公式的对偶公式。设$B_{(k+1)}$可逆，由公式**(2.1)**以及**(2.5)**可以推出：
 
 <div  align="center"><img src="imgs/2.13.png" width = "110" height = "35" alt="2.13" align="center" /></div><br>
 
