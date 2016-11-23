@@ -55,7 +55,7 @@
 
 <div  align="center"><img src="imgs/2.5.png" width = "215" height = "35" alt="2.5" align="center" /></div><br>
 
-&emsp;&emsp;这样，计算出`p`和`q`之后，就可以通过上面的式子估计`Hesse`矩阵的逆矩阵。因此，为了用不包含二阶导数的矩阵$H^{(k+1)}$取代牛顿法中`Hesse`矩阵的逆矩阵，有理由令$H^{(k+1)}$满足公式**(2.1)**：
+&emsp;&emsp;这样，计算出`p`和`q`之后，就可以通过上面的式子估计`Hesse`矩阵的逆矩阵。因此，为了用不包含二阶导数的矩阵$H_{(k+1)}$取代牛顿法中`Hesse`矩阵的逆矩阵，有理由令$H_{(k+1)}$满足公式**(2.1)**：
 
 <div  align="center"><img src="imgs/2.6.png" width = "140" height = "35" alt="2.6" align="center" /></div><br>
 
