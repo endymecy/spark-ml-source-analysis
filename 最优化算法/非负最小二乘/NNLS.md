@@ -67,7 +67,7 @@
 
 <div  align="center"><img src="imgs/math.1.11.png" width = "335" height = "25" alt="1.11" align="center" /></div><br />
 
-&emsp;&emsp;如果$A_{k}$为列满秩，且<img src="http://www.forkosh.com/mathtex.cgi?{{A}_{k}}^{T}{A}_{k}">是对称正定矩阵，那么由（1.11）可以得到`x`的极小值。
+&emsp;&emsp;如果$A_{k}$为列满秩，且$A_{k}^{T}A_{k}$是对称正定矩阵，那么由（1.11）可以得到`x`的极小值。
 
 <div  align="center"><img src="imgs/math.1.12.png" width = "345" height = "25" alt="1.12" align="center" /></div><br />
 
