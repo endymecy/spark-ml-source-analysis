@@ -71,7 +71,7 @@
 
 <div  align="center"><img src="imgs/math.1.12.png" width = "345" height = "25" alt="1.12" align="center" /></div><br />
 
-&emsp;&emsp;可以推导出<img src="http://www.forkosh.com/mathtex.cgi?2{{A}_{k}}^{T}{f}^{(k)}">是目标函数`F(x)`在<img src="http://www.forkosh.com/mathtex.cgi?{x}^{(k)}">处的梯度，<img src="http://www.forkosh.com/mathtex.cgi?2{{A}_{k}}^{T}{A}_{k}">是函数`∅(x)`的海森矩阵。所以（1.12）又可以写为如下形式。
+&emsp;&emsp;可以推导出$2A_{k}^{T}f_{k}$是目标函数`F(x)`在$x^{(k)}$处的梯度，$2A_{k}^{T}A_{k}$是函数`∅(x)`的海森矩阵。所以（1.12）又可以写为如下形式。
 
 <div  align="center"><img src="imgs/math.1.13.png" width = "325" height = "29" alt="1.13" align="center" /></div><br />
 
