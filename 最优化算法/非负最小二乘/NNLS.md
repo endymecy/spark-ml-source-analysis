@@ -150,11 +150,11 @@ $x^{(1)}+H_{k}$上的唯一极小点，特别的，当k=n时，$x^{(n+1)}$是函
 
 &emsp;&emsp;具体求解方式如下：
 
-&emsp;&emsp;首先给定任何一个初始点$x^{(1)}$ ，计算目标函数`f(x)`在这点的梯度$g_{(1)}$ ，若$||g^{(1)}||=0$ ，则停止计算；否则令
+&emsp;&emsp;首先给定任何一个初始点$x^{(1)}$ ，计算目标函数`f(x)`在这点的梯度$g_{(1)}$ ，若$||g_{(1)}||=0$ ，则停止计算；否则令
 
 <div  align="center"><img src="imgs/math.2.4.png" width = "280" height = "28" alt="2.4" align="center" /></div><br />
 
-&emsp;&emsp;沿方向$d^{(1)}$搜索，得到点$x^{(2)}$ 。计算$x^{(2)}$处的梯度，若$||g_{(1)}||!=0$，则利用$g_{(2)}$和$d^{(1)}$构造第二个搜索方向$d^{(2)}$，再沿$d^{(2)}$搜索。
+&emsp;&emsp;沿方向$d^{(1)}$搜索，得到点$x^{(2)}$ 。计算$x^{(2)}$处的梯度，若$||g_{(2)}||!=0$，则利用$g_{(2)}$和$d^{(1)}$构造第二个搜索方向$d^{(2)}$，再沿$d^{(2)}$搜索。
 
 &emsp;&emsp;一般的，若已知$x^{(k)}$和搜索方向$d^{(k)}$，则从$x^{(k))}$出发，沿方向$d^{(k)}$搜索，得到
 
@@ -180,12 +180,12 @@ $x^{(1)}+H_{k}$上的唯一极小点，特别的，当k=n时，$x^{(n+1)}$是函
 
 <div  align="center"><img src="imgs/math.2.8.png" width = "300" height = "45" alt="2.8" align="center" /></div><br />
 
-&emsp;&emsp;计算`f(x)`在<img src="http://www.forkosh.com/mathtex.cgi?{x}^{(k+1)}">处的梯度，若<img src="http://www.forkosh.com/mathtex.cgi?||{g}_{(k+1)}||=0">，则停止计算，
-否则用<img src="http://www.forkosh.com/mathtex.cgi?{g}_{(k+1)}">和<img src="http://www.forkosh.com/mathtex.cgi?{d}^{(k)}">构造下一个搜索方向<img src="http://www.forkosh.com/mathtex.cgi?{d}^{(k+1)}">，并使<img src="http://www.forkosh.com/mathtex.cgi?{d}^{(k)}">与<img src="http://www.forkosh.com/mathtex.cgi?{d}^{(k+1)}">共轭。按照这种设想，令
+&emsp;&emsp;计算`f(x)`在$x^{(k+1)}$处的梯度，若$||g_{k+1}||=0$ ，则停止计算，
+否则用$g_{(k+1)}$和$d^{(k)}$构造下一个搜索方向$d^{(k+1)}$ ，并使$d^{(k)}$与$d^{(k+1)}$共轭。按照这种设想，令
 
 <div  align="center"><img src="imgs/math.2.9.png" width = "286" height = "25" alt="2.9" align="center" /></div><br />
 
-&emsp;&emsp;在公式（2.9）两端同时乘以<img src="http://www.forkosh.com/mathtex.cgi?{d}^{(k)T}A">，并令
+&emsp;&emsp;在公式（2.9）两端同时乘以$d^{(k)T}A$，并令
 
 <div  align="center"><img src="imgs/math.2.10.png" width = "435" height = "30" alt="2.10" align="center" /></div><br />
 
@@ -193,7 +193,7 @@ $x^{(1)}+H_{k}$上的唯一极小点，特别的，当k=n时，$x^{(n+1)}$是函
 
 <div  align="center"><img src="imgs/math.2.11.png" width = "300" height = "41" alt="2.11" align="center" /></div><br />
 
-&emsp;&emsp;再从<img src="http://www.forkosh.com/mathtex.cgi?{x}^{(k+1)}">出发，沿<img src="http://www.forkosh.com/mathtex.cgi?{d}^{(k+1)}">方向搜索。综上分析 ，在第1个搜索方向取负梯度的前提下，重复使用公式（2.5）、（2.8）、（2.9）、（2.11），我们就能够构造一组搜索方向。当然，前提是这组方向是关于`A`共轭的。
+&emsp;&emsp;再从$x^{(k+1)}$出发，沿$d^{(k+1)}$方向搜索。综上分析 ，在第1个搜索方向取负梯度的前提下，重复使用公式（2.5）、（2.8）、（2.9）、（2.11），我们就能够构造一组搜索方向。当然，前提是这组方向是关于`A`共轭的。
 定理2.3说明了这组方向是共轭的。
 
 **&emsp;&emsp;定理2.3** 对于正定二次函数（2.3），具有精确一维搜索的的共轭梯度法在`m<=n`次一维搜索后终止，并且对于所有`i(1<=i<=m)`，下列关系成立：
@@ -241,8 +241,8 @@ class Workspace(val n: Int) {
 }
 ```
 
-&emsp;&emsp;在`Workspace`中，`res`表示梯度，`grad`表示梯度的投影，`dir`表示迭代过程中的搜索方向（共轭梯度中的搜索方向<img src="http://www.forkosh.com/mathtex.cgi?{d}^{(k)}">），`scratch`代表公式（2.8）中的
-<img src="http://www.forkosh.com/mathtex.cgi?{d}^{(kT)}A">。
+&emsp;&emsp;在`Workspace`中，`res`表示梯度，`grad`表示梯度的投影，`dir`表示迭代过程中的搜索方向（共轭梯度中的搜索方向$d^{(k)}$），`scratch`代表公式（2.8）中的
+$d^{(k)T}A$。
 
 &emsp;&emsp;`NNLS`对象中，`sort`方法用来解最小二乘，它通过迭代求解极小值。我们将分步骤剖析该方法。
 
