@@ -150,14 +150,13 @@ $x^{(1)}+H_{k}$上的唯一极小点，特别的，当k=n时，$x^{(n+1)}$是函
 
 &emsp;&emsp;具体求解方式如下：
 
-&emsp;&emsp;首先给定任何一个初始点<img src="http://www.forkosh.com/mathtex.cgi?{x}^{(1)}">，计算目标函数`f(x)`在这点的梯度<img src="http://www.forkosh.com/mathtex.cgi?{g}_{(1)}">，若<img src="http://www.forkosh.com/mathtex.cgi?||{x}_{(1)}||=0">，则停止计算；否则令
+&emsp;&emsp;首先给定任何一个初始点$x^{(1)}$ ，计算目标函数`f(x)`在这点的梯度$g_{(1)}$ ，若$||x_{(1)}||$ ，则停止计算；否则令
 
 <div  align="center"><img src="imgs/math.2.4.png" width = "280" height = "28" alt="2.4" align="center" /></div><br />
 
-&emsp;&emsp;沿方向<img src="http://www.forkosh.com/mathtex.cgi?{d}^{(1)}">搜索，得到点<img src="http://www.forkosh.com/mathtex.cgi?{x}^{(2)}">。计算<img src="http://www.forkosh.com/mathtex.cgi?{x}^{(2)}">处的梯度，
-若<img src="http://www.forkosh.com/mathtex.cgi?||{g}_{(1)}||!=0}">，则利用<img src="http://www.forkosh.com/mathtex.cgi?{g}_{(2)}">和<img src="http://www.forkosh.com/mathtex.cgi?{d}^{(1)}">构造第二个搜索方向<img src="http://www.forkosh.com/mathtex.cgi?{d}^{(2)}">，再沿<img src="http://www.forkosh.com/mathtex.cgi?{d}^{(2)}">搜索。
+&emsp;&emsp;沿方向$d^{(1)}$搜索，得到点$x^{(2)}$ 。计算$x^{(2)}$处的梯度，若$||g_{(1)}||!=0$，则利用$g_{(2)}$和$d^{(1)}$构造第二个搜索方向$d^{(2)}$，再沿$d^{(2)}$搜索。
 
-&emsp;&emsp;一般的，若已知<img src="http://www.forkosh.com/mathtex.cgi?{x}^{(k)}">和搜索方向<img src="http://www.forkosh.com/mathtex.cgi?{d}^{(k)}">，则从<img src="http://www.forkosh.com/mathtex.cgi?{x}^{(k)}">出发，沿方向<img src="http://www.forkosh.com/mathtex.cgi?{d}^{(k)}">搜索，得到
+&emsp;&emsp;一般的，若已知$x^{(k)}$和搜索方向$d^{(k)}$，则从$x^{(k))}$出发，沿方向$d^{(k)}$搜索，得到
 
 <div  align="center"><img src="imgs/math.2.5.png" width = "285" height = "30" alt="2.5" align="center" /></div><br />
 
