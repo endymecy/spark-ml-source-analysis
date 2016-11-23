@@ -112,29 +112,29 @@
 
 &emsp;&emsp;在讲解共轭梯度法之前，我们需要先知道什么是共轭方向，下面的定义给出了答案。
 
-**&emsp;&emsp;定义2.1** 设`A`是`n*n`对称正定矩阵，若两个方向<img src="http://www.forkosh.com/mathtex.cgi?{d}^{(1)}"> 和<img src="http://www.forkosh.com/mathtex.cgi?{d}^{(2)}">满足
+**&emsp;&emsp;定义2.1** 设`A`是`n*n`对称正定矩阵，若两个方向$d^{(1)}$ 和$d^{(2)}$满足
 
 <div  align="center"><img src="imgs/math.2.1.png" width = "220" height = "22" alt="2.1" align="center" /></div><br />
 
-则称这两个方向关于`A`共轭。若<img src="http://www.forkosh.com/mathtex.cgi?{d}^{(1)},{d}^{(2)},...,{d}^{(k)}">是`k`个方向，它们两两关于`A`共轭，则称这组方向是关于`A`共轭的。即
+则称这两个方向关于`A`共轭。若$d^{(1)},d^{(2)},...,d^{(k)}$是`k`个方向，它们两两关于`A`共轭，则称这组方向是关于`A`共轭的。即
 
 <div  align="center"><img src="imgs/math.2.2.png" width = "340" height = "25" alt="2.2" align="center" /></div><br />
 
-在上述定义中，如果`A`是单位矩阵，那么两个方向关于`A`共轭等价于两个方向正交。如果`A`是一般的对称正定矩阵，<img src="http://www.forkosh.com/mathtex.cgi?{d}^{(i)}">与<img src="http://www.forkosh.com/mathtex.cgi?{d}^{(j)}">共轭，就是<img src="http://www.forkosh.com/mathtex.cgi?{d}^{(i)}">与<img src="http://www.forkosh.com/mathtex.cgi?{Ad}^{(j)}">正交。共轭方向有一些重要的性质。
+在上述定义中，如果`A`是单位矩阵，那么两个方向关于`A`共轭等价于两个方向正交。如果`A`是一般的对称正定矩阵，$d^{(i)}$与$d^{(j)}$共轭，就是$d^{(i)}$与$Ad^{(j)}$正交。共轭方向有一些重要的性质。
 
-**&emsp;&emsp;定理2.1** 设`A`是`n`阶对称正定矩阵，<img src="http://www.forkosh.com/mathtex.cgi?{d}^{(1)},{d}^{(2)},...,{d}^{(k)}">是`k`个`A`的共轭的非零向量，则这个向量组线性无关。
+**&emsp;&emsp;定理2.1** 设`A`是`n`阶对称正定矩阵，$d^{(1)},d^{(2)},...,d^{(k)}$是`k`个`A`的共轭的非零向量，则这个向量组线性无关。
 
 **&emsp;&emsp;定理2.2 (扩张子空间定理）** 设有函数
 
 <div  align="center"><img src="imgs/math.2.2.a1.png" width = "186" height = "36" alt="2.2.a1" align="center" /></div><br />
 
-&emsp;&emsp;其中，`A`是`n`阶对称正定矩阵，<img src="http://www.forkosh.com/mathtex.cgi?{d}^{(1)},{d}^{(2)},...,{d}^{(k)}">是`k`个`A`的共轭的非零向量，以任意的<img src="http://www.forkosh.com/mathtex.cgi?{x}^{(1)}">为初始点，
-沿<img src="http://www.forkosh.com/mathtex.cgi?{d}^{(1)},{d}^{(2)},...,{d}^{(k)}">进行一维搜索，得到<img src="http://www.forkosh.com/mathtex.cgi?{x}^{(2)},{x}^{(3)},...,{x}^{(k+1)}">，则<img src="http://www.forkosh.com/mathtex.cgi?{d}^{(k+1)}">是线性流型
-<img src="http://www.forkosh.com/mathtex.cgi?{x}^{(1)}+{H}_{k}">上的唯一极小点，特别的，当k=n时，<img src="http://www.forkosh.com/mathtex.cgi?{x}^{(n+1)}">是函数`f(x)`的唯一极小点。其中，
+&emsp;&emsp;其中，`A`是`n`阶对称正定矩阵，$d^{(1)},d^{(2)},...,d^{(k)}$是`k`个`A`的共轭的非零向量，以任意的$x^{(1)}$为初始点，
+沿$d^{(1)},d^{(2)},...,d^{(k)}$进行一维搜索，得到$x^{(2)},x^{(3)},...,x^{(k+1)}$，则$d^{(k+1)}$是线性流型
+$x^{(1)}+H_{k}$上的唯一极小点，特别的，当k=n时，$x^{(n+1)}$是函数`f(x)`的唯一极小点。其中，
 
 <div  align="center"><img src="imgs/math.2.2.a2.png" width = "294" height = "58" alt="2.2.a2" align="center" /></div><br />
 
-是<img src="http://www.forkosh.com/mathtex.cgi?{d}^{(1)},{d}^{(2)},...,{d}^{(k)}">生成的子空间。
+是$d^{(1)},d^{(2)},...,d^{(k)}$生成的子空间。
 
 &emsp;&emsp;这两个定理在文献【1】中有详细证明。
 
