@@ -1,6 +1,6 @@
 # 规则化
 
-&emsp;&emsp;规则化器缩放单个样本让其拥有单位<img src="http://www.forkosh.com/mathtex.cgi?{L}^{p}">范数。这是文本分类和聚类常用的操作。例如，两个<img src="http://www.forkosh.com/mathtex.cgi?{L}^{2}">规则化的`TFIDF`向量的点乘就是两个向量的`cosine`相似度。
+&emsp;&emsp;规则化器缩放单个样本让其拥有单位$L^{p}$范数。这是文本分类和聚类常用的操作。例如，两个$L^{2}$规则化的`TFIDF`向量的点乘就是两个向量的`cosine`相似度。
 
 &emsp;&emsp;`Normalizer`实现` VectorTransformer`，将一个向量规则化为转换的向量，或者将一个`RDD`规则化为另一个`RDD`。下面是一个规则化的例子。
 
