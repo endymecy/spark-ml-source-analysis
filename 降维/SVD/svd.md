@@ -64,7 +64,7 @@ val V: Matrix = svd.V // The V factor is a local dense matrix.
 
 - 当`n`很小（`n<100`）或者`k`比`n`大(`k>n/2`)，我们会首先计算方阵$A^{T}A$ ，然后在`driver`本地计算它的`top`特征值和特征向量。它的空间复杂度是`O(n*n)`，时间复杂度是`O(n*n*k)`。
 
-- 否则，我们用分布式的方式先计算<img src="http://www.forkosh.com/mathtex.cgi?{A}^{T}Av">,然后把它传给[ARPACK](http://www.caam.rice.edu/software/ARPACK/)在`driver`上计算`top`特征值和特征向量。它需要传递`O(k)`的数据，每个`executor`的空间复杂度是`O(n)`,`driver`的空间复杂度是`O(nk)`
+- 否则，我们用分布式的方式先计算$A^{T}Av$,然后把它传给[ARPACK](http://www.caam.rice.edu/software/ARPACK/)在`driver`上计算`top`特征值和特征向量。它需要传递`O(k)`的数据，每个`executor`的空间复杂度是`O(n)`,`driver`的空间复杂度是`O(nk)`
 
 ### 2.2 代码实现
 
