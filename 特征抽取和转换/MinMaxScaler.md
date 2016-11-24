@@ -8,7 +8,7 @@
 &emsp;&emsp;`MinMaxScaler`计算数据集上的概要统计数据,产生一个`MinMaxScalerModel`。然后就可以用这个模型单独的转换每个特征到特定的范围。
 特征`E`被转换后的值可以用下面的公式计算:
 
-<img src="http://www.forkosh.com/mathtex.cgi?\frac{e_i - E_{min}}{E_{max} - E_{min}} * (max - min) + min">
+$$\frac{e_{i} - E_{min}}{E_{max} - E_{min}} * (max - min) + min$$
 
 &emsp;&emsp;对于`E_{max} == E_{min}`的情况,`Rescaled(e_i) = 0.5 * (max + min)`。
 
