@@ -326,15 +326,15 @@ $\theta=(P(z_{k}|d_{i}),P(w_{j}|z_{k}))$就是我们要估计的参数,我们要
 
 &emsp;&emsp;`LDA`模型中一篇文档生成的方式如下所示:
 
-- 1 按照<img src="http://www.forkosh.com/mathtex.cgi?P({d}_{i})">选择一篇文档<img src="http://www.forkosh.com/mathtex.cgi?{d}_{i}">；
+- 1 按照$P(d_{i})$选择一篇文档$d_{i}$ ；
 
-- 2 从狄利克雷分布<img src="http://www.forkosh.com/mathtex.cgi?{alpha}">中生成文档i的主题分布<img src="http://www.forkosh.com/mathtex.cgi?{theta}_{i}">；
+- 2 从狄利克雷分布$\alpha$中生成文档i的主题分布$\theta_{i}$ ；
 
-- 3 从主题的多项式分布<img src="http://www.forkosh.com/mathtex.cgi?{theta}_{i}">中取样生成文档i第j个词的主题<img src="http://www.forkosh.com/mathtex.cgi?{Z}_{i,j}">；
+- 3 从主题的多项式分布$\theta_{i}$中取样生成文档i第j个词的主题$Z_{i,j}$ ；
 
-- 4 从狄利克雷分布<img src="http://www.forkosh.com/mathtex.cgi?{eta}">中取样生成主题<img src="http://www.forkosh.com/mathtex.cgi?{Z}_{i,j}">对应的词语分布<img src="http://www.forkosh.com/mathtex.cgi?{beta}_{i,j}">；
+- 4 从狄利克雷分布$\eta$中取样生成主题$Z_{i,j}$对应的词语分布$\beta_{i,j}$ ；
 
-- 5 从词语的多项式分布<img src="http://www.forkosh.com/mathtex.cgi?{beta}_{i,j}">中采样最终生成词语<img src="http://www.forkosh.com/mathtex.cgi?{W}_{i,j}">
+- 5 从词语的多项式分布$\beta_{i,j}$中采样最终生成词语$W_{i,j}$
 
 &emsp;&emsp;从上面的过程可以看出，`LDA`在`pLSA`的基础上，为主题分布和词分布分别加了两个`Dirichlet`先验。
 
@@ -354,7 +354,7 @@ $\theta=(P(z_{k}|d_{i}),P(w_{j}|z_{k}))$就是我们要估计的参数,我们要
 
 <div  align="center"><img src="imgs/2.3.5.png" width = "490" height = "350" alt="LDA模型" align="center" /></div><br>
 
-&emsp;&emsp;`LDA`在`pLSA`的基础上给两参数<img src="http://www.forkosh.com/mathtex.cgi?P({z}_{k}|{d}_{i})">和<img src="http://www.forkosh.com/mathtex.cgi?P({w}_{j}|{z}_{k})">加了两个先验分布的参数。这两个分布都是`Dirichlet`分布。
+&emsp;&emsp;`LDA`在`pLSA`的基础上给两参数$P(z_{k}|d_{i})$和$P(w_{j}|z_{k})$加了两个先验分布的参数。这两个分布都是`Dirichlet`分布。
 下面是`LDA`的图模型结构：
 
 <div  align="center"><img src="imgs/LDA.png" width = "415" height = "195" alt="topic_words" align="center" /></div><br>
@@ -375,21 +375,21 @@ $\theta=(P(z_{k}|d_{i}),P(w_{j}|z_{k}))$就是我们要估计的参数,我们要
 
 <div  align="center"><img src="imgs/3.1.1.png" width = "255" height = "30" alt="topic_words" align="center" /></div><br>
 
-- <img src="http://www.forkosh.com/mathtex.cgi?{N}_{wj}">表示词`w`在文档`j`中出现的次数；
+- $N_{wj}$表示词`w`在文档`j`中出现的次数；
 
-- <img src="http://www.forkosh.com/mathtex.cgi?{N}_{wk}">表示词`w`在主题`k`中出现的次数，如公式**（3.1.2）**
+- $N_{wk}$表示词`w`在主题`k`中出现的次数，如公式**（3.1.2）**
 
 <div  align="center"><img src="imgs/3.1.2.png" width = "170" height = "60" alt="topic_words" align="center" /></div><br>
 
-- <img src="http://www.forkosh.com/mathtex.cgi?{N}_{kj}">表示主题`k`在文档`j`中出现的次数，如公式**（3.1.3）**
+- $N_{kj}$表示主题`k`在文档`j`中出现的次数，如公式**（3.1.3）**
 
 <div  align="center"><img src="imgs/3.1.3.png" width = "160" height = "55" alt="topic_words" align="center" /></div><br>
 
-- <img src="http://www.forkosh.com/mathtex.cgi?{N}_{k}">表示主题`k`中包含的词出现的总次数，如公式**（3.1.4）**
+- $N_{k}$表示主题`k`中包含的词出现的总次数，如公式**（3.1.4）**
 
 <div  align="center"><img src="imgs/3.1.4.png" width = "120" height = "50" alt="topic_words" align="center" /></div><br>
 
-- <img src="http://www.forkosh.com/mathtex.cgi?{N}_{j}">表示文档`j`中包含的主题出现的总次数,如公式**（3.1.5）**
+- $N_{j}$表示文档`j`中包含的主题出现的总次数,如公式**（3.1.5）**
 
 <div  align="center"><img src="imgs/3.1.5.png" width = "120" height = "50" alt="topic_words" align="center" /></div><br>
 
@@ -403,11 +403,11 @@ $\theta=(P(z_{k}|d_{i}),P(w_{j}|z_{k}))$就是我们要估计的参数,我们要
 
 &emsp;&emsp;变分`EM`算法的流程如下：
 
-- **1 初始化状态**，即随机初始化<img src="http://www.forkosh.com/mathtex.cgi?{N}_{wk}">和<img src="http://www.forkosh.com/mathtex.cgi?{N}_{kj}">
+- **1 初始化状态**，即随机初始化$N_{wk}$和$N_{kj}$
 
-- **2 E-步**，对每一个`（文档，词汇）`对`i`，计算<img src="http://www.forkosh.com/mathtex.cgi?P({z}_{i}|{w}_{i},{d}_{i})">，更新`gamma`值
+- **2 E-步**，对每一个`（文档，词汇）`对`i`，计算$P(z_{i}|w_{i},d_{i})$，更新`gamma`值
 
-- **3 M-步**，计算隐藏变量`phi`和`theta`。即计算<img src="http://www.forkosh.com/mathtex.cgi?{N}_{wk}">和<img src="http://www.forkosh.com/mathtex.cgi?{N}_{kj}">
+- **3 M-步**，计算隐藏变量`phi`和`theta`。即计算$N_{wk}$和$N_{kj}$
 
 - **4 重复以上2、3两步**，直到满足最大迭代数
 
@@ -430,7 +430,7 @@ $\theta=(P(z_{k}|d_{i}),P(w_{j}|z_{k}))$就是我们要估计的参数,我们要
 
 <div  align="center"><img src="imgs/3.2.3.png" width = "550" height = "50" alt="topic_words" align="center" /></div><br>
 
-&emsp;&emsp;我们现在将上面的期望扩展为变分参数的函数形式。这反映了变分目标只依赖于<img src="http://www.forkosh.com/mathtex.cgi?{n}_{dw}">，即词`w`出现在文档`d`中的次数。当使用`VB`算法时，文档可以通过它们的词频来汇总（`summarized`），如公式**(3.2.4)**
+&emsp;&emsp;我们现在将上面的期望扩展为变分参数的函数形式。这反映了变分目标只依赖于$n_{dw}$ ，即词`w`出现在文档`d`中的次数。当使用`VB`算法时，文档可以通过它们的词频来汇总（`summarized`），如公式**(3.2.4)**
 
 <div  align="center"><img src="imgs/3.2.4.png" width = "500" height = "110" alt="topic_words" align="center" /></div><br>
 
@@ -453,7 +453,7 @@ $\theta=(P(z_{k}|d_{i}),P(w_{j}|z_{k}))$就是我们要估计的参数,我们要
 
 <div  align="center"><img src="imgs/3.2.7.png" width = "260" height = "25" alt="topic_words" align="center" /></div><br>
 
-&emsp;&emsp;我们在**算法2**中介绍了在线`VB`算法。因为词频的第t个向量<img src="http://www.forkosh.com/mathtex.cgi?{n}_{t}">是可观察的，我们在`E-步`通过固定`lambda`来找到`gamma_t`和`phi_t`的局部最优解。
+&emsp;&emsp;我们在**算法2**中介绍了在线`VB`算法。因为词频的第t个向量$n_{t}$是可观察的，我们在`E-步`通过固定`lambda`来找到`gamma_t`和`phi_t`的局部最优解。
 然后，我们计算`lambda_cap`。如果整个语料库由单个文档重复`D`次组成，那么这样的`lambda_cap`设置是最优的。之后，我们通过`lambda`之前的值以及`lambda_cap`来更新`lambda`。我们给`lambda_cap`设置的权重如公式**(3.2.8)**所示：
 
 <div  align="center"><img src="imgs/3.2.8.png" width = "220" height = "30" alt="topic_words" align="center" /></div><br>
