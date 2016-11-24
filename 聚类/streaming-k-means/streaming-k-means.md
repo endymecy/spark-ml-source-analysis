@@ -11,8 +11,8 @@
 
 <div  align="center"><img src="imgs/streaming-k-means.1.2.png" width = "380" height = "25" alt="1.2" align="center" /></div><br />
 
-&emsp;&emsp;在上面的公式中，<img src="http://www.forkosh.com/mathtex.cgi?{c}_{t}">表示前一个簇中心，<img src="http://www.forkosh.com/mathtex.cgi?{n}_{t}">表示分配给这个簇的点的数量，
-<img src="http://www.forkosh.com/mathtex.cgi?{x}_{t}">表示从当前批数据的簇中心，<img src="http://www.forkosh.com/mathtex.cgi?{m}_{t}">表示当前批数据的点数量。
+&emsp;&emsp;在上面的公式中，$c_{t}$表示前一个簇中心，$n_{t}$表示分配给这个簇的点的数量，
+$x_{t}$表示从当前批数据的簇中心，$m_{t}$表示当前批数据的点数量。
 当评价新的数据时，把衰减因子`alpha`当做折扣加权应用到当前的点上，用以衡量当前预测的簇的贡献度量。当`alpha`等于1时，所有的批数据赋予相同的权重，当`alpha`等于0时，数据中心点完全通过当前数据确定。
 
 &emsp;&emsp;衰减因子`alpha`也可以通过`halfLife`参数联合时间单元（`time unit`）来确定，时间单元可以是一批数据也可以是一个数据点。假如数据从`t`时刻到来并定义了`halfLife`为`h`，
