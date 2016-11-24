@@ -85,7 +85,7 @@
 
 <div  align="center"><img src="imgs/question1.png" width = "430" height = "70" alt="问题1" align="center" /></div><br>
 
-&emsp;&emsp; 为解决这个问题，可以尝试计算<img src="http://www.forkosh.com/mathtex.cgi?{x}_{(k)}">落在区间`[x,x+delta x]`的概率。首先，把`[0,1]`区间分成三段`[0,x)`,`[x,x+delta x]`，`(x+delta x,1]`，然后考虑下简单的情形：即假设n个数中只有1个落在了区间`[x,x+delta x]`内，由于这个区间内的数`X(k)`是第k大的，所以`[0,x)`中应该有k−1个数，`(x+delta x,1]`这个区间中应该有n−k个数。
+&emsp;&emsp; 为解决这个问题，可以尝试计算$x_{(k)}$落在区间`[x,x+delta x]`的概率。首先，把`[0,1]`区间分成三段`[0,x)`,`[x,x+delta x]`，`(x+delta x,1]`，然后考虑下简单的情形：即假设n个数中只有1个落在了区间`[x,x+delta x]`内，由于这个区间内的数`X(k)`是第k大的，所以`[0,x)`中应该有k−1个数，`(x+delta x,1]`这个区间中应该有n−k个数。
 如下图所示：
 
 <div  align="center"><img src="imgs/1.5.1.png" width = "450" height = "140" alt="多项分布密度函数" align="center" /></div><br>
@@ -100,7 +100,7 @@
 
 &emsp;&emsp;其中，`o(delta x)`表示`delta x`的高阶无穷小。显然，由于不同的排列组合，即n个数中有一个落在`[x,x+delta x]`区间的有n种取法，余下n−1个数中有k−1个落在`[0,x)`的有`C(n-1,k-1)`种组合。所以和事件E等价的事件一共有`nC(n-1,k-1)`个。
 
-&emsp;&emsp;文献【1】中证明，只要落在`[x,x+delta x]`内的数字超过一个，则对应的事件的概率就是`o(delta x)`。所以<img src="http://www.forkosh.com/mathtex.cgi?{x}_{(k)}">的概率密度函数为：
+&emsp;&emsp;文献【1】中证明，只要落在`[x,x+delta x]`内的数字超过一个，则对应的事件的概率就是`o(delta x)`。所以$x_{(k)}$的概率密度函数为：
 
 <div  align="center"><img src="imgs/1.5.4.png" width = "340" height = "120" alt="概率密度函数" align="center" /></div><br>
 
@@ -122,7 +122,7 @@
 
 <div  align="center"><img src="imgs/question2.png" width = "500" height = "95" alt="问题2" align="center" /></div><br>
 
-&emsp;&emsp;第2步的条件可以用另外一句话来表述，即“`Yi`中有`m1`个比`X(k`)小，`m2`个比`X(k)`大”，所以`X(k)`是<img src="http://www.forkosh.com/mathtex.cgi?{X}_{(1)},{X}_{(2)},...,{X}_{(n)};{Y}_{(1)},{Y}_{(2)},...,{Y}_{(m)}">中k+m1大的数。
+&emsp;&emsp;第2步的条件可以用另外一句话来表述，即“`Yi`中有`m1`个比`X(k`)小，`m2`个比`X(k)`大”，所以`X(k)`是$X_{(1)},X_{(2)},...,X_{(n)};Y_{(1)},Y_{(2)},...,Y_{(m)}$中k+m1大的数。
 
 &emsp;&emsp;根据1.5.1的介绍，我们知道事件p服从`beta`分布,它的概率密度函数为：
 
@@ -242,12 +242,12 @@
 
 - 1 `w`表示词，`V`表示所有词的个数
 - 2 `z`表示主题，`k`表示主题的个数
-- 3  <img src="http://www.forkosh.com/mathtex.cgi?D=({W}_{1},{W}_{2},...,{W}_{M})">表示语料库，`M`表示语料库中的文档数。
-- 4  <img src="http://www.forkosh.com/mathtex.cgi?W=({w}_{1},{w}_{2},...,{w}_{N})">表示文档，`N`表示文档中词的个数。
+- 3  $D=(W_{1},W_{2},...,W_{M})$表示语料库，`M`表示语料库中的文档数。
+- 4  $W=(w_{1},w_{2},...,w_{N})$表示文档，`N`表示文档中词的个数。
 
 ## 2.1 一元模型(Unigram model)
 
-&emsp;&emsp;对于文档<img src="http://www.forkosh.com/mathtex.cgi?W=({w}_{1},{w}_{2},...,{w}_{N})">,用<img src="http://www.forkosh.com/mathtex.cgi?p({w}_{n})">表示<img src="http://www.forkosh.com/mathtex.cgi?{w}_{n}">的先验概率，生成文档W的概率为：
+&emsp;&emsp;对于文档$W=(w_{1},w_{2},...,w_{N})$ ,用$p(w_{n})$表示$w_{n}$的先验概率，生成文档W的概率为：
 
 <div  align="center"><img src="imgs/2.1.1.png" width = "165" height = "65" alt="一元模型" align="center" /></div><br>
 
@@ -284,29 +284,29 @@
 
 &emsp;&emsp;上述过程抽象出来即是`pLSA`的文档生成模型。在这个过程中，我们并未关注词和词之间的出现顺序，所以`pLSA`是一种词袋模型。定义如下变量:
 
-- <img src="http://www.forkosh.com/mathtex.cgi?({z}_{1},{z}_{2},...,{z}_{k})">表示隐藏的主题；
+- $(z_{1},z_{2},...,z_{k})$表示隐藏的主题；
 
-- <img src="http://www.forkosh.com/mathtex.cgi?P({d}_{i})">表示海量文档中某篇文档被选中的概率；
+- $P(d_{i})$表示海量文档中某篇文档被选中的概率；
 
-- <img src="http://www.forkosh.com/mathtex.cgi?P({w}_{j}|{d}_{i})">表示词<img src="http://www.forkosh.com/mathtex.cgi?{w}_{j}">在文档<img src="http://www.forkosh.com/mathtex.cgi?{d}_{i}">中出现的概率；针对海量文档，对所有文档进行分词后，得到一个词汇列表，这样每篇文档就是一个词语的集合。对于每个词语，用它在文档中出现的次数除以文档中词语总的数目便是它在文档中出现的概率；
+- $P(w_{j}|d_{i})$表示词$w_{j}$在文档$d_{i}$中出现的概率；针对海量文档，对所有文档进行分词后，得到一个词汇列表，这样每篇文档就是一个词语的集合。对于每个词语，用它在文档中出现的次数除以文档中词语总的数目便是它在文档中出现的概率；
 
-- <img src="http://www.forkosh.com/mathtex.cgi?P({z}_{k}|{d}_{i})">表示主题<img src="http://www.forkosh.com/mathtex.cgi?{z}_{k}">在文档<img src="http://www.forkosh.com/mathtex.cgi?{d}_{i}">中出现的概率；
+- $P(z_{k}|d_{i})$表示主题$z_{k}$在文档$d_{i}$中出现的概率；
 
-- <img src="http://www.forkosh.com/mathtex.cgi?P({w}_{j}|{z}_{k})">表示词<img src="http://www.forkosh.com/mathtex.cgi?{w}_{j}">在主题<img src="http://www.forkosh.com/mathtex.cgi?{z}_{k}">中出现的概率。与主题关系越密切的词其条件概率越大。
+- $P(w_{j}|z_{k})$表示词$w_{j}$在主题$z_{k}$中出现的概率。与主题关系越密切的词其条件概率越大。
 
 &emsp;&emsp;我们可以按照如下的步骤得到“文档-词项”的生成模型：
 
-- 1 按照<img src="http://www.forkosh.com/mathtex.cgi?P({d}_{i})">选择一篇文档<img src="http://www.forkosh.com/mathtex.cgi?{d}_{i}">；
+- 1 按照$P(d_{i})$选择一篇文档$d_{i}$ ；
 
-- 2 选定文档<img src="http://www.forkosh.com/mathtex.cgi?{d}_{i}">之后，从主题分布中按照概率<img src="http://www.forkosh.com/mathtex.cgi?P({z}_{k}|{d}_{i})">选择主题；
+- 2 选定文档$d_{i}$之后，从主题分布中按照概率$P(z_{k}|d_{i})$选择主题；
 
-- 3 选定主题后，从词分布中按照概率<img src="http://www.forkosh.com/mathtex.cgi?P({w}_{j}|{z}_{k})">选择一个词。
+- 3 选定主题后，从词分布中按照概率$P(w_{j}|z_{k})$选择一个词。
 
 &emsp;&emsp;利用看到的文档推断其隐藏的主题（分布）的过程，就是主题建模的目的：自动地发现文档集中的主题（分布）。文档`d`和单词`w`是可被观察到的，但主题`z`却是隐藏的。如下图所示（图中被涂色的`d、w`表示可观测变量，未被涂色的`z`表示未知的隐变量，`N`表示一篇文档中总共`N`个单词，`M`表示`M`篇文档）。
 
 <div  align="center"><img src="imgs/2.3.1.png" width = "300" height = "110" alt="pLSA模型" align="center" /></div><br>
 
-&emsp;&emsp;上图中，文档`d`和词`w`是我们得到的样本，可观测得到，所以对于任意一篇文档，其<img src="http://www.forkosh.com/mathtex.cgi?P({w}_{j}|{d}_{i})">是已知的。根据这个概率可以训练得到`文档-主题`概率以及`主题-词项`概率。即：
+&emsp;&emsp;上图中，文档`d`和词`w`是我们得到的样本，可观测得到，所以对于任意一篇文档，其$P(w_{j}|d_{i})$是已知的。根据这个概率可以训练得到`文档-主题`概率以及`主题-词项`概率。即：
 
 <div  align="center"><img src="imgs/2.3.2.png" width = "275" height = "65" alt="pLSA模型" align="center" /></div><br>
 
@@ -314,8 +314,8 @@
 
 <div  align="center"><img src="imgs/2.3.3.png" width = "450" height = "70" alt="pLSA模型" align="center" /></div><br>
 
-&emsp;&emsp;<img src="http://www.forkosh.com/mathtex.cgi?P({d}_{i})">可以直接得出，而<img src="http://www.forkosh.com/mathtex.cgi?P({z}_{k}|{d}_{i})">和<img src="http://www.forkosh.com/mathtex.cgi?P({w}_{j}|{z}_{k})">未知，所以
-<img src="http://www.forkosh.com/mathtex.cgi?theta=(P({z}_{k}|{d}_{i}),P({w}_{j}|{z}_{k}))">就是我们要估计的参数,我们要最大化这个参数。因为该待估计的参数中含有隐变量`z`，所以我们可以用`EM`算法来估计这个参数。
+&emsp;&emsp;$P(d_{i})$可以直接得出，而$P(z_{k}|d_{i})$和$P(w_{j}|z_{k})$未知，所以
+$\theta=(P(z_{k}|d_{i}),P(w_{j}|z_{k}))$就是我们要估计的参数,我们要最大化这个参数。因为该待估计的参数中含有隐变量`z`，所以我们可以用`EM`算法来估计这个参数。
 
 &emsp;&emsp;
 
