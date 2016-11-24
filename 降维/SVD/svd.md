@@ -18,7 +18,7 @@
 
 <div  align="center"><img src="imgs/1.6.png" width = "300" height = "35" alt="1.6" align="center" /></div><br>
 
-&emsp;&emsp;如果正交基`v`选择为<img src="http://www.forkosh.com/mathtex.cgi?{A}^{T}A">的特征向量的话，由于<img src="http://www.forkosh.com/mathtex.cgi?{A}^{T}A">是对称阵，`v`之间两两正交，那么
+&emsp;&emsp;如果正交基`v`选择为$A^{T}A$的特征向量的话，由于$A^{T}A$是对称阵，`v`之间两两正交，那么
 
 <div  align="center"><img src="imgs/1.7.png" width = "345" height = "40" alt="1.7" align="center" /></div><br>
 
@@ -59,10 +59,10 @@ val V: Matrix = svd.V // The V factor is a local dense matrix.
 
 ### 2.1 性能
 
-&emsp;&emsp;我们假设`n`比`m`小。奇异值和右奇异值向量可以通过方阵<img src="http://www.forkosh.com/mathtex.cgi?{A}^{T}A">的特征值和特征向量得到。左奇异向量通过<img src="http://www.forkosh.com/mathtex.cgi?AV{S}^{-1}">求得。
+&emsp;&emsp;我们假设`n`比`m`小。奇异值和右奇异值向量可以通过方阵$A^{T}A$的特征值和特征向量得到。左奇异向量通过$AVS^{-1}$求得。
 `ml`实际使用的方法方法依赖计算花费。
 
-- 当`n`很小（`n<100`）或者`k`比`n`大(`k>n/2`)，我们会首先计算方阵<img src="http://www.forkosh.com/mathtex.cgi?{A}^{T}A">，然后在`driver`本地计算它的`top`特征值和特征向量。它的空间复杂度是`O(n*n)`，时间复杂度是`O(n*n*k)`。
+- 当`n`很小（`n<100`）或者`k`比`n`大(`k>n/2`)，我们会首先计算方阵$A^{T}A$ ，然后在`driver`本地计算它的`top`特征值和特征向量。它的空间复杂度是`O(n*n)`，时间复杂度是`O(n*n*k)`。
 
 - 否则，我们用分布式的方式先计算<img src="http://www.forkosh.com/mathtex.cgi?{A}^{T}Av">,然后把它传给[ARPACK](http://www.caam.rice.edu/software/ARPACK/)在`driver`上计算`top`特征值和特征向量。它需要传递`O(k)`的数据，每个`executor`的空间复杂度是`O(n)`,`driver`的空间复杂度是`O(nk)`
 
@@ -80,7 +80,7 @@ def computeSVD(
     computeSVD(k, computeU, rCond, maxIter, tol, "auto")
 }
 ```
-&emsp;&emsp;`computeSVD(k, computeU, rCond, maxIter, tol, "auto")`的实现分为三步。分别是选择计算模式，<img src="http://www.forkosh.com/mathtex.cgi?{A}^{T}A">的特征值分解，计算`V`,`U`,`Sigma`。
+&emsp;&emsp;`computeSVD(k, computeU, rCond, maxIter, tol, "auto")`的实现分为三步。分别是选择计算模式，$A^{T}A$的特征值分解，计算`V`,`U`,`Sigma`。
 下面分别介绍这三步。
 
 - **1** 选择计算模式
@@ -128,7 +128,7 @@ def computeSVD(
         EigenValueDecomposition.symmetricEigs(multiplyGramianMatrixBy, n, k, tol, maxIter)
     }
 ```
-&emsp;&emsp;当计算模式是`SVDMode.LocalARPACK`和`SVDMode.LocalLAPACK`时，程序实现的步骤是先获取方阵<img src="http://www.forkosh.com/mathtex.cgi?{A}^{T}A">，在计算其特征值和特征向量。
+&emsp;&emsp;当计算模式是`SVDMode.LocalARPACK`和`SVDMode.LocalLAPACK`时，程序实现的步骤是先获取方阵$A^{T}A$ ，在计算其特征值和特征向量。
 获取方阵无需赘述，我们只需要注意它无法处理列大于65535的矩阵。我们分别看这两种模式下，如何获取特征值和特征向量。
 
 &emsp;&emsp;在`SVDMode.LocalARPACK`模式下，使用`EigenValueDecomposition.symmetricEigs(v => G * v, n, k, tol, maxIter)`计算特征值和特征向量。在`SVDMode.LocalLAPACK`模式下，直接使用`breeze`的方法计算。
