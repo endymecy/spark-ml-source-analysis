@@ -120,7 +120,7 @@ def normalize(similarities: RDD[(Long, Long, Double)]): Graph[Double, Double] = 
   }
 ```
 &emsp;&emsp;上面的代码首先通过边集合构造图`gA`,然后使用`aggregateMessages`计算每个顶点的度（即所有从该顶点出发的边的相似度之和），构造出`VertexRDD`。最后使用现有的`VertexRDD`和`EdgeRDD`，
-相继通过`fromExistingRDDs`和`mapTriplets`方法计算得到最终的图`W`。在`mapTriplets`方法中，对每一个`EdgeTriplet`，使用相似度除以出发顶点的度（为什么相除？对角矩阵的逆矩阵是各元素取倒数，<img src="http://www.forkosh.com/mathtex.cgi?W={D}^{-1}A">就可以通过元素相除得到）。
+相继通过`fromExistingRDDs`和`mapTriplets`方法计算得到最终的图`W`。在`mapTriplets`方法中，对每一个`EdgeTriplet`，使用相似度除以出发顶点的度（为什么相除？对角矩阵的逆矩阵是各元素取倒数，$W=D^{-1}A$就可以通过元素相除得到）。
 
 &emsp;&emsp;下面举个例子来说明这个步骤。假设有`v1,v2,v3,v4`四个点，它们之间的关系如下图所示，并且假设点与点之间的相似度均设为1。
 
@@ -135,11 +135,11 @@ def normalize(similarities: RDD[(Long, Long, Double)]): Graph[Double, Double] = 
 
 <div  align="center"><img src="imgs/PIC.1.5.png" width = "480" height = "175" alt="1.5" align="center" /></div><br />
 
-&emsp;&emsp;通过代码计算的结果和通过矩阵运算得到的结果一致。因此该代码实现了<img src="http://www.forkosh.com/mathtex.cgi?W={D}^{-1}A">。
+&emsp;&emsp;通过代码计算的结果和通过矩阵运算得到的结果一致。因此该代码实现了$W=D^{-1}A$ 。
 
-- **（2）初始化<img src="http://www.forkosh.com/mathtex.cgi?{v}^{0}">**
+- **（2）初始化$v^{0}$**
 
-&emsp;&emsp;根据选择的初始化模式的不同，我们可以使用不同的方法初始化<img src="http://www.forkosh.com/mathtex.cgi?{v}^{0}">。一种方式是随机初始化，一种方式是度（`degree`）初始化，下面分别来介绍这两种方式。
+&emsp;&emsp;根据选择的初始化模式的不同，我们可以使用不同的方法初始化$v^{0}$ 。一种方式是随机初始化，一种方式是度（`degree`）初始化，下面分别来介绍这两种方式。
 
 - 随机初始化
 
@@ -171,7 +171,7 @@ def normalize(similarities: RDD[(Long, Long, Double)]): Graph[Double, Double] = 
     GraphImpl.fromExistingRDDs(VertexRDD(v0), g.edges)
   }
 ```
-&emsp;&emsp;通过初始化之后，我们获得了向量<img src="http://www.forkosh.com/mathtex.cgi?{v}^{0}">。它包含所有的顶点，但是顶点特征值发生了改变。随机初始化后，特征值为随机值；度初始化后，特征为度的平均值。
+&emsp;&emsp;通过初始化之后，我们获得了向量$v^{0}$ 。它包含所有的顶点，但是顶点特征值发生了改变。随机初始化后，特征值为随机值；度初始化后，特征为度的平均值。
 
 &emsp;&emsp;在这里，度初始化的向量我们称为“度向量”。度向量会给图中度大的节点分配更多的初始化权重，使其值可以更平均和快速的分布，从而更快的局部收敛。详细情况请参考文献【1】。
 
@@ -199,7 +199,7 @@ for (iter <- 0 until maxIterations if math.abs(diffDelta) > tol) {
       prevDelta = delta
     }
 ```
-&emsp;&emsp;在上述代码中，我们通过`aggregateMessages`方法计算<img src="http://www.forkosh.com/mathtex.cgi?W{v}^{t}">。我们仍然以第（1）步的举例来说明这个方法。假设我们以度来初始化<img src="http://www.forkosh.com/mathtex.cgi?{v}^{0}">，
+&emsp;&emsp;在上述代码中，我们通过`aggregateMessages`方法计算$Wv^{t}$ 。我们仍然以第（1）步的举例来说明这个方法。假设我们以度来初始化$v^{0}$ ，
 在第一次迭代中，我们可以得到`v1`（注意这里的`v1`是上面举例的顶点）的特征值为`(1/3)*(3/10)+(1/3)*(1/5)+(1/3)*(1/5)=7/30`，`v2`的特征值为`7/30`，`v3`的特征值为`3/10`,`v4`的特征值为`3/10`。即满足下面的公式。
 
 <div  align="center"><img src="imgs/PIC.1.6.png" width = "340" height = "180" alt="1.6" align="center" /></div><br />
