@@ -16,11 +16,11 @@
 
 <div  align="center"><img src="imgs/1.1.png" width = "340" height = "35" alt="1.1" align="center" /></div><br>
 
-&emsp;&emsp;若丢弃新坐标系中的部分坐标，将维度降到`d'`，则样本点<img src="http://www.forkosh.com/mathtex.cgi?{x}_{i}">在低位坐标系中的投影是<img src="http://www.forkosh.com/mathtex.cgi?{z}_{i}">：
+&emsp;&emsp;若丢弃新坐标系中的部分坐标，将维度降到`d'`，则样本点$x_{i}$在低位坐标系中的投影是$z_{i}$ ：
 
 <div  align="center"><img src="imgs/1.2.png" width = "270" height = "35" alt="1.2" align="center" /></div><br>
 
-&emsp;&emsp;这里<img src="http://www.forkosh.com/mathtex.cgi?{z}_{ij}">是<img src="http://www.forkosh.com/mathtex.cgi?{x}_{i}">在低维坐标系下第`j`维的坐标。若基于<img src="http://www.forkosh.com/mathtex.cgi?{z}_{i}">来重构<img src="http://www.forkosh.com/mathtex.cgi?{x}_{i}">，那么可以得到
+&emsp;&emsp;这里$z_{ij}$是$x_{i}$在低维坐标系下第`j`维的坐标。若基于$z_{i}$来重构$x_{i}$ ，那么可以得到
 
 <div  align="center"><img src="imgs/1.3.png" width = "130" height = "70" alt="1.3" align="center" /></div><br>
 
@@ -34,7 +34,7 @@
 
 ### 1.2 最大可分性
 
-&emsp;&emsp;从最大可分性出发，我们可以得到主成分分析的另一种解释。我们知道，样本点<img src="http://www.forkosh.com/mathtex.cgi?{x}_{i}">在新空间中超平面上的投影是<img src="http://www.forkosh.com/mathtex.cgi?{W}^{T}{x}_{i}">，
+&emsp;&emsp;从最大可分性出发，我们可以得到主成分分析的另一种解释。我们知道，样本点$x_{i}$在新空间中超平面上的投影是$W^{T}x_{i}$ ，
 若所有样本点的投影能尽可能分开，则应该使投影后样本点的方差最大化。投影后样本点的方差是
 
 <div  align="center"><img src="imgs/1.6.png" width = "135" height = "60" alt="1.6" align="center" /></div><br>
