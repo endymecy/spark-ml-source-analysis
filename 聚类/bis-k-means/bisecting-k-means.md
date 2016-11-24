@@ -19,7 +19,7 @@
 
 - （1）把所有数据初始化为一个簇，将这个簇分为两个簇。
 
-- （2）选择满足条件的可以分解的簇。选择条件综合考虑簇的元素个数以及聚类代价（也就是误差平方和`SSE`），误差平方和的公式如下所示，其中<img src="http://www.forkosh.com/mathtex.cgi?{w}_{i}">表示权重值，<img src="http://www.forkosh.com/mathtex.cgi?{y}^{*}">表示该簇所有点的平均值。
+- （2）选择满足条件的可以分解的簇。选择条件综合考虑簇的元素个数以及聚类代价（也就是误差平方和`SSE`），误差平方和的公式如下所示，其中$w_{(i)}$表示权重值，$y^{*}$表示该簇所有点的平均值。
 
 <div  align="center"><img src="imgs/dis-k-means.1.1.png" width = "195" height = "60" alt="1.1" align="center" /></div><br />
 
