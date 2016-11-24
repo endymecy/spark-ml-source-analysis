@@ -15,13 +15,13 @@
 
 &emsp;&emsp;我们看到一篇文章后，往往会推测这篇文章是如何生成的，我们通常认为作者会先确定几个主题，然后围绕这几个主题遣词造句写成全文。`LDA`要干的事情就是根据给定的文档，判断它的主题分布。在`LDA`模型中，生成文档的过程有如下几步：
 
-- 从狄利克雷分布<img src="http://www.forkosh.com/mathtex.cgi?{alpha}">中生成文档i的主题分布<img src="http://www.forkosh.com/mathtex.cgi?{theta}_{i}">；
+- 从狄利克雷分布$\alpha$中生成文档i的主题分布$\theta_{i}$ ；
 
-- 从主题的多项式分布<img src="http://www.forkosh.com/mathtex.cgi?{theta}_{i}">中取样生成文档i第j个词的主题<img src="http://www.forkosh.com/mathtex.cgi?{Z}_{i,j}">；
+- 从主题的多项式分布$\theta_{i}$中取样生成文档i第j个词的主题$Z_{i,j}$ ；
 
-- 从狄利克雷分布<img src="http://www.forkosh.com/mathtex.cgi?{eta}">中取样生成主题<img src="http://www.forkosh.com/mathtex.cgi?{Z}_{i,j}">对应的词语分布<img src="http://www.forkosh.com/mathtex.cgi?{beta}_{i,j}">；
+- 从狄利克雷分布$\eta$中取样生成主题$Z_{i,j}$对应的词语分布$\beta_{i,j}$ ；
 
-- 从词语的多项式分布<img src="http://www.forkosh.com/mathtex.cgi?{beta}_{i,j}">中采样最终生成词语<img src="http://www.forkosh.com/mathtex.cgi?{W}_{i,j}">
+- 从词语的多项式分布$\beta_{i,j}$中采样最终生成词语$W_{i,j}$ .
 
 &emsp;&emsp;`LDA`的图模型结构如下图所示：
 
