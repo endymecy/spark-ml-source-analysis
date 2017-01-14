@@ -3,11 +3,11 @@
 # 1 数学描述
 
 &emsp;&emsp;许多标准的机器学习算法可以归结为凸优化问题。例如，找到凸函数`f`的一个极小值的任务，这个凸函数依赖于可变向量`w`（在`spark`源码中，一般表示为`weights`）。
-形式上，我们可以将其当作一个凸优化问题<img src="http://www.forkosh.com/mathtex.cgi?{min}_{w}f(w)">。它的目标函数可以表示为如下公式**(1)**：
+形式上，我们可以将其当作一个凸优化问题${min}_{w}f(w)$。它的目标函数可以表示为如下公式**(1)**：
 
 <div  align="center"><img src="imgs/introduce1.png" width = "280" height = "60" alt="objective function" align="center" /></div><br>
 
-&emsp;&emsp;在上式中，向量`x`表示训练数据集，`y`表示它相应的标签，也是我们想预测的值。如果`L(w;x,y)`可以表示为<img src="http://www.forkosh.com/mathtex.cgi?{w}^{T}x">和`y`的函数，
+&emsp;&emsp;在上式中，向量`x`表示训练数据集，`y`表示它相应的标签，也是我们想预测的值。如果`L(w;x,y)`可以表示为${w}^{T}x$和`y`的函数，
 我们称这个方法为线性的。`spark.mllib`中的几种分类算法和回归算法可以归为这一类。
 
 &emsp;&emsp;目标函数`f`包含两部分：正则化(`regularizer `)，用于控制模型的复杂度；损失函数，用于度量模型的误差。损失函数`L(w;.)`是一个典型的基于`w`的凸函数。固定的正则化参数`gamma`定义了两种目标的权衡（`trade-off`）,

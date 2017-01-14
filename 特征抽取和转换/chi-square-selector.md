@@ -67,7 +67,7 @@ val filteredData = discretizedData.map { lp =>
 - 另一方面，残差大小是一个相对的概念，相对于期望频数为10时，期望频数为20的残差非常大，但相对于期望频数为1000时20的残差就很小了。
 考虑到这一点，人们又将残差平方除以期望频数再求和，以估计观察频数与期望频数的差别。
 
-&emsp;&emsp;进行上述操作之后，就得到了常用的<img src="http://www.forkosh.com/mathtex.cgi?{X}^{2}">统计量。其计算公式是：
+&emsp;&emsp;进行上述操作之后，就得到了常用的${X}^{2}$统计量。其计算公式是：
 
 <div  align="center"><img src="imgs/5.1.png" width = "430" height = "70" alt="5.1" align="center" /></div><br>
 
