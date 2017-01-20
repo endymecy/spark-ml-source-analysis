@@ -29,7 +29,7 @@ $$minimize_{x}\frac{1}{2} \sum_{i=1}^n \frac{w_i(a_i^T x -b_i)^2}{\sum_{k=1}^n w
 private[ml] class WeightedLeastSquares(
     val fitIntercept: Boolean,  //是否使用截距
     val regParam: Double,    //L2正则化参数，指上面公式中的lambda
-    val elasticNetParam: Double,  // alpha
+    val elasticNetParam: Double,  // alpha，控制L1和L2正则化
     val standardizeFeatures: Boolean, // 是否标准化特征
     val standardizeLabel: Boolean,  // 是否标准化标签
     val solverType: WeightedLeastSquares.Solver = WeightedLeastSquares.Auto,
@@ -45,7 +45,7 @@ private[ml] class WeightedLeastSquares(
 `standardizeLabel`决定是否标准化标签，如果为真，则$\delta$是标签b的总体标准差，否则$\delta$为1。`solverType`指定求解的类型，有`Auto`，`Cholesky`
 和`QuasiNewton`三种选择。`tol`表示迭代的收敛阈值，仅仅在`solverType`为`QuasiNewton`时可用。
 
-### 2.1 训练过程
+### 2.1 求解过程
 
 &emsp;&emsp;`WeightedLeastSquares`接收一个包含（标签，权重，特征）的`RDD`，使用`fit`方法训练，并返回`WeightedLeastSquaresModel`。
 
@@ -206,6 +206,108 @@ val aaBar = {
 val aaBarValues = aaBar.values
 ```
 - <b>2 处理L2正则项</b>
+
+```scala
+val effectiveRegParam = regParam / bStd
+val effectiveL1RegParam = elasticNetParam * effectiveRegParam
+val effectiveL2RegParam = (1.0 - elasticNetParam) * effectiveRegParam
+
+// 添加L2正则项到对角矩阵中
+var i = 0
+var j = 2
+while (i < triK) {
+   var lambda = effectiveL2RegParam
+   if (!standardizeFeatures) { 
+       val std = aStdValues(j - 2)
+       if (std != 0.0) {
+          lambda /= (std * std) //正则项标准化
+       } else {
+          lambda = 0.0
+       }
+   }
+   if (!standardizeLabel) {
+        lambda *= bStd
+   }
+   aaBarValues(i) += lambda
+   i += j
+   j += 1
+}
+```
+
+- <b>3 选择solver</b>
+
+&emsp;&emsp;`WeightedLeastSquares`实现了`CholeskySolver`和`QuasiNewtonSolver`两种不同的求解方法。当没有正则化项时，
+选择`CholeskySolver`求解，否则用`QuasiNewtonSolver`求解。
+
+```scala
+val solver = if ((solverType == WeightedLeastSquares.Auto && elasticNetParam != 0.0 &&
+      regParam != 0.0) || (solverType == WeightedLeastSquares.QuasiNewton)) {
+      val effectiveL1RegFun: Option[(Int) => Double] = if (effectiveL1RegParam != 0.0) {
+        Some((index: Int) => {
+            if (fitIntercept && index == numFeatures) {
+              0.0
+            } else {
+              if (standardizeFeatures) {
+                effectiveL1RegParam
+              } else {
+                if (aStdValues(index) != 0.0) effectiveL1RegParam / aStdValues(index) else 0.0
+              }
+            }
+          })
+      } else {
+        None
+      }
+      new QuasiNewtonSolver(fitIntercept, maxIter, tol, effectiveL1RegFun)
+    } else {
+      new CholeskySolver
+    }
+```
+
+&emsp;&emsp;`CholeskySolver`和`QuasiNewtonSolver`的详细分析会在另外的专题进行描述。
+
+- <b>4 处理结果</b>
+
+```scala
+val solution = solver match {
+      case cholesky: CholeskySolver =>
+        try {
+          cholesky.solve(bBar, bbBar, ab, aa, aBar)
+        } catch {
+          // if Auto solver is used and Cholesky fails due to singular AtA, then fall back to
+          // Quasi-Newton solver.
+          case _: SingularMatrixException if solverType == WeightedLeastSquares.Auto =>
+            logWarning("Cholesky solver failed due to singular covariance matrix. " +
+              "Retrying with Quasi-Newton solver.")
+            // ab and aa were modified in place, so reconstruct them
+            val _aa = getAtA(aaBarValues, aBarValues)
+            val _ab = getAtB(abBarValues, bBar)
+            val newSolver = new QuasiNewtonSolver(fitIntercept, maxIter, tol, None)
+            newSolver.solve(bBar, bbBar, _ab, _aa, aBar)
+        }
+      case qn: QuasiNewtonSolver =>
+        qn.solve(bBar, bbBar, ab, aa, aBar)
+    }
+
+    val (coefficientArray, intercept) = if (fitIntercept) {
+      (solution.coefficients.slice(0, solution.coefficients.length - 1),
+        solution.coefficients.last * bStd)
+    } else {
+      (solution.coefficients, 0.0)
+    }
+```
+&emsp;&emsp;上面代码的异常处理需要注意一下。在`AtA`是奇异矩阵的情况下，乔里斯基分解会报错，这时需要用拟牛顿方法求解。
+
+&emsp;&emsp;以上的结果是在标准空间中，所以我们需要将结果从标准空间转换到原来的空间。
+
+```scala
+// convert the coefficients from the scaled space to the original space
+var q = 0
+val len = coefficientArray.length
+while (q < len) {
+   coefficientArray(q) *= { if (aStdValues(q) != 0.0) bStd / aStdValues(q) else 0.0 }
+   q += 1
+}
+```
 
 
 
