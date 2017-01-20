@@ -25,27 +25,30 @@
 ### 2.1 实例
 
 ```scala
-import org.apache.spark.mllib.regression.LabeledPoint
-import org.apache.spark.mllib.regression.LinearRegressionModel
-import org.apache.spark.mllib.regression.LinearRegressionWithSGD
-import org.apache.spark.mllib.linalg.Vectors
-// 获取数据
-val data = sc.textFile("data/mllib/ridge-data/lpsa.data")
-val parsedData = data.map { line =>
-  val parts = line.split(',')
-  LabeledPoint(parts(0).toDouble, Vectors.dense(parts(1).split(' ').map(_.toDouble)))
-}.cache()
-//训练模型
-val numIterations = 100
-val stepSize = 0.00000001
-val model = LinearRegressionWithSGD.train(parsedData, numIterations, stepSize)
-// 评价
-val valuesAndPreds = parsedData.map { point =>
-  val prediction = model.predict(point.features)
-  (point.label, prediction)
-}
-val MSE = valuesAndPreds.map{case(v, p) => math.pow((v - p), 2)}.mean()
-println("training Mean Squared Error = " + MSE)
+import org.apache.spark.ml.regression.LinearRegression
+
+// 加载数据
+val training = spark.read.format("libsvm")
+  .load("data/mllib/sample_linear_regression_data.txt")
+
+val lr = new LinearRegression()
+  .setMaxIter(10)
+  .setRegParam(0.3)
+  .setElasticNetParam(0.8)
+
+// 训练模型
+val lrModel = lr.fit(training)
+
+// 打印线性回归的系数和截距
+println(s"Coefficients: ${lrModel.coefficients} Intercept: ${lrModel.intercept}")
+
+// 打印统计信息
+val trainingSummary = lrModel.summary
+println(s"numIterations: ${trainingSummary.totalIterations}")
+println(s"objectiveHistory: [${trainingSummary.objectiveHistory.mkString(",")}]")
+trainingSummary.residuals.show()
+println(s"RMSE: ${trainingSummary.rootMeanSquaredError}")
+println(s"r2: ${trainingSummary.r2}")
 ```
 
 ### 2.2 代码实现
