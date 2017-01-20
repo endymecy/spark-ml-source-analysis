@@ -117,7 +117,7 @@ val instances: RDD[Instance] = dataset.select(
 }
 ```
 &emsp;&emsp;当样本的特征维度小于4096时，用`WeightedLeastSquares`求解，这是因为`WeightedLeastSquares`只需要处理一次数据，
-求解效率更高。`WeightedLeastSquares`的介绍见[带权最小二乘](../WeightsLeastSquares.md)。
+求解效率更高。`WeightedLeastSquares`的介绍见[带权最小二乘](../../../最优化算法/WeightsLeastSquares.md)。
 
 ```scala
 if (($(solver) == "auto" &&
