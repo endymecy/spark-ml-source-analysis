@@ -97,7 +97,7 @@ private class Aggregator extends Serializable {
       bbSum += w * l * l
       BLAS.axpy(w, f, aSum)
       BLAS.axpy(w * l, f, abSum)
-      BLAS.spr(w, f, aaSum)
+      BLAS.spr(w, f, aaSum) // wff^T
       this
     }
     
@@ -127,12 +127,12 @@ private class Aggregator extends Serializable {
 &emsp;&emsp;`Aggregator`类给出了以下一些统计信息：
 
 ```
-aBar: 带权的特征均值
-bBar: 带权的标签均值
-aaBar: 带权的特征平方均值
-bbBar: 带权的标签平方均值
-aStd: 带权的特征总体标准差
-bStd: 带权的标签总体标准差
+aBar: 特征加权平均数
+bBar: 标签加权平均数
+aaBar: 特征平方加权平均数
+bbBar: 标签平方加权平均数
+aStd: 特征的加权总体标准差
+bStd: 标签的加权总体标准差
 aVar: 带权的特征总体方差
 ```
 

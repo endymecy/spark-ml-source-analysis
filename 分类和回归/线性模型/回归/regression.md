@@ -53,6 +53,8 @@ println(s"r2: ${trainingSummary.r2}")
 
 ### 2.2 代码实现
 
+#### 2.2.1 参数配置
+
 &emsp;&emsp;根据上面的例子，我们先看看线性回归可以配置的参数。
 
 ```scala
@@ -99,3 +101,46 @@ setDefault(solver -> "auto")
 def setAggregationDepth(value: Int): this.type = set(aggregationDepth, value)
 setDefault(aggregationDepth -> 2)
 ```
+#### 2.2.2 训练模型
+
+&emsp;&emsp;`train`方法训练模型并返回`LinearRegressionModel`。方法的开始是处理数据集，生成需要的`RDD`。
+
+```scala
+// Extract the number of features before deciding optimization solver.
+val numFeatures = dataset.select(col($(featuresCol))).first().getAs[Vector](0).size
+val w = if (!isDefined(weightCol) || $(weightCol).isEmpty) lit(1.0) else col($(weightCol))
+
+val instances: RDD[Instance] = dataset.select(
+    col($(labelCol)), w, col($(featuresCol))).rdd.map {
+    case Row(label: Double, weight: Double, features: Vector) =>
+        Instance(label, weight, features)  // 标签，权重，特征向量
+}
+```
+&emsp;&emsp;当样本的特征维度小于4096时，用`WeightedLeastSquares`求解，这是因为`WeightedLeastSquares`只需要处理一次数据，
+求解效率更高。`WeightedLeastSquares`的介绍见[带权最小二乘](../WeightsLeastSquares.md)。
+
+```scala
+if (($(solver) == "auto" &&
+    numFeatures <= WeightedLeastSquares.MAX_NUM_FEATURES) || $(solver) == "normal") {
+    
+    val optimizer = new WeightedLeastSquares($(fitIntercept), $(regParam),
+        elasticNetParam = $(elasticNetParam), $(standardization), true,
+        solverType = WeightedLeastSquares.Auto, maxIter = $(maxIter), tol = $(tol))
+    val model = optimizer.fit(instances)
+    // When it is trained by WeightedLeastSquares, training summary does not
+    // attach returned model.
+    val lrModel = copyValues(new LinearRegressionModel(uid, model.coefficients, model.intercept))
+    val (summaryModel, predictionColName) = lrModel.findSummaryModelAndPredictionCol()
+    val trainingSummary = new LinearRegressionTrainingSummary(
+        summaryModel.transform(dataset),
+        predictionColName,
+        $(labelCol),
+        $(featuresCol),
+        summaryModel,
+        model.diagInvAtWA.toArray,
+        model.objectiveHistory)
+
+    return lrModel.setSummary(Some(trainingSummary))
+}
+```
+
