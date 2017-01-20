@@ -53,129 +53,49 @@ println(s"r2: ${trainingSummary.r2}")
 
 ### 2.2 代码实现
 
-&emsp;&emsp;和逻辑回归一样，训练过程均使用`GeneralizedLinearModel`中的`run`训练，只是训练使用的`Gradient`和`Updater`不同。在一般的线性回归中，使用`LeastSquaresGradient`计算梯度，使用`SimpleUpdater`进行更新。
-它的实现过程分为4步。参加[逻辑回归](../逻辑回归/logic-regression.md)了解这五步的详细情况。我们只需要了解`LeastSquaresGradient`和`SimpleUpdater`的实现。
-
-&emsp;&emsp;普通线性回归的损失函数是最小二乘损失，如上面的公式**（1）**所示。
+&emsp;&emsp;根据上面的例子，我们先看看线性回归可以配置的参数。
 
 ```scala
-class LeastSquaresGradient extends Gradient {
-  override def compute(data: Vector, label: Double, weights: Vector): (Vector, Double) = {
-    //diff = xw-y
-    val diff = dot(data, weights) - label
-    val loss = diff * diff / 2.0
-    val gradient = data.copy
-    //gradient = diff * gradient
-    scal(diff, gradient)
-    (gradient, loss)
+// 正则化参数，默认为0，对应于优化算法中的lambda
+def setRegParam(value: Double): this.type = set(regParam, value)
+setDefault(regParam -> 0.0)
+
+// 是否使用截距，默认使用
+def setFitIntercept(value: Boolean): this.type = set(fitIntercept, value)
+setDefault(fitIntercept -> true)
+
+// 在训练模型前，是否对训练特征进行标准化。默认使用。
+// 模型的相关系数总是会返回原来的空间（不是标准化后的标准空间），所以这个过程对用户透明
+def setStandardization(value: Boolean): this.type = set(standardization, value)
+setDefault(standardization -> true)
+
+// ElasticNet混合参数
+// 当改值为0时，使用L2惩罚；当该值为1时，使用L1惩罚；当值在(0,1)之间时，使用L1惩罚和L2惩罚的组合
+def setElasticNetParam(value: Double): this.type = set(elasticNetParam, value)
+setDefault(elasticNetParam -> 0.0)
+
+// 最大迭代次数，默认是100
+def setMaxIter(value: Int): this.type = set(maxIter, value)
+setDefault(maxIter -> 100)
+
+// 收敛阈值
+def setTol(value: Double): this.type = set(tol, value)
+setDefault(tol -> 1E-6)
+
+// 样本权重列的列名。默认不设置。当不设置时，样本权重为1
+def setWeightCol(value: String): this.type = set(weightCol, value)
+
+// 最优化求解方法。实际有l-bfgs和带权最小二乘两种求解方法。
+// 当特征列数量超过4096时，默认使用l-bfgs求解，否则使用带权最小二乘求解。
+def setSolver(value: String): this.type = {
+    require(Set("auto", "l-bfgs", "normal").contains(value),
+      s"Solver $value was not supported. Supported options: auto, l-bfgs, normal")
+    set(solver, value)
   }
-  override def compute(
-      data: Vector,
-      label: Double,
-      weights: Vector,
-      cumGradient: Vector): Double = {
-    //diff = xw-y
-    val diff = dot(data, weights) - label
-    //计算梯度
-    //cumGradient += diff * data
-    axpy(diff, data, cumGradient)
-    diff * diff / 2.0
-  }
-}
+setDefault(solver -> "auto")
+
+// 设置treeAggregate的深度。默认情况下深度为2
+// 当特征维度较大或者分区较多时，可以调大该深度
+def setAggregationDepth(value: Int): this.type = set(aggregationDepth, value)
+setDefault(aggregationDepth -> 2)
 ```
-&emsp;&emsp;普通线性回归的不适用正则化方法，所以它用`SimpleUpdater`实现`Updater`。
-
-```scala
-class SimpleUpdater extends Updater {
-  override def compute(
-      weightsOld: Vector,
-      gradient: Vector,
-      stepSize: Double,
-      iter: Int,
-      regParam: Double): (Vector, Double) = {
-    val thisIterStepSize = stepSize / math.sqrt(iter)
-    val brzWeights: BV[Double] = weightsOld.toBreeze.toDenseVector
-    //计算 y += x * a，即 brzWeights -= thisIterStepSize * gradient.toBreeze
-    //梯度下降方向
-    brzAxpy(-thisIterStepSize, gradient.toBreeze, brzWeights)
-    (Vectors.fromBreeze(brzWeights), 0)
-  }
-}
-```
-&emsp;&emsp;这里`thisIterStepSize`表示参数沿负梯度方向改变的速率，它随着迭代次数的增多而减小。
-
-## 3 Lasso回归源码分析
-
-&emsp;&emsp;`lasso`回归和普通线性回归不同的地方是，它使用`L1`正则化方法。即使用`L1Updater`。
-
-```scala
-class L1Updater extends Updater {
-  override def compute(
-      weightsOld: Vector,
-      gradient: Vector,
-      stepSize: Double,
-      iter: Int,
-      regParam: Double): (Vector, Double) = {
-    val thisIterStepSize = stepSize / math.sqrt(iter)
-    //计算 y += x * a，即 brzWeights -= thisIterStepSize * gradient.toBreeze
-    //梯度下降方向
-    val brzWeights: BV[Double] = weightsOld.toBreeze.toDenseVector
-    brzAxpy(-thisIterStepSize, gradient.toBreeze, brzWeights)
-    // Apply proximal operator (soft thresholding)
-    val shrinkageVal = regParam * thisIterStepSize
-    var i = 0
-    val len = brzWeights.length
-    while (i < len) {
-      val wi = brzWeights(i)
-      brzWeights(i) = signum(wi) * max(0.0, abs(wi) - shrinkageVal)
-      i += 1
-    }
-    (Vectors.fromBreeze(brzWeights), brzNorm(brzWeights, 1.0) * regParam)
-  }
-}
-```
-&emsp;&emsp;这个类解决`L1`范式正则化问题。这里`thisIterStepSize`表示参数沿负梯度方向改变的速率，它随着迭代次数的增多而减小。该实现没有使用[线性模型](../readme.md)中介绍的子梯度方法，而是使用了邻近算子（`proximal operator`）来解决，该方法的结果拥有更好的稀疏性。
-`L1`范式的邻近算子是软阈值（`soft-thresholding`）函数。
-
-- 当`w >  shrinkageVal`时，权重组件等于`w-shrinkageVal`
-
-- 当`w < -shrinkageVal`时，权重组件等于`w+shrinkageVal`
-
-- 当`-shrinkageVal < w < shrinkageVal`时，权重组件等于0
-
-&emsp;&emsp;`signum`函数是子梯度函数，当`w<0`时，返回-1，当`w>0`时，返回1，当`w=0`时，返回0。
-
-## 4 ridge回归源码分析
-
-&emsp;&emsp;`ridge`回归的训练过程也是一样，它使用`L2`正则化方法。
-
-```scala
-class SquaredL2Updater extends Updater {
-  override def compute(
-      weightsOld: Vector,
-      gradient: Vector,
-      stepSize: Double,
-      iter: Int,
-      regParam: Double): (Vector, Double) = {
-    // w' = w - thisIterStepSize * (gradient + regParam * w)
-    // w' = (1 - thisIterStepSize * regParam) * w - thisIterStepSize * gradient
-    //表示步长，即负梯度方向的大小
-    val thisIterStepSize = stepSize / math.sqrt(iter)
-    val brzWeights: BV[Double] = weightsOld.toBreeze.toDenseVector
-    //正则化，brzWeights每行数据均乘以(1.0 - thisIterStepSize * regParam)
-    brzWeights :*= (1.0 - thisIterStepSize * regParam)
-    //y += x * a，即brzWeights -= gradient * thisInterStepSize
-    brzAxpy(-thisIterStepSize, gradient.toBreeze, brzWeights)
-    //正则化||w||_2
-    val norm = brzNorm(brzWeights, 2.0)
-    (Vectors.fromBreeze(brzWeights), 0.5 * regParam * norm * norm)
-  }
-}
-```
-&emsp;&emsp;该函数的实现规则是：
-
-```scala
- w1 = w - thisIterStepSize * (gradient + regParam * w)
- w1 = (1 - thisIterStepSize * regParam) * w - thisIterStepSize * gradient
-```
-&emsp;&emsp;这里`thisIterStepSize`表示参数沿负梯度方向改变的速率（即步长），它随着迭代次数的增多而减小。
