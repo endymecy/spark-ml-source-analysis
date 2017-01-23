@@ -262,7 +262,7 @@ override def calculate(coefficients: BDV[Double]): (Double, BDV[Double]) = {
 <blockquote>
 $$
 \begin{align}
-L &= 1/2n ||\sum_i w_i(x_i - \bar{x_i}) / \hat{x_i} - (y - \bar{y}) / \hat{y}||^2
+L &= 1/2N ||\sum_i w_i(x_i - \bar{x_i}) / \hat{x_i} - (y - \bar{y}) / \hat{y}||^2
 \end{align}
 $$
 
@@ -274,8 +274,8 @@ $$
 <blockquote>
 $$
 \begin{align}
-L &= 1/2n ||\sum_i (w_i/\hat{x_i})x_i - \sum_i (w_i/\hat{x_i})\bar{x_i} - y / \hat{y} + \bar{y} / \hat{y}||^2  \\
-    &= 1/2n ||\sum_i w_i^\prime x_i - y / \hat{y} + offset||^2 = 1/2n diff^2
+L &= 1/2N ||\sum_i (w_i/\hat{x_i})x_i - \sum_i (w_i/\hat{x_i})\bar{x_i} - y / \hat{y} + \bar{y} / \hat{y}||^2  \\
+    &= 1/2N ||\sum_i w_i^\prime x_i - y / \hat{y} + offset||^2 = 1/2N diff^2
 \end{align}
 $$
 </blockquote>   
@@ -330,3 +330,80 @@ $$
     \end{align}
     $$
 </blockquote>
+
+&emsp;&emsp;我们首先看有效系数$w_i/\hat{x_i}$和`offset`的实现。
+
+```scala
+@transient private lazy val effectiveCoefAndOffset = {
+    val coefficientsArray = bcCoefficients.value.toArray.clone() //系数，表示公式中的w
+    val featuresMean = bcFeaturesMean.value
+    var sum = 0.0
+    var i = 0
+    val len = coefficientsArray.length
+    while (i < len) {
+      if (featuresStd(i) != 0.0) {
+        coefficientsArray(i) /=  featuresStd(i)
+        sum += coefficientsArray(i) * featuresMean(i)
+      } else {
+        coefficientsArray(i) = 0.0
+      }
+      i += 1
+    }
+    val offset = if (fitIntercept) labelMean / labelStd - sum else 0.0
+    (Vectors.dense(coefficientsArray), offset)
+  }
+```
+
+&emsp;&emsp;我们再来看看`add`方法和`merge`方法的实现。当添加一个样本后，需要更新相应的损失值和梯度值。
+
+```scala
+def add(instance: Instance): this.type = {
+  instance match { case Instance(label, weight, features) =>
+  if (weight == 0.0) return this
+  // 计算diff
+  val diff = dot(features, effectiveCoefficientsVector) - label / labelStd + offset
+  if (diff != 0) {
+      val localGradientSumArray = gradientSumArray
+      val localFeaturesStd = featuresStd
+      features.foreachActive { (index, value) =>
+         if (localFeaturesStd(index) != 0.0 && value != 0.0) {
+           localGradientSumArray(index) += weight * diff * value / localFeaturesStd(index) // 见公式(11)
+         }
+      }
+      lossSum += weight * diff * diff / 2.0   //见公式(3)
+  }
+  totalCnt += 1
+  weightSum += weight
+  this
+}
+
+def merge(other: LeastSquaresAggregator): this.type = {
+    if (other.weightSum != 0) {
+      totalCnt += other.totalCnt
+      weightSum += other.weightSum
+      lossSum += other.lossSum
+
+      var i = 0
+      val localThisGradientSumArray = this.gradientSumArray
+      val localOtherGradientSumArray = other.gradientSumArray
+      while (i < dim) {
+        localThisGradientSumArray(i) += localOtherGradientSumArray(i)
+        i += 1
+      }
+    }
+    this
+  }
+```
+&emsp;&emsp;最后，根据下面的公式分别获取损失和梯度。
+
+```scala
+  def loss: Double = {
+    lossSum / weightSum
+  }
+
+  def gradient: Vector = {
+    val result = Vectors.dense(gradientSumArray.clone())
+    scal(1.0 / weightSum, result)
+    result
+  }
+```
