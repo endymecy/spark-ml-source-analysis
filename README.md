@@ -39,7 +39,7 @@
     * [流式k-means算法](聚类/streaming-k-means/streaming-k-means.md)
 * [最优化算法](最优化算法/梯度下降/gradient-descent.md)
     * [梯度下降算法](最优化算法/梯度下降/gradient-descent.md)
-    * [L-BFGS（限制内存拟牛顿法）](最优化算法/L-BFGS/lbfgs.md)
+    * [拟牛顿法](最优化算法/L-BFGS/lbfgs.md)
     * [NNLS(非负最小二乘)](最优化算法/非负最小二乘/NNLS.md)
     * [带权最小二乘](最优化算法/WeightsLeastSquares.md)
 * [降维](降维/SVD/svd.md)

@@ -2,12 +2,12 @@
 
 # 1 牛顿法
 
-&emsp;&emsp;设`f(x)`是二次可微实函数，又设$x^{(k)}$是`f(x)`一个极小点的估计，我们把`f(x)`在$x^{(k)}$展开成`Taylor`级数，
+&emsp;&emsp;设`f(x)`是二次可微实函数，又设$x^{(k)}$是`f(x)`一个极小点的估计，我们把`f(x)`在$x^{(k)}$处展开成`Taylor`级数，
 并取二阶近似。
 
 <div  align="center"><img src="imgs/1.1.png" width = "615" height = "45" alt="1.1" align="center" /></div><br>
 
-&emsp;&emsp;上式中最后一项的中间部分表示`f(x)`在$x^{(k)}$处的`Hesse`矩阵。令上式等于0，可以的到下式：
+&emsp;&emsp;上式中最后一项的中间部分表示`f(x)`在$x^{(k)}$处的`Hesse`矩阵。对上式求导并令其等于0，可以的到下式：
 
 <div  align="center"><img src="imgs/1.2.png" width = "280" height = "40" alt="1.2" align="center" /></div><br>
 
