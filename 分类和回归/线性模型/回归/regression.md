@@ -204,3 +204,59 @@ val (featuresSummarizer, ySummarizer) = {
 val costFun = new LeastSquaresCostFun(instances, yStd, yMean, $(fitIntercept),
       $(standardization), bcFeaturesStd, bcFeaturesMean, effectiveL2RegParam, $(aggregationDepth))
 ```
+&emsp;&emsp;损失函数`LeastSquaresCostFun`继承自`DiffFunction[T]`，用于表示最小二乘损失。它返回一个点L2正则化后的损失和梯度。
+它使用方法`def calculate(coefficients: BDV[Double]): (Double, BDV[Double])`计算损失和梯度。这里`coefficients`表示一个特定的点。
+
+```scala
+override def calculate(coefficients: BDV[Double]): (Double, BDV[Double]) = {
+    val coeffs = Vectors.fromBreeze(coefficients)
+    val bcCoeffs = instances.context.broadcast(coeffs)
+    val localFeaturesStd = bcFeaturesStd.value
+
+    val leastSquaresAggregator = {
+      val seqOp = (c: LeastSquaresAggregator, instance: Instance) => c.add(instance)
+      val combOp = (c1: LeastSquaresAggregator, c2: LeastSquaresAggregator) => c1.merge(c2)
+
+      instances.treeAggregate(
+        new LeastSquaresAggregator(bcCoeffs, labelStd, labelMean, fitIntercept, bcFeaturesStd,
+          bcFeaturesMean))(seqOp, combOp, aggregationDepth)
+    }
+
+    val totalGradientArray = leastSquaresAggregator.gradient.toArray //梯度
+    bcCoeffs.destroy(blocking = false)
+
+    val regVal = if (effectiveL2regParam == 0.0) {
+      0.0
+    } else {
+      var sum = 0.0
+      coeffs.foreachActive { (index, value) =>
+        // 下面的代码计算正则化项的损失和梯度，并将梯度添加到totalGradientArray中
+        sum += {
+          if (standardization) {
+            totalGradientArray(index) += effectiveL2regParam * value
+            value * value
+          } else {
+            if (localFeaturesStd(index) != 0.0) {
+              // 如果`standardization`为false，我们仍然标准化数据加快收敛速度。获得的结果，我们需要执行反标准化
+              // ，来得到正确的目标函数
+              val temp = value / (localFeaturesStd(index) * localFeaturesStd(index))
+              totalGradientArray(index) += effectiveL2regParam * temp
+              value * temp
+            } else {
+              0.0
+            }
+          }
+        }
+      }
+      0.5 * effectiveL2regParam * sum
+    }
+
+    (leastSquaresAggregator.loss + regVal, new BDV(totalGradientArray))
+  }
+```
+
+&emsp;&emsp;这里`LeastSquaresAggregator`用来计算最小二乘损失函数的梯度和损失。为了在优化过程中提高收敛速度，防止大方差
+的特征在训练时产生过大的影响，将特征缩放到单元方差并且减去均值，可以减少条件数。当使用截距进行训练时，处在缩放后空间的目标函数
+如下：
+
+$$L = 1/2n ||\sum_i w_i(x_i - \bar{x_i}) / \hat{x_i} - (y - \bar{y}) / \hat{y}||^2$$
