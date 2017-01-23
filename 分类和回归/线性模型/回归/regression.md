@@ -260,7 +260,7 @@ override def calculate(coefficients: BDV[Double]): (Double, BDV[Double]) = {
 如下：
 
 <blockquote>
-$$L = 1/2n ||\sum_i w_i(x_i - \bar{x_i}) / \hat{x_i} - (y - \bar{y}) / \hat{y}||^2$$
+$$L &= 1/2n ||\sum_i w_i(x_i - \bar{x_i}) / \hat{x_i} - (y - \bar{y}) / \hat{y}||^2$$
 </blockquote>
 
 &emsp;&emsp;在这个公式中，$\bar{x_i}$是$x_i$的均值，$\hat{x_i}$是$x_i$的标准差，$\bar{y}$是标签的均值，$\hat{y}$ 是标签的标准差。
@@ -283,7 +283,7 @@ $$
 &emsp;&emsp;现在，目标函数的一阶导数如下所示：
 
 <blockquote>
-$$\frac{\partial L}{\partial w_i} = diff/N (x_i - \bar{x_i}) / \hat{x_i}$$
+$$\frac{\partial L}{\partial w_i} &= diff/N (x_i - \bar{x_i}) / \hat{x_i}$$
 </blockquote>
 
 &emsp;&emsp;然而，$(x_i - \bar{x_i})$是一个密集的计算，当训练数据集是稀疏的格式时，这不是一个理想的公式。通过添加一个稠密项 $\bar{x_i} / \hat{x_i}$到
@@ -312,5 +312,10 @@ $$
     $$
 </blockquote>
 
+&emsp;&emsp;所以，目标函数的一阶导数仅仅依赖于训练数据集，我们可以简单的通过分布式的方式来计算，并且对稀疏格式也很友好。
 
-
+<blockquote>
+    $$
+    \frac{\partial L}{\partial w_i} &= 1/N ((\sum_j diff_j x_{ij} / \hat{x_i})
+    $$
+</blockquote>
