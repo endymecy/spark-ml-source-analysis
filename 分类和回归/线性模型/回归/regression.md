@@ -269,7 +269,7 @@ $$L = 1/2n ||\sum_i w_i(x_i - \bar{x_i}) / \hat{x_i} - (y - \bar{y}) / \hat{y}||
 <blockquote>
 $$
 \begin{align}
-L = 1/2n ||\sum_i (w_i/\hat{x_i})x_i - \sum_i (w_i/\hat{x_i})\bar{x_i} - y / \hat{y} + \bar{y} / \hat{y}||^2  \\
+L &= 1/2n ||\sum_i (w_i/\hat{x_i})x_i - \sum_i (w_i/\hat{x_i})\bar{x_i} - y / \hat{y} + \bar{y} / \hat{y}||^2  \\
     &= 1/2n ||\sum_i w_i^\prime x_i - y / \hat{y} + offset||^2 = 1/2n diff^2
 \end{align}
 $$
@@ -298,4 +298,19 @@ $$
 \end{align}
 $$
 </blockquote>
+
+&emsp;&emsp;这里，$correction_i = - diffSum \bar{x_i} / \hat{x_i}$。通过一个简单的数学推导，我们就可以知道`diffSum`实际上为0。
+
+<blockquote>
+    $$
+    \begin{align}
+       diffSum &= \sum_j (\sum_i w_i(x_{ij} - \bar{x_i})
+                    / \hat{x_i} - (y_j - \bar{y}) / \hat{y}) \\
+         &= N * (\sum_i w_i(\bar{x_i} - \bar{x_i}) / \hat{x_i} - (\bar{y} - \bar{y}) / \hat{y}) \\
+         &= 0
+    \end{align}
+    $$
+</blockquote>
+
+
 
