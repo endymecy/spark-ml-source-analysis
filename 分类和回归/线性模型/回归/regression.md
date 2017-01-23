@@ -269,15 +269,14 @@ $$L = 1/2n ||\sum_i w_i(x_i - \bar{x_i}) / \hat{x_i} - (y - \bar{y}) / \hat{y}||
 <blockquote>
 $$
 \begin{align}
-L = 1/2n ||\sum_i (w_i/\hat{x_i})x_i - \sum_i (w_i/\hat{x_i})\bar{x_i} - y / \hat{y}
-           + \bar{y} / \hat{y}||^2 \\
-&= 1/2n ||\sum_i w_i^\prime x_i - y / \hat{y} + offset||^2 = 1/2n diff^2
+L = 1/2n ||\sum_i (w_i/\hat{x_i})x_i - \sum_i (w_i/\hat{x_i})\bar{x_i} - y / \hat{y} + \bar{y} / \hat{y}||^2  \\
+    &= 1/2n ||\sum_i w_i^\prime x_i - y / \hat{y} + offset||^2 = 1/2n diff^2
 \end{align}
 $$
 </blockquote>   
         
-&emsp;&emsp;在这个公式中，$w_i^\prime$是有效的相关系数，通过$w_i/\hat{x_i}$定义。`offset`是$- \sum_i (w_i/\hat{x_i})\bar{x_i} + \bar{y} / \hat{y}.$，
-`diff`是$\sum_i w_i^\prime x_i - y / \hat{y} + offset$。
+&emsp;&emsp;在这个公式中，$w_i^\prime$是有效的相关系数，通过$w_i/\hat{x_i}$计算。`offset`是$- \sum_i (w_i/\hat{x_i})\bar{x_i} + \bar{y} / \hat{y}$，
+而`diff`是$\sum_i w_i^\prime x_i - y / \hat{y} + offset$。
 
 &emsp;&emsp;注意，相关系数和`offset`不依赖于训练数据集，所以它们可以提前计算。
 
