@@ -277,4 +277,16 @@ $$L = 1/2n ||\sum_i (w_i/\hat{x_i})x_i - \sum_i (w_i/\hat{x_i})\bar{x_i} - y / \
 
 $$\frac{\partial L}{\partial w_i} = diff/N (x_i - \bar{x_i}) / \hat{x_i}$$
 
-&emsp;&emsp;然而，$(x_i - \bar{x_i})$是一个密集的计算，当训练数据集是稀疏的格式时，这不是一个理想的公式。
+&emsp;&emsp;然而，$(x_i - \bar{x_i})$是一个密集的计算，当训练数据集是稀疏的格式时，这不是一个理想的公式。通过添加一个稠密项 $\bar{x_i} / \hat{x_i}$到
+公式的末尾可以解决这个问题。目标函数的一阶导数如下所示：
+
+<blockquote>
+$$
+\begin{align}
+\frac{\partial L}{\partial w_i} &=1/N \sum_j diff_j (x_{ij} - \bar{x_i}) / \hat{x_i} \\
+         &= 1/N ((\sum_j diff_j x_{ij} / \hat{x_i}) - diffSum \bar{x_i} / \hat{x_i}) \\
+         &= 1/N ((\sum_j diff_j x_{ij} / \hat{x_i}) + correction_i)
+\end{align}
+$$
+</blockquote>
+
