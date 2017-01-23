@@ -268,11 +268,13 @@ $$L = 1/2n ||\sum_i w_i(x_i - \bar{x_i}) / \hat{x_i} - (y - \bar{y}) / \hat{y}||
 $$L = 1/2n ||\sum_i (w_i/\hat{x_i})x_i - \sum_i (w_i/\hat{x_i})\bar{x_i} - y / \hat{y}
            + \bar{y} / \hat{y}||^2 = 1/2n ||\sum_i w_i^\prime x_i - y / \hat{y} + offset||^2 = 1/2n diff^2$$
            
-&emsp;&emsp;在这个公式中，$w_i^\prime$是有效的相关系数，通过$w_i/\hat{x_i}$定义。`offset`是：
+&emsp;&emsp;在这个公式中，$w_i^\prime$是有效的相关系数，通过$w_i/\hat{x_i}$定义。`offset`是$- \sum_i (w_i/\hat{x_i})\bar{x_i} + \bar{y} / \hat{y}.$，
+`diff`是$\sum_i w_i^\prime x_i - y / \hat{y} + offset$。
 
-$$- \sum_i (w_i/\hat{x_i})\bar{x_i} + \bar{y} / \hat{y}.$$
+&emsp;&emsp;注意，相关系数和`offset`不依赖于训练数据集，所以它们可以提前计算。
 
-&emsp;&emsp;`diff`是：
+&emsp;&emsp;现在，目标函数的一阶导数如下所示：
 
-$$\sum_i w_i^\prime x_i - y / \hat{y} + offset$$
+$$\frac{\partial L}{\partial w_i} = diff/N (x_i - \bar{x_i}) / \hat{x_i}$$
 
+&emsp;&emsp;然而，$(x_i - \bar{x_i})$是一个密集的计算，当训练数据集是稀疏的格式时，这不是一个理想的公式。
