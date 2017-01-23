@@ -15,7 +15,7 @@
 
 <div  align="center"><img src="imgs/1.3.png" width = "280" height = "40" alt="1.3" align="center" /></div><br>
 
-&emsp;&emsp;值得注意 ， 当初始点远离极小点时，牛顿法可能不收敛。原因之一是牛顿方向不一定是下降方向，经迭代，目标函数可能上升。此外，即使目标函数下降，得到的点一个不一定沿牛顿方向最好的点或极小点。
+&emsp;&emsp;值得注意 ， 当初始点远离极小点时，牛顿法可能不收敛。原因之一是牛顿方向不一定是下降方向，经迭代，目标函数可能上升。此外，即使目标函数下降，得到的点也不一定是沿牛顿方向最好的点或极小点。
 因此，我们在牛顿方向上增加一维搜索，提出阻尼牛顿法。其迭代公式是**(1.2)**：
 
 <div  align="center"><img src="imgs/1.4.png" width = "240" height = "60" alt="1.4" align="center" /></div><br>
@@ -273,7 +273,7 @@ protected def takeStep(state: State, dir: T, stepSize: Double) = state.x + dir *
      f.calculate(x)
   }
 ```
-&emsp;&emsp;这一步对应`L-BFGS`的步骤的`Step 7`，利用上文介绍的`CostFun.calculate`计算梯度和损失值。并计算出`s`和`t`。
+&emsp;&emsp;这一步对应`L-BFGS`的步骤的`Step 7`，使用传人的`CostFun.calculate`方法计算梯度和损失值。并计算出`s`和`t`。
 
 - **5** 计算s和t，并更新history
 
@@ -303,21 +303,3 @@ protected def updateFValWindow(oldState: State, newAdjVal: Double):IndexedSeq[Do
 【5】[BFGS算法](http://wenku.baidu.com/link?url=xyN5e-LMR2Ztq90-J95oKHUFBLP8gkLzlbFI6ptbgXMWYt5xTZHgXexWcbjQUmGahQpr39AIc0AomDeFqyY7mn7VqLoQj6gcDHDOccJGln3)
 
 【6】[逻辑回归模型及LBFGS的Sherman Morrison(SM) 公式推导](http://blog.csdn.net/zhirom/article/details/38332111)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
