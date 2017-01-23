@@ -116,7 +116,10 @@ val instances: RDD[Instance] = dataset.select(
         Instance(label, weight, features)  // 标签，权重，特征向量
 }
 ```
-&emsp;&emsp;当样本的特征维度小于4096时，用`WeightedLeastSquares`求解，这是因为`WeightedLeastSquares`只需要处理一次数据，
+
+- <b>1 带权最小二乘</b>
+
+&emsp;&emsp;当样本的特征维度小于4096并且`solver`为`auto`或者`solver`为`normal`时，用`WeightedLeastSquares`求解，这是因为`WeightedLeastSquares`只需要处理一次数据，
 求解效率更高。`WeightedLeastSquares`的介绍见[带权最小二乘](../../../最优化算法/WeightsLeastSquares.md)。
 
 ```scala
@@ -142,5 +145,36 @@ if (($(solver) == "auto" &&
 
     return lrModel.setSummary(Some(trainingSummary))
 }
+```
+
+- <b>2 拟牛顿法</b>
+
+&emsp;&emsp;当样本的特征维度大于4096并且`solver`为`auto`或者`solver`为`l-bfgs`时，使用拟牛顿法求解最优解。使用拟牛顿法求解之前我们
+需要先统计特征和标签的相关信息。
+
+```scala
+val (featuresSummarizer, ySummarizer) = {
+      val seqOp = (c: (MultivariateOnlineSummarizer, MultivariateOnlineSummarizer),
+        instance: Instance) =>
+          (c._1.add(instance.features, instance.weight),
+            c._2.add(Vectors.dense(instance.label), instance.weight))
+
+      val combOp = (c1: (MultivariateOnlineSummarizer, MultivariateOnlineSummarizer),
+        c2: (MultivariateOnlineSummarizer, MultivariateOnlineSummarizer)) =>
+          (c1._1.merge(c2._1), c1._2.merge(c2._2))
+
+      instances.treeAggregate(
+        new MultivariateOnlineSummarizer, new MultivariateOnlineSummarizer
+      )(seqOp, combOp, $(aggregationDepth))
+}
+```
+
+&emsp;&emsp;这里`MultivariateOnlineSummarizer`继承自`MultivariateStatisticalSummary`，它使用在线的方式统计样本的均值、方差、最小值、最大值等指标。
+如果标签的方差为0，并且不管我们是否选择使用偏置，系数均为0，此时并不需要训练模型。
+
+```scala
+ val coefficients = Vectors.sparse(numFeatures, Seq())  // 系数为空
+ val intercept = yMean
+ val model = copyValues(new LinearRegressionModel(uid, coefficients, intercept))
 ```
 
