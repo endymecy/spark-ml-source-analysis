@@ -117,7 +117,7 @@ val instances: RDD[Instance] = dataset.select(
 }
 ```
 
-- <b>1 带权最小二乘</b>
+##### 2.2.2.1 带权最小二乘
 
 &emsp;&emsp;当样本的特征维度小于4096并且`solver`为`auto`或者`solver`为`normal`时，用`WeightedLeastSquares`求解，这是因为`WeightedLeastSquares`只需要处理一次数据，
 求解效率更高。`WeightedLeastSquares`的介绍见[带权最小二乘](../../../最优化算法/WeightsLeastSquares.md)。
@@ -147,7 +147,9 @@ if (($(solver) == "auto" &&
 }
 ```
 
-- <b>2 拟牛顿法</b>
+##### 2.2.2.2 拟牛顿法
+
+- <b>1 统计样本指标</b>
 
 &emsp;&emsp;当样本的特征维度大于4096并且`solver`为`auto`或者`solver`为`l-bfgs`时，使用拟牛顿法求解最优解。使用拟牛顿法求解之前我们
 需要先统计特征和标签的相关信息。
@@ -169,8 +171,10 @@ val (featuresSummarizer, ySummarizer) = {
 }
 ```
 
-&emsp;&emsp;这里`MultivariateOnlineSummarizer`继承自`MultivariateStatisticalSummary`，它使用在线的方式统计样本的均值、方差、最小值、最大值等指标。
-如果标签的方差为0，并且不管我们是否选择使用偏置，系数均为0，此时并不需要训练模型。
+&emsp;&emsp;这里`MultivariateOnlineSummarizer`继承自`MultivariateStatisticalSummary`，它使用在线（`online`）的方式统计样本的均值、方差、最小值、最大值等指标。
+具体的实现见`MultivariateOnlineSummarizer`。统计好指标之后，根据指标的不同选择不同的处理方式。
+
+&emsp;&emsp; 如果标签的方差为0，并且不管我们是否选择使用偏置，系数均为0，此时并不需要训练模型。
 
 ```scala
  val coefficients = Vectors.sparse(numFeatures, Seq())  // 系数为空
@@ -178,3 +182,25 @@ val (featuresSummarizer, ySummarizer) = {
  val model = copyValues(new LinearRegressionModel(uid, coefficients, intercept))
 ```
 
+&emsp;&emsp;获取标签方差，特征均值、特征方差以及正则化项。
+
+```scala
+ // if y is constant (rawYStd is zero), then y cannot be scaled. In this case
+ // setting yStd=abs(yMean) ensures that y is not scaled anymore in l-bfgs algorithm.
+ val yStd = if (rawYStd > 0) rawYStd else math.abs(yMean)
+ val featuresMean = featuresSummarizer.mean.toArray
+ val featuresStd = featuresSummarizer.variance.toArray.map(math.sqrt)
+ val bcFeaturesMean = instances.context.broadcast(featuresMean)
+ val bcFeaturesStd = instances.context.broadcast(featuresStd)
+ 
+ val effectiveRegParam = $(regParam) / yStd
+ val effectiveL1RegParam = $(elasticNetParam) * effectiveRegParam
+ val effectiveL2RegParam = (1.0 - $(elasticNetParam)) * effectiveRegParam
+```
+
+- <b>2 定义损失函数</b>
+
+```scala
+val costFun = new LeastSquaresCostFun(instances, yStd, yMean, $(fitIntercept),
+      $(standardization), bcFeaturesStd, bcFeaturesMean, effectiveL2RegParam, $(aggregationDepth))
+```
