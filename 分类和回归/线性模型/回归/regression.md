@@ -407,3 +407,66 @@ def merge(other: LeastSquaresAggregator): this.type = {
     result
   }
 ```
+
+- <b>3 选择最优化方法</b>
+
+```scala
+    val optimizer = if ($(elasticNetParam) == 0.0 || effectiveRegParam == 0.0) {
+      new BreezeLBFGS[BDV[Double]]($(maxIter), 10, $(tol))
+    } else {
+      val standardizationParam = $(standardization)
+      def effectiveL1RegFun = (index: Int) => {
+        if (standardizationParam) {
+          effectiveL1RegParam
+        } else {
+          // If `standardization` is false, we still standardize the data
+          // to improve the rate of convergence; as a result, we have to
+          // perform this reverse standardization by penalizing each component
+          // differently to get effectively the same objective function when
+          // the training dataset is not standardized.
+          if (featuresStd(index) != 0.0) effectiveL1RegParam / featuresStd(index) else 0.0
+        }
+      }
+      new BreezeOWLQN[Int, BDV[Double]]($(maxIter), 10, effectiveL1RegFun, $(tol))
+    }
+```
+
+&emsp;&emsp;如果没有正则化项或者只有L2正则化项，使用`BreezeLBFGS`来处理最优化问题，否则使用`BreezeOWLQN`。`BreezeLBFGS`和`BreezeOWLQN`
+的原理在相关章节会做具体介绍。
+
+- <b>4 获取结果，并做相应转换</b>
+
+```scala
+val initialCoefficients = Vectors.zeros(numFeatures)
+    val states = optimizer.iterations(new CachedDiffFunction(costFun),
+      initialCoefficients.asBreeze.toDenseVector)
+
+    val (coefficients, objectiveHistory) = {
+      val arrayBuilder = mutable.ArrayBuilder.make[Double]
+      var state: optimizer.State = null
+      while (states.hasNext) {
+        state = states.next()
+        arrayBuilder += state.adjustedValue
+      }
+      
+      // 从标准空间转换到原来的空间
+      val rawCoefficients = state.x.toArray.clone()
+      var i = 0
+      val len = rawCoefficients.length
+      while (i < len) {
+        rawCoefficients(i) *= { if (featuresStd(i) != 0.0) yStd / featuresStd(i) else 0.0 }
+        i += 1
+      }
+
+      (Vectors.dense(rawCoefficients).compressed, arrayBuilder.result())
+    }
+
+    // 系数收敛之后，intercept的计算可以通过封闭(`closed form`)的形式计算出来，详细的讨论如下：
+    // http://stats.stackexchange.com/questions/13617/how-is-the-intercept-computed-in-glmnet
+    val intercept = if ($(fitIntercept)) {
+      yMean - dot(coefficients, Vectors.dense(featuresMean))
+    } else {
+      0.0
+    }
+
+```
