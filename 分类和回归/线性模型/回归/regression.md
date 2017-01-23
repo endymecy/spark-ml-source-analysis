@@ -271,7 +271,7 @@ $$
 \begin{align}
 L = 1/2n ||\sum_i (w_i/\hat{x_i})x_i - \sum_i (w_i/\hat{x_i})\bar{x_i} - y / \hat{y}
            + \bar{y} / \hat{y}||^2 \\
-           &= 1/2n ||\sum_i w_i^\prime x_i - y / \hat{y} + offset||^2 = 1/2n diff^2
+&= 1/2n ||\sum_i w_i^\prime x_i - y / \hat{y} + offset||^2 = 1/2n diff^2
 \end{align}
 $$
 </blockquote>   
