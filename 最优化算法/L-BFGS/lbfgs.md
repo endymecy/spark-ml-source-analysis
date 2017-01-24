@@ -176,7 +176,7 @@ $$J(x) = l(x) + C ||x||_{2}$$
 - <b>1 次微分</b>
 
 &emsp;&emsp;设$f:I\rightarrow R$是一个实变量凸函数，定义在实数轴上的开区间内。这种函数不一定是处处可导的，例如绝对值函数$f(x)=|x|$。但是，从下面的图中可以看出（也可以严格地证明），对于定义域中的任何$x_0$，我们总可以作出一条直线，它通过点($x_0$, $f(x_0)$)，并且要么接触f的图像，要么在它的下方。
-这条直线的斜率称为函数的次导数。
+这条直线的斜率称为函数的次导数。推广到多元函数就叫做次梯度。
 
 <div  align="center"><img src="imgs/2.24.png" width = "500" height = "400" alt="2.24" align="center" /></div><br>
 
@@ -189,6 +189,21 @@ $$J(x) = l(x) + C ||x||_{2}$$
 <div  align="center"><img src="imgs/2.26.png" width = "200" height = "50" alt="2.26" align="center" /></div><br>
 
 <div  align="center"><img src="imgs/2.27.png" width = "200" height = "50" alt="2.27" align="center" /></div><br>
+
+&emsp;&emsp;它们一定存在，且满足$a \leqslant b$。所有次导数的集合$[a, b]$称为函数`f`在$x_0$的次微分。
+
+- <b>2 伪梯度</b>
+
+&emsp;&emsp;利用次梯度的概念推广了梯度，定义了一个符合上述原则的伪梯度，求一维搜索的可行方向时用伪梯度来代替`L-BFGS`中的梯度。
+
+<div  align="center"><img src="imgs/2.28.png" width = "320" height = "80" alt="2.28" align="center" /></div><br>
+
+&emsp;&emsp;其中
+
+<div  align="center"><img src="imgs/2.29.png" width = "350" height = "50" alt="2.29" align="center" /></div><br>
+
+<div  align="center"><img src="imgs/2.30.png" width = "180" height = "34" alt="2.30" align="center" /></div><br>
+
 
 # 3 源码解析
 
