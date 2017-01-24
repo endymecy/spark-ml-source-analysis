@@ -202,17 +202,51 @@ $$J(x) = l(x) + C ||x||_{2}$$
 
 <div  align="center"><img src="imgs/2.29.png" width = "350" height = "50" alt="2.29" align="center" /></div><br>
 
-<div  align="center"><img src="imgs/2.30.jpg" width = "180" height = "34" alt="2.30" align="center" /></div><br>
+<div  align="center"><img src="imgs/2.30.jpg" width = "160" height = "30" alt="2.30" align="center" /></div><br>
 
 &emsp;&emsp;我们要如何理解这个伪梯度呢？对于不是处处可导的凸函数，可以分为下图所示的三种情况。
 
+&emsp;&emsp;左侧极限小于0：
+
 <div  align="center"><img src="imgs/2.31.png" width = "350" height = "310" alt="2.31" align="center" /></div><br>
+
+&emsp;&emsp;右侧极限大于0：
 
 <div  align="center"><img src="imgs/2.32.png" width = "350" height = "300" alt="2.32" align="center" /></div><br>
 
+&emsp;&emsp;其它情况：
+
 <div  align="center"><img src="imgs/2.33.png" width = "330" height = "290" alt="2.33" align="center" /></div><br>
 
-&emsp;&emsp;结合上面的三幅图，我们可以知道，伪梯度函数保证了在$x_0$处取得的方向导数是最小的。
+&emsp;&emsp;结合上面的三幅图表示的三种情况以及伪梯度函数公式，我们可以知道，伪梯度函数保证了在$x_0$处取得的方向导数是最小的。
+
+- <b>3 映射</b>
+
+&emsp;&emsp;有了函数的下降的方向，接下来必须对变量的所属象限进行限制，目的是使得更新前后变量在同一个象限中，定义函数：$\pi: \mathbb{R}^{n} \rightarrow \mathbb{R}^{n}$
+
+<div  align="center"><img src="imgs/2.34.png" width = "270" height = "50" alt="2.34" align="center" /></div><br>
+
+&emsp;&emsp;上述函数$\pi$直观的解释是若$x$和$y$在同一象限则取$x$，若两者不在同一象限中，则取0。
+
+- <b>4 线搜索</b>
+
+&emsp;&emsp;上述的映射是防止更新后的变量的坐标超出象限，而对坐标进行的一个约束，具体的约束的形式如下：
+
+<div  align="center"><img src="imgs/2.35.gif" width = "180" height = "25" alt="2.35" align="center" /></div><br>
+
+&emsp;&emsp;其中$x^{k} + \alpha p _{k}$是更新公式，$\zeta$表示$x^k$所在的象限，$p^k$表示伪梯度下降的方向，它们具体的形式如下：
+
+<div  align="center"><img src="imgs/2.36.gif" width = "250" height = "55" alt="2.36" align="center" /></div><br>
+
+<div  align="center"><img src="imgs/2.37.gif" width = "118" height = "24" alt="2.37" align="center" /></div><br>
+
+&emsp;&emsp;上面的公式中，$v^k$表示负伪梯度方向，$d^k = H_{k}v^{k}$。
+
+&emsp;&emsp;选择$\alpha$的方式有很多种，在`OWL-QN`中，使用了`backtracking line search`的变种。选择常数$\beta, \gamma \prec (0,1)$，对于$n=0,1,2,...$，使得
+$\alpha = \beta^{n}$满足：
+
+<div  align="center"><img src="imgs/2.38.gif" width = "450" height = "24" alt="2.38" align="center" /></div><br>
+
 
 # 3 源码解析
 
