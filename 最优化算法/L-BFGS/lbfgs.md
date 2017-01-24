@@ -139,9 +139,19 @@
 
 <div  align="center"><img src="imgs/2.22.png" width = "500" height = "350" alt="2.22" align="center" /></div><br>
 
-## 3 源码解析
+## 2.6 OWL-QN算法
 
-#### 3.1 BreezeLBFGS
+&emsp;&emsp;在机器学习算法中，使用损失函数作为最小化误差，而最小化误差是为了让我们的模型拟合我们的训练数据，此时，
+若参数过分拟合我们的训练数据就会有过拟合的问题。正则化参数的目的就是为了防止我们的模型过分拟合训练数据。此时，我们会在损失项之后加上正则化项以约束模型中的参数：
+
+$$J(x) = l(x) + r(x)$$
+
+&emsp;&emsp;公式右边的第一项是损失函数，用来衡量当训练出现偏差时的损失，可以是任意可微凸函数（如果是非凸函数该算法只保证找到局部最优解）。
+第二项是正则化项。用来对模型空间进行限制，从而得到一个更“简单”的模型。
+
+# 3 源码解析
+
+## 3.1 BreezeLBFGS
 
 &emsp;&emsp;`spark Ml`调用`breeze`中实现的`BreezeLBFGS`来解最优化问题。
 
@@ -197,7 +207,7 @@ def infiniteIterations(f: DF, state: State): Iterator[State] = {
 ```
 &emsp;&emsp;看上面的代码注释，它的流程可以分五步来分析。
 
-- **1** 选择梯度下降方向
+### 3.1.1 选择梯度下降方向
 
 ```scala
 protected def chooseDescentDirection(state: State, fn: DiffFunction[T]):T = {
@@ -243,7 +253,7 @@ def *(grad: T) = {
 ```
 &emsp;&emsp;非常明显，该方法就是实现了上文提到的`two-loop recursion`算法。
 
-- **2** 计算步长
+### 3.1.2 计算步长
 
 ```scala
 protected def determineStepSize(state: State, f: DiffFunction[T], dir: T) = {
@@ -259,14 +269,14 @@ protected def determineStepSize(state: State, f: DiffFunction[T], dir: T) = {
 ```
 &emsp;&emsp;这一步对应`L-BFGS`的步骤的`Step 5`，通过一维搜索计算步长。
 
-- **3** 更新权重
+### 3.1.3  更新权重
 
 ```scala
 protected def takeStep(state: State, dir: T, stepSize: Double) = state.x + dir * stepSize
 ```
 &emsp;&emsp;这一步对应`L-BFGS`的步骤的`Step 5`，更新权重。
 
-- **4** 计算损失值和梯度
+### 3.1.4 计算损失值和梯度
 
 ```scala
  protected def calculateObjective(f: DF, x: T, history: History): (Double, T) = {
@@ -275,7 +285,7 @@ protected def takeStep(state: State, dir: T, stepSize: Double) = state.x + dir *
 ```
 &emsp;&emsp;这一步对应`L-BFGS`的步骤的`Step 7`，使用传人的`CostFun.calculate`方法计算梯度和损失值。并计算出`s`和`t`。
 
-- **5** 计算s和t，并更新history
+### 3.1.5 计算s和t，并更新history
 
 ```scala
 //计算s和t
