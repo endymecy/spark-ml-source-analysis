@@ -408,7 +408,88 @@ protected def updateFValWindow(oldState: State, newAdjVal: Double):IndexedSeq[Do
 
 &emsp;&emsp;`BreezeOWLQN`的实现与`BreezeLBFGS`的实现主要有下面一些不同点。
 
-- 1 
+### 3.2.1 选择梯度下降方向
+
+```scala
+override protected def chooseDescentDirection(state: State, fn: DiffFunction[T]) = {
+    val descentDir = super.chooseDescentDirection(state.copy(grad = state.adjustedGradient), fn)
+
+    // The original paper requires that the descent direction be corrected to be
+    // in the same directional (within the same hypercube) as the adjusted gradient for proof.
+    // Although this doesn't seem to affect the outcome that much in most of cases, there are some cases
+    // where the algorithm won't converge (confirmed with the author, Galen Andrew).
+    val correctedDir = space.zipMapValues.map(descentDir, state.adjustedGradient, { case (d, g) => if (d * g < 0) d else 0.0 })
+
+    correctedDir
+  }
+```
+&emsp;&emsp;此处调用了`BreezeLBFGS`的`chooseDescentDirection`方法选择梯度下降的方向，然后调整该下降方向为正确的方向（方向必须一致）。
+
+### 3.2.2 计算步长$\alpha$
+
+```scala
+override protected def determineStepSize(state: State, f: DiffFunction[T], dir: T) = {
+    val iter = state.iter
+
+    val normGradInDir = {
+      val possibleNorm = dir dot state.grad
+      possibleNorm
+    }
+    val ff = new DiffFunction[Double] {
+       def calculate(alpha: Double) = {
+         val newX = takeStep(state, dir, alpha)
+         val (v, newG) =  f.calculate(newX)  // 计算梯度
+         val (adjv, adjgrad) = adjust(newX, newG, v) // 调整梯度
+         adjv -> (adjgrad dot dir)
+       }
+    }
+    val search = new BacktrackingLineSearch(state.value, shrinkStep= if(iter < 1) 0.1 else 0.5)
+    val alpha = search.minimize(ff, if(iter < 1) .5/norm(state.grad) else 1.0)
+
+    alpha
+  }
+```
+&emsp;&emsp;`takeStep`方法用于更新参数。
+
+```scala
+  // projects x to be on the same orthant as y
+  // this basically requires that x'_i = x_i if sign(x_i) == sign(y_i), and 0 otherwise.
+
+  override protected def takeStep(state: State, dir: T, stepSize: Double) = {
+    val stepped = state.x + dir * stepSize
+    val orthant = computeOrthant(state.x, state.adjustedGradient)
+    space.zipMapValues.map(stepped, orthant, { case (v, ov) =>
+      v * I(math.signum(v) == math.signum(ov))
+    })
+  }
+```
+&emsp;&emsp;`calculate`方法用于计算梯度，`adjust`方法用于调整梯度。
+
+```scala
+// Adds in the regularization stuff to the gradient
+  override protected def adjust(newX: T, newGrad: T, newVal: Double): (Double, T) = {
+    var adjValue = newVal
+    val res = space.zipMapKeyValues.mapActive(newX, newGrad, {case (i, xv, v) =>
+      val l1regValue = l1reg(i)
+      require(l1regValue >= 0.0)
+
+      if(l1regValue == 0.0) {
+        v
+      } else {
+        adjValue += Math.abs(l1regValue * xv)
+        xv match {
+          case 0.0 => {
+            val delta_+ = v + l1regValue   //计算左导数
+            val delta_- = v - l1regValue   //计算右导数
+            if (delta_- > 0) delta_- else if (delta_+ < 0) delta_+ else 0.0
+          }
+          case _ => v + math.signum(xv) * l1regValue
+        }
+      }
+    })
+    adjValue -> res
+  }
+```
 
 # 参考文献
 
@@ -423,3 +504,5 @@ protected def updateFValWindow(oldState: State, newAdjVal: Double):IndexedSeq[Do
 【5】[BFGS算法](http://wenku.baidu.com/link?url=xyN5e-LMR2Ztq90-J95oKHUFBLP8gkLzlbFI6ptbgXMWYt5xTZHgXexWcbjQUmGahQpr39AIc0AomDeFqyY7mn7VqLoQj6gcDHDOccJGln3)
 
 【6】[逻辑回归模型及LBFGS的Sherman Morrison(SM) 公式推导](http://blog.csdn.net/zhirom/article/details/38332111)
+
+【7】[Scalable Training of L1-Regularized Log-Linear Models](http://research.microsoft.com/en-us/um/people/jfgao/paper/icml07scalable.pdf)
