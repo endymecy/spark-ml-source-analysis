@@ -202,8 +202,17 @@ $$J(x) = l(x) + C ||x||_{2}$$
 
 <div  align="center"><img src="imgs/2.29.png" width = "350" height = "50" alt="2.29" align="center" /></div><br>
 
-<div  align="center"><img src="imgs/2.30.png" width = "180" height = "34" alt="2.30" align="center" /></div><br>
+<div  align="center"><img src="imgs/2.30.jpg" width = "180" height = "34" alt="2.30" align="center" /></div><br>
 
+&emsp;&emsp;我们要如何理解这个伪梯度呢？对于不是处处可导的凸函数，可以分为下图所示的三种情况。
+
+<div  align="center"><img src="imgs/2.31.png" width = "350" height = "310" alt="2.31" align="center" /></div><br>
+
+<div  align="center"><img src="imgs/2.32.png" width = "350" height = "300" alt="2.32" align="center" /></div><br>
+
+<div  align="center"><img src="imgs/2.33.png" width = "330" height = "290" alt="2.33" align="center" /></div><br>
+
+&emsp;&emsp;结合上面的三幅图，我们可以知道，伪梯度函数保证了在$x_0$处取得的方向导数是最小的。
 
 # 3 源码解析
 
