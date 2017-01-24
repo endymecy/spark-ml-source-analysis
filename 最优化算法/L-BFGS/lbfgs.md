@@ -182,8 +182,13 @@ $$J(x) = l(x) + C ||x||_{2}$$
 
 &emsp;&emsp;凸函数$f:I\rightarrow R$在点$x_0$的次导数，是实数`c`使得：
 
-<div  align="center"><img src="imgs/2.25.svg" width = "500" height = "400" alt="2.25" align="center" /></div><br>
+<div  align="center"><img src="imgs/2.25.png" width = "200" height = "20" alt="2.25" align="center" /></div><br>
 
+&emsp;&emsp;对于所有`I`内的`x`。我们可以证明，在点$x_0$的次导数的集合是一个非空闭区间$[a, b]$，其中`a`和`b`是单侧极限。
+
+<div  align="center"><img src="imgs/2.26.png" width = "200" height = "50" alt="2.26" align="center" /></div><br>
+
+<div  align="center"><img src="imgs/2.27.png" width = "200" height = "50" alt="2.27" align="center" /></div><br>
 
 # 3 源码解析
 
