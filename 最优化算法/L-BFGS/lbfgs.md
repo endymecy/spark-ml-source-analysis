@@ -153,15 +153,15 @@ $$J(x) = l(x) + r(x)$$
 
 &emsp;&emsp;`L1`正则化的形式如下：
 
-$$J(x) = l(x) + r(x) = l(x) + C\left \| x \right \|_{1} = l(x) + C\sum_{i} \left | x_{i} \right |$$
+$$J(x) = l(x) + r(x) = l(x) + C|x|_{1} = l(x) + C\sum_{i} |x_{i}|$$
 
 &emsp;&emsp;`L2`正则化的形式如下：
 
-$$J(x) = l(x) + r(x) = l(x) + C\left \| x \right \|_{2} = l(x) + C\sum_{i}  x_{i}^{2}$$
+$$J(x) = l(x) + r(x) = l(x) + C|x|_{2} = l(x) + C\sum_{i} x_{i}^{2}$$
 
 &emsp;&emsp;`L1`正则化和`L2`正则化之间的一个最大区别在于前者可以产生稀疏解，这使它同时具有了特征选择的能力，此外，稀疏的特征权重更具有解释意义。如下图：
 
-<div  align="center"><img src="imgs/2.23.jpeg" width = "500" height = "500" alt="2.23" align="center" /></div><br>
+<div  align="center"><img src="imgs/2.23.jpeg" width = "600" height = "400" alt="2.23" align="center" /></div><br>
 
 &emsp;&emsp;图左侧是`L2`正则，右侧为`L1`正则。当模型中只有两个参数，即$w_1$和$w_2$时，`L2`正则的约束空间是一个圆，而`L1`正则的约束空间为一个正方形，这样，基于`L1`正则的约束会产生稀疏解，即图中某一维($w_2$)为0。
 而`L2`正则只是将参数约束在接近0的很小的区间里，而不会正好为0(不排除有0的情况)。对于`L1`正则产生的稀疏解有很多的好处，如可以起到特征选择的作用，因为有些维的系数为0，说明这些维对于模型的作用很小。
