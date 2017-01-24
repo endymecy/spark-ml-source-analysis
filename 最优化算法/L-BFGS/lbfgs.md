@@ -240,13 +240,18 @@ $$J(x) = l(x) + C ||x||_{2}$$
 
 <div  align="center"><img src="imgs/2.37.gif" width = "118" height = "24" alt="2.37" align="center" /></div><br>
 
-&emsp;&emsp;上面的公式中，$v^k$表示负伪梯度方向，$d^k = H_{k}v^{k}$。
+&emsp;&emsp;上面的公式中，$v^k$为负伪梯度方向，$d^k = H_{k}v^{k}$。
 
-&emsp;&emsp;选择$\alpha$的方式有很多种，在`OWL-QN`中，使用了`backtracking line search`的变种。选择常数$\beta, \gamma \prec (0,1)$，对于$n=0,1,2,...$，使得
+&emsp;&emsp;选择$\alpha$的方式有很多种，在`OWL-QN`中，使用了`backtracking line search`的一种变种。选择常数$\beta, \gamma \subset (0,1)$，对于$n=0,1,2,...$，使得
 $\alpha = \beta^{n}$满足：
 
 <div  align="center"><img src="imgs/2.38.gif" width = "450" height = "24" alt="2.38" align="center" /></div><br>
 
+- <b>5 算法流程</b>
+
+<div  align="center"><img src="imgs/2.39.png" width = "400" height = "300" alt="2.38" align="center" /></div><br>
+
+&emsp;&emsp;与`L-BFGS`相比，第一步用伪梯度代替梯度，第二、三步要求一维搜索不跨象限，也就是迭代前的点与迭代后的点处于同一象限，第四步要求估计`Hessian`矩阵时依然使用损失函数的梯度。
 
 # 3 源码解析
 
@@ -398,6 +403,12 @@ protected def updateFValWindow(oldState: State, newAdjVal: Double):IndexedSeq[Do
     else interm
   }
 ```
+
+## 3.2 BreezeOWLQN
+
+&emsp;&emsp;`BreezeOWLQN`的实现与`BreezeLBFGS`的实现主要有下面一些不同点。
+
+- 1 
 
 # 参考文献
 
