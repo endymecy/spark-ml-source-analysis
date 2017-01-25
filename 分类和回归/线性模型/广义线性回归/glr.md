@@ -96,9 +96,84 @@ println(s"Intercept: ${model.intercept}")
         irlsModel.diagInvAtWA.toArray, irlsModel.numIterations, getSolver)
    model.setSummary(Some(trainingSummary))
 ```
-&emsp;&emsp;迭代再加权最小二乘的分析见最优化章节。
+&emsp;&emsp;迭代再加权最小二乘的分析见最优化章节：[迭代再加权最小二乘](../分类和回归/线性模型/广义线性回归/IRLS.md)。
+
+### 3.3 链接函数
+
+&emsp;&emsp;根据第二章中表格描述的链接函数和均值函数，我们可以很容易实现链接函数。链接函数和均值函数的值可以用于对样本进行更新，
+更新相应的标签值和权重值。
+
+- Identity
+
+```scala
+private[regression] object Identity extends Link("identity") {
+    override def link(mu: Double): Double = mu  // 链接函数
+    override def deriv(mu: Double): Double = 1.0  // 链接函数求导数
+    override def unlink(eta: Double): Double = eta  // 均值函数
+  }
+```
+- Logit
+
+```scala
+private[regression] object Logit extends Link("logit") {
+    override def link(mu: Double): Double = math.log(mu / (1.0 - mu)) // 链接函数
+    override def deriv(mu: Double): Double = 1.0 / (mu * (1.0 - mu)) // 链接函数导数
+    override def unlink(eta: Double): Double = 1.0 / (1.0 + math.exp(-1.0 * eta)) // 均值函数
+  }
+```
+
+- Log
+
+```scala
+  private[regression] object Log extends Link("log") {
+    override def link(mu: Double): Double = math.log(mu) // 链接函数
+    override def deriv(mu: Double): Double = 1.0 / mu // 链接函数导数
+    override def unlink(eta: Double): Double = math.exp(eta) // 均值函数
+  }
+```
+
+- Inverse
+
+```scala
+  private[regression] object Inverse extends Link("inverse") {
+    override def link(mu: Double): Double = 1.0 / mu // 链接函数
+    override def deriv(mu: Double): Double = -1.0 * math.pow(mu, -2.0) // 链接函数导数
+    override def unlink(eta: Double): Double = 1.0 / eta // 均值函数
+  }
+```
+
+- Probit
+
+```scala
+  private[regression] object Probit extends Link("probit") {
+    override def link(mu: Double): Double = dist.Gaussian(0.0, 1.0).icdf(mu) // 链接函数
+    override def deriv(mu: Double): Double = {
+      1.0 / dist.Gaussian(0.0, 1.0).pdf(dist.Gaussian(0.0, 1.0).icdf(mu)) // 链接函数导数
+    }
+    override def unlink(eta: Double): Double = dist.Gaussian(0.0, 1.0).cdf(eta) // 均值函数
+  }
+```
+- CLogLog
+
+```scala
+  private[regression] object CLogLog extends Link("cloglog") {
+    override def link(mu: Double): Double = math.log(-1.0 * math.log(1 - mu)) // 链接函数
+    override def deriv(mu: Double): Double = 1.0 / ((mu - 1.0) * math.log(1.0 - mu)) // 链接函数导数
+    override def unlink(eta: Double): Double = 1.0 - math.exp(-1.0 * math.exp(eta)) // 均值函数
+  }
+```
+- Sqrt
+
+```scala
+  private[regression] object Sqrt extends Link("sqrt") {
+    override def link(mu: Double): Double = math.sqrt(mu) // 链接函数
+    override def deriv(mu: Double): Double = 1.0 / (2.0 * math.sqrt(mu)) // 链接函数导数
+    override def unlink(eta: Double): Double = eta * eta // 均值函数
+  }
+```
 
 ## 参考文献
 
 【1】[从线性模型到广义线性模型](http://cos.name/2011/01/how-does-glm-generalize-lm-assumption/)
+
 【2】[广义线性模型-维基百科](https://zh.wikipedia.org/wiki/%E5%BB%A3%E7%BE%A9%E7%B7%9A%E6%80%A7%E6%A8%A1%E5%9E%8B)
