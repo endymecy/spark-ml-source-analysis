@@ -23,8 +23,8 @@ $$E[Y] = \beta_0 + \beta_1 x_1 + \beta_2 x_2 + … + \beta_{p-1} x_{p-1}$$
 &emsp;&emsp;广义线性模型(`generalized linear model`)是在普通线性模型的基础上，对上述四点假设进行推广而得出的应用范围更广，更具实用性的回归模型。
 主要有两点不同，这两点分别是：
 
-- 响应变量$Y$和误差项$\epsilon$的分布推广至指数分散族(`exponential dispersion family`)。在`spark ml`中，广义线性回归支持的分布分别是正态分布、泊松分布、二项分布以及伽玛分布。
-- 连接方式：广义线性模型里采用的链接函数(`link function`)理论上可以是任意的，，而不再局限于$f(x)=x$。
+- 响应变量$Y$和误差项$\epsilon$的分布推广至指数分散族(`exponential dispersion family`)。在`spark ml`中，广义线性回归支持的指数分布分别是正态分布、泊松分布、二项分布以及伽玛分布。
+- 连接方式：广义线性模型里采用的链接函数(`link function`)理论上可以是任意的，而不再局限于$f(x)=x$。
 
 &emsp;&emsp;这里需要重点说明一下链接函数。链接函数描述了线性预测$X\beta$与分布期望值$E[Y]$的关系：$E[Y] = \mu = g^{-1}(X\beta)$，其中$g$表示链接函数。
 一般情况下，高斯分布对应于恒等式，泊松分布对应于自然对数函数等。下面列出了`spark ml`中提供的链接函数以及该链接函数使用的指数分布。
@@ -38,3 +38,66 @@ $$E[Y] = \beta_0 + \beta_1 x_1 + \beta_2 x_2 + … + \beta_{p-1} x_{p-1}$$
 | logit | $ln(\frac{\mu }{1-\mu }) = X\beta$ | 高斯分布，泊松分布，伽马分布 |
 | cloglog | $ln(- ln(1-\mu)) = X\beta$ | 二次分布 |
 | probit | 标准高斯分布的inverse CDF，其中p值为$\mu$ | 二次分布 |
+
+## 3 源码分析
+
+### 3.1 使用实例
+
+```scala
+import org.apache.spark.ml.regression.GeneralizedLinearRegression
+
+// Load training data
+val dataset = spark.read.format("libsvm")
+  .load("data/mllib/sample_linear_regression_data.txt")
+
+val glr = new GeneralizedLinearRegression()
+  .setFamily("gaussian")
+  .setLink("identity")
+  .setMaxIter(10)
+  .setRegParam(0.3)
+
+// Fit the model
+val model = glr.fit(dataset)
+
+// Print the coefficients and intercept for generalized linear regression model
+println(s"Coefficients: ${model.coefficients}")
+println(s"Intercept: ${model.intercept}")
+```
+
+### 3.2 训练模型
+
+&emsp;&emsp;广义线性回归的训练比较简单。当指数分布是高斯分布，同时链接函数是恒等(`identity`)时，此时的情况就是普通的线性回归。可以利用带权最小二乘求解。
+
+```scala
+ val model = if (familyObj == Gaussian && linkObj == Identity) {
+      val optimizer = new WeightedLeastSquares($(fitIntercept), $(regParam), elasticNetParam = 0.0,
+        standardizeFeatures = true, standardizeLabel = true)
+      val wlsModel = optimizer.fit(instances)
+      val model = copyValues(
+        new GeneralizedLinearRegressionModel(uid, wlsModel.coefficients, wlsModel.intercept)
+          .setParent(this))
+      val trainingSummary = new GeneralizedLinearRegressionTrainingSummary(dataset, model,
+        wlsModel.diagInvAtWA.toArray, 1, getSolver)
+      model.setSummary(Some(trainingSummary))
+ }
+```
+&emsp;&emsp;如果是其它的情况，使用迭代再加权最小二乘(`Iteratively reweighted least squares(IRLS)`)求解。
+
+```scala
+// Fit Generalized Linear Model by iteratively reweighted least squares (IRLS).
+   val initialModel = familyAndLink.initialize(instances, $(fitIntercept), $(regParam))
+   val optimizer = new IterativelyReweightedLeastSquares(initialModel,
+        familyAndLink.reweightFunc, $(fitIntercept), $(regParam), $(maxIter), $(tol))
+   val irlsModel = optimizer.fit(instances)
+   val model = copyValues(
+     new GeneralizedLinearRegressionModel(uid, irlsModel.coefficients, irlsModel.intercept)
+          .setParent(this))
+   val trainingSummary = new GeneralizedLinearRegressionTrainingSummary(dataset, model,
+        irlsModel.diagInvAtWA.toArray, irlsModel.numIterations, getSolver)
+   model.setSummary(Some(trainingSummary))
+```
+&emsp;&emsp;迭代再加权最小二乘的分析见最优化章节。
+
+## 参考文献
+
+【1】[从线性模型到广义线性模型](http://cos.name/2011/01/how-does-glm-generalize-lm-assumption/)
