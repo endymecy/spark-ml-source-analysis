@@ -4,8 +4,13 @@
 
 &emsp;&emsp;普通线性模型(`ordinary linear model`)可以用下式表示：
 
-$$Y = {\beta}_0+{\beta}_1x_1+{\beta}_2x_2+…+{\beta}_{p-1}x_{p-1}+\epsilon$$
+$$Y = \beta_0 + \beta_1 x_1 + \beta_2 x_2 + … + \beta_{p-1} x_{p-1} + \epsilon$$
 
 &emsp;&emsp;这里$\beta$是未知参数，$\epsilon$是误差项。普通线性模型主要有以下几点假设：
 
 - 因变量$Y$和误差项$\epsilon$均服从正太分布。其中$\epsilon \sim N(0,{{\sigma }^{2}})$，$Y\sim N({{\theta }^{T}}x,{{\sigma }^{2}})$。
+- 预测量$x_i$和未知参数$\beta_i$均具有非随机性。预测量$x_i$具有非随机性、可测且不存在测量误差；未知参数$\beta_i$被认为是未知但不具随机性的常数。
+- 普通线性模型的输出项是随机变量$Y$。普通线性模型主要研究响应变量的均值$E[Y]$。
+- 联接方式：在上面三点假设下，对上式两边取数学期望，可得
+
+$$E[Y]={\beta}_0+{\beta}_1x_1+{\beta}_2x_2+…+{\beta}_{p-1}x_{p-1}$$
