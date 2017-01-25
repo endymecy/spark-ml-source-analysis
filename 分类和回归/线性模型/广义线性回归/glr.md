@@ -96,7 +96,7 @@ println(s"Intercept: ${model.intercept}")
         irlsModel.diagInvAtWA.toArray, irlsModel.numIterations, getSolver)
    model.setSummary(Some(trainingSummary))
 ```
-&emsp;&emsp;迭代再加权最小二乘的分析见最优化章节：[迭代再加权最小二乘](../分类和回归/线性模型/广义线性回归/IRLS.md)。
+&emsp;&emsp;迭代再加权最小二乘的分析见最优化章节：[迭代再加权最小二乘](../../../最优化算法/IRLS.md)。
 
 ### 3.3 链接函数
 
