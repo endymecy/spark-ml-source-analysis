@@ -26,18 +26,18 @@ $$E[Y] = \beta_0 + \beta_1 x_1 + \beta_2 x_2 + … + \beta_{p-1} x_{p-1}$$
 - 响应变量$Y$和误差项$\epsilon$的分布推广至指数分散族(`exponential dispersion family`)。在`spark ml`中，广义线性回归支持的指数分布分别是正态分布、泊松分布、二项分布以及伽玛分布。
 - 连接方式：广义线性模型里采用的链接函数(`link function`)理论上可以是任意的，而不再局限于$f(x)=x$。
 
-&emsp;&emsp;这里需要重点说明一下链接函数。链接函数描述了线性预测$X\beta$与分布期望值$E[Y]$的关系：$E[Y] = \mu = g^{-1}(X\beta)$，其中$g$表示链接函数。
+&emsp;&emsp;这里需要重点说明一下链接函数。链接函数描述了线性预测$X\beta$与分布期望值$E[Y]$的关系：$E[Y] = \mu = g^{-1}(X\beta)$，其中$g$表示链接函数，$\mu$表示均值函数。
 一般情况下，高斯分布对应于恒等式，泊松分布对应于自然对数函数等。下面列出了`spark ml`中提供的链接函数以及该链接函数使用的指数分布。
 
-| 连接函数名称 | 链接函数 | 对应的指数分布 |
-|------------|-------|-------------|
-| identity（恒等）| $\mu = X\beta$ | 高斯分布，泊松分布，伽马分布 |
-| inverse（倒数）| $\mu^{-1} = X\beta$ | 高斯分布，伽马分布 |
-| sqrt(均分) | $\mu^{2} = X\beta$ | 泊松分布 |
-| log（对数）| $ln(\mu) = X\beta$ | 高斯分布，泊松分布，伽马分布 |
-| logit | $ln(\frac{\mu }{1-\mu }) = X\beta$ | 高斯分布，泊松分布，伽马分布 |
-| cloglog | $ln(- ln(1-\mu)) = X\beta$ | 二次分布 |
-| probit | 标准高斯分布的inverse CDF，其中p值为$\mu$ | 二次分布 |
+| 连接函数名称 | 链接函数 | 均值函数 | 对应的指数分布 | 
+|------------|-------|-----------|-------------|
+| identity（恒等）| $\mu = X\beta$ | $\mu = X\beta$| 高斯分布，泊松分布，伽马分布 |
+| inverse（倒数）| $\mu^{-1} = X\beta$ | $\mu = (X\beta)^{-1}$ | 高斯分布，伽马分布 |
+| sqrt(均分) | $\mu^{1/2} = X\beta$ | $\mu = (X\beta)^{2}$ | 泊松分布 |
+| log（对数）| $ln(\mu) = X\beta$ | $\mu = exp(X\beta)$ | 高斯分布，泊松分布，伽马分布 |
+| logit | $ln(\frac{\mu }{1-\mu }) = X\beta$ | $\mu = \frac{exp(X\beta)}{1 + exp(1 + X\beta)}$ | 高斯分布，泊松分布，伽马分布 |
+| cloglog | $ln(- ln(1-\mu)) = X\beta$ | $\mu = 1 - exp(- exp(X\beta))$ | 二次分布 |
+| probit | 标准高斯分布的inverse cdf，其中p值为$\mu$ | 标准高斯分布的cdf | 二次分布 |
 
 ## 3 源码分析
 
@@ -101,3 +101,4 @@ println(s"Intercept: ${model.intercept}")
 ## 参考文献
 
 【1】[从线性模型到广义线性模型](http://cos.name/2011/01/how-does-glm-generalize-lm-assumption/)
+【2】[广义线性模型-维基百科](https://zh.wikipedia.org/wiki/%E5%BB%A3%E7%BE%A9%E7%B7%9A%E6%80%A7%E6%A8%A1%E5%9E%8B)
