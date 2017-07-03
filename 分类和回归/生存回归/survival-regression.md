@@ -71,7 +71,7 @@ $$\iota(\beta,\sigma)=\sum_{i=1}^{n}[-\delta_{i}\log\sigma+\delta_{i}\log{f_{0}}
 
 &emsp;&emsp;其中$S_{0}(\epsilon_{i})$是基准生存函数，$f_{0}(\epsilon_{i})$是对应的概率密度函数。
 
-&emsp;&emsp;最常用的`AFT`模型基于生存时间的韦伯分布，生存时间的韦伯分布对应于生存时间对数的极值分布，所以$S_{0}(\epsilon)$函数为：
+&emsp;&emsp;最常用的`AFT`模型基于服从韦伯分布的生存时间，生存时间的韦伯分布对应于生存时间对数的极值分布，所以$S_{0}(\epsilon)$函数为：
 
 $$S_{0}(\epsilon_{i})=\exp(-e^{\epsilon_{i}})$$
 
