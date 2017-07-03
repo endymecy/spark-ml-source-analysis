@@ -61,7 +61,7 @@
 &emsp;&emsp;在`spark ml`中，实现了`AFT` 模型，这是一个用于检查数据的参数生存回归模型。它描述了生存时间对数的模型，因此它通常被称为生存分析的对数线性模型。不同于为相同目的设计的比例风险模型(`Proportional hazards model`)，
 `AFT`模型更容易并行化，因为每个实例独立地贡献于目标函数。
 
-&emsp;&emsp;给定给定协变量的值$x^{‘}$，对于`i = 1, …, n`可能的右截尾的随机生存时间$t_{i}$，`AFT`模型的似然函数如下：
+&emsp;&emsp;给定给定协变量的值$x^{'}$，对于`i = 1, …, n`可能的右截尾的随机生存时间$t_{i}$，`AFT`模型的似然函数如下：
 
 $$L(\beta,\sigma)=\prod_{i=1}^n[\frac{1}{\sigma}f_{0}(\frac{\log{t_{i}}-x^{'}\beta}{\sigma})]^{\delta_{i}}S_{0}(\frac{\log{t_{i}}-x^{'}\beta}{\sigma})^{1-\delta_{i}}$$
 
