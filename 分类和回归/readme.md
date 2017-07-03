@@ -21,4 +21,5 @@
     * [组合树](组合树/readme.md)
         * [随机森林](组合树/随机森林/random-forests.md)
         * [梯度提升树](组合树/梯度提升树/gbts.md)
+    * [生存回归](生存回归/survival-regression.md)
     * [保序回归](保序回归/isotonic-regression.md)
