@@ -348,7 +348,7 @@ $\theta=(P(z_{k}|d_{i}),P(w_{j}|z_{k}))$就是我们要估计的参数,我们要
 
 <div  align="center"><img src="imgs/2.3.4.png" width = "490" height = "350" alt="LDA模型" align="center" /></div><br>
 
-&emsp;&emsp;在`LDA`中，主题分布（各个主题在文档中出现的概率分布）和词分布（各个词语在某个主题下出现的概率分布）是唯一确定的。`LDA`为提供了两个`Dirichlet`先验参数，`Dirichlet`先验为某篇文档随机抽取出主题分布和词分布。
+&emsp;&emsp;在`pLSA`中，主题分布（各个主题在文档中出现的概率分布）和词分布（各个词语在某个主题下出现的概率分布）是唯一确定的，而`LDA`的主题分布和词分布是不固定的。`LDA`为提供了两个`Dirichlet`先验参数，`Dirichlet`先验为某篇文档随机抽取出主题分布和词分布。
 
 &emsp;&emsp;给定一篇文档`d`，现在有多个主题`z1、z2、z3`，它们的主题分布`{ P(zi|d), i = 1,2,3 }`可能是`{0.4,0.5,0.1}`，也可能是`{0.2,0.2,0.6}`，即这些主题被`d`选中的概率都不再是确定的值，可能是`P(z1|d) = 0.4、P(z2|d) = 0.5、P(z3|d) = 0.1`，也有可能是`P(z1|d) = 0.2、P(z2|d) = 0.2、P(z3|d) = 0.6`，而主题分布到底是哪个取值集合我们不确定，但其先验分布是`dirichlet`分布，所以可以从无穷多个主题分布中按照`dirichlet`先验随机抽取出某个主题分布出来。如下图所示
 
@@ -368,7 +368,7 @@ $\theta=(P(z_{k}|d_{i}),P(w_{j}|z_{k}))$就是我们要估计的参数,我们要
 
 &emsp;&emsp;变分贝叶斯算法的详细信息可以参考文献【9】。
 
-&emsp;&emsp;在上文中，我们知道`LDA`将变量`theta`和`phi`（为了方便起见，我们将上文`LDA`图模型中的`beta`改为了`phi`）看做随机变量，并且为`theta`添加一个超参数为`alpha`的`Dirichlet`先验，为`phi`添加一个超参数为`eta`的`Dirichlet`先验来估计`theta`和`beta`的最大后验（`MAP`）。
+&emsp;&emsp;在上文中，我们知道`LDA`将变量`theta`和`phi`（为了方便起见，我们将上文`LDA`图模型中的`beta`改为了`phi`）看做随机变量，并且为`theta`添加一个超参数为`alpha`的`Dirichlet`先验，为`phi`添加一个超参数为`eta`的`Dirichlet`先验来估计`theta`和`phi`的最大后验（`MAP`）。
 可以通过最优化最大后验估计来估计参数。我们首先来定义几个变量：
 
 - 下式的`gamma`表示词为`w`，文档为`j`时，主题为`k`的概率，如公式**（3.1.1）**
@@ -506,7 +506,7 @@ val data = sc.textFile("data/mllib/sample_lda_data.txt")
 val parsedData = data.map(s => Vectors.dense(s.trim.split(' ').map(_.toDouble)))
 // 为文档编号，编号唯一。List（（id，vector）....）
 val corpus = parsedData.zipWithIndex.map(_.swap).cache()
-// 将文档聚类为3类
+// 主题个数为3
 val ldaModel = new LDA().setK(3).run(corpus)
 val topics = ldaModel.topicsMatrix
 for (topic <- Range(0, 3)) {
