@@ -87,7 +87,7 @@
 
 &emsp;&emsp;本专题的部分文章中用到了latex来写数学公式,可以在浏览器中安装`MathJax`插件用来展示这些公式。
 
-&emsp;&emsp;本人水平有限，分析中难免有错误和误解的地方，请大家不吝指教，万分感激。有问题可以到 [![Codewake](https://www.codewake.com/badges/ask_question.svg)](https://www.codewake.com/p/spark-ml-source-analysis) 讨论。
+&emsp;&emsp;本人水平有限，分析中难免有错误和误解的地方，请大家不吝指教，万分感激。
     
 ## License
 
