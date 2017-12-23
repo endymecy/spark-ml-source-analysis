@@ -1,4 +1,4 @@
-&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;![spark](spark-logo-trademark.png)
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;![spark](spark-logo-trademark.png)
 
 # spark机器学习算法研究和源码分析
 
