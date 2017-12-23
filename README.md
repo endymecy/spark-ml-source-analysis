@@ -6,7 +6,7 @@
 
 ## 本系列文章支持的spark版本
 
-- **spark 2.x**
+&emsp;&emsp;本系列文章大部分的算法基于spark 1.6.1，少部分基于spark 2.x。
 
 ## 本系列的目录结构
 
@@ -90,7 +90,7 @@
 &emsp;&emsp;本专题的部分文章中用到了latex来写数学公式,可以在浏览器中安装`MathJax`插件用来展示这些公式。
 
 &emsp;&emsp;本人水平有限，分析中难免有错误和误解的地方，请大家不吝指教，万分感激。
-
+    
 ## License
 
 &emsp;&emsp;本文使用的许可见 [LICENSE](LICENSE)
