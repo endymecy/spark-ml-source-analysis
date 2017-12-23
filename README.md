@@ -1,5 +1,7 @@
 # spark机器学习算法研究和源码分析
 
+![spark](spark-logo-trademark.png)
+
 &emsp;&emsp;本项目对`spark ml`包中各种算法的原理加以介绍并且对算法的代码实现进行详细分析，旨在加深自己对机器学习算法的理解，熟悉这些算法的分布式实现方式。
 
 ## 本系列文章支持的spark版本
@@ -87,8 +89,8 @@
 
 &emsp;&emsp;本专题的部分文章中用到了latex来写数学公式,可以在浏览器中安装`MathJax`插件用来展示这些公式。
 
-&emsp;&emsp;本人水平有限，分析中难免有错误和误解的地方，请大家不吝指教，万分感激。有问题可以到 [![Codewake](https://www.codewake.com/badges/ask_question.svg)](https://www.codewake.com/p/spark-ml-source-analysis) 讨论。
-    
+&emsp;&emsp;本人水平有限，分析中难免有错误和误解的地方，请大家不吝指教，万分感激。
+
 ## License
 
 &emsp;&emsp;本文使用的许可见 [LICENSE](LICENSE)
