@@ -21,7 +21,7 @@
 &emsp;&emsp;高斯混合模型，顾名思义，就是数据可以看作是从多个高斯分布中生成出来的。从[中心极限定理](https://en.wikipedia.org/wiki/Central_limit_theorem)可以看出，高斯分布这个假设其实是比较合理的。
 为什么我们要假设数据是由若干个高斯分布组合而成的，而不假设是其他分布呢？实际上不管是什么分布，只`K`取得足够大，这个`XX Mixture Model`就会变得足够复杂，就可以用来逼近任意连续的概率密度分布。只是因为高斯函数具有良好的计算性能，所`GMM`被广泛地应用。
 
-&emsp;&emsp;每个`GMM`由`K`个高斯分布组成，每个高斯分布称为一个组件（`Component`），这些组件线性加成在一起就组成了`GMM`的概率密度函数**（1）**：
+&emsp;&emsp;每个`GMM`由`K`个高斯分布组成，每个高斯分布称为一个组件（`Component`），这些组件线性加成在一起就组成了`GMM`的概率密度函数 **（1）**:
 
 <div  align="center"><img src="imgs/1.3.png" width = "360" height = "75" alt="1.3" align="center" /></div><br />
 
