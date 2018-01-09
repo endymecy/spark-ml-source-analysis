@@ -10,11 +10,11 @@
 
 <div  align="center"><img src="imgs/1.4.png" width = "120" height = "30" alt="1.4" align="center" /></div><br>
 
-&emsp;&emsp;`A`矩阵可以将这组正则基映射为如下的形式。
+&emsp;&emsp;`A`矩阵可以将这组正交基映射为如下的形式。
 
 <div  align="center"><img src="imgs/1.5.png" width = "150" height = "30" alt="1.5" align="center" /></div><br>
 
-&emsp;&emsp;要使上面的基也为正则基，即使它们两两正交，那么需要满足下面的条件。
+&emsp;&emsp;要使上面的基也为正交基，即使它们两两正交，那么需要满足下面的条件。
 
 <div  align="center"><img src="imgs/1.6.png" width = "300" height = "35" alt="1.6" align="center" /></div><br>
 
