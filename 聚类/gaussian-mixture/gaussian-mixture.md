@@ -34,19 +34,19 @@
 &emsp;&emsp;怎样用`GMM`来做聚类呢？其实很简单，现在我们有了数据，假定它们是由`GMM`生成出来的，那么我们只要根据数据推出`GMM`的概率分布来就可以了，然后`GMM`的`K`个组件实际上就对应了`K`个聚类了。
 在已知概率密度函数的情况下，要估计其中的参数的过程被称作“参数估计”。
 
-&emsp;&emsp;我们可以利用最大似然估计来确定这些参数，`GMM`的似然函数**（2）**如下：
+&emsp;&emsp;我们可以利用最大似然估计来确定这些参数，`GMM`的似然函数 **（2）** 如下：
 
 <div  align="center"><img src="imgs/1.4.png" width = "250" height = "75" alt="1.4" align="center" /></div><br />
 
 &emsp;&emsp;可以用`EM`算法来求解这些参数。`EM`算法求解的过程如下：
 
-- 1 **E-步**。求数据点由各个组件生成的概率（并不是每个组件被选中的概率）。对于每个数据$x_{i}$来说，它由第`k`个组件生成的概率为公式**（3）**：
+- 1 **E-步**。求数据点由各个组件生成的概率（并不是每个组件被选中的概率）。对于每个数据$x_{i}$来说，它由第`k`个组件生成的概率为公式 **（3）** ：
 
 <div  align="center"><img src="imgs/1.5.png" width = "250" height = "60" alt="1.5" align="center" /></div><br />
 
 &emsp;&emsp;在上面的概率公式中，我们假定`mu`和`sigma`均是已知的，它们的值来自于初始化值或者上一次迭代。
 
-- 2 **M-步**。估计每个组件的参数。由于每个组件都是一个标准的高斯分布，可以很容易分布求出最大似然所对应的参数值，分别如下公式**（4）**,**（5）**,**（6）**,**（7）**：
+- 2 **M-步**。估计每个组件的参数。由于每个组件都是一个标准的高斯分布，可以很容易分布求出最大似然所对应的参数值，分别如下公式 **（4）**, **（5）**, **（6）**, **（7）** ：
 
 <div  align="center"><img src="imgs/1.6.png" width = "160" height = "70" alt="1.6" align="center" /></div><br />
 
@@ -167,7 +167,7 @@ def add( weights: Array[Double],dists: Array[MultivariateGaussian])
     sums
   }
 ```
-&emsp;&emsp;从上面的实现我们可以看出，最终，`logLikelihood`表示公式**(2)**中的对数似然。`p`和`weights`分别表示公式**(3)**中的`gamma`和`pi`，`means`表示公式**(6)**中的求和部分，`sigmas`表示公式**(7)**中的求和部分。
+&emsp;&emsp;从上面的实现我们可以看出，最终，`logLikelihood`表示公式 **(2)** 中的对数似然。`p`和`weights`分别表示公式 **(3)** 中的`gamma`和`pi`，`means`表示公式 **(6)** 中的求和部分，`sigmas`表示公式 **(7)** 中的求和部分。
 
 &emsp;&emsp;调用`RDD`的`aggregate`方法，我们可以基于所有给定数据计算上面的值。利用计算的这些新值，我们可以在`M-步`中更新`mu`和`sigma`。
 
@@ -197,10 +197,10 @@ def add( weights: Array[Double],dists: Array[MultivariateGaussian])
     (newWeight, newGaussian)
   } 
 ```
-&emsp;&emsp;基于**E-步**计算出来的值，根据公式**(6)**，我们可以通过`(mean /= weight)`来更新`mu`；根据公式**(7)**，我们可以通过`BLAS.syr()`来更新`sigma`；同时，根据公式**(5)**，
+&emsp;&emsp;基于 **E-步** 计算出来的值，根据公式 **(6)** ，我们可以通过`(mean /= weight)`来更新`mu`；根据公式 **(7)** ，我们可以通过`BLAS.syr()`来更新`sigma`；同时，根据公式 **(5)**，
 我们可以通过`weight / sumWeights`来计算`pi`。
 
-&emsp;&emsp;迭代执行以上的**E-步**和**M-步**，到达一定的迭代数或者对数似然值变化较小后，我们停止迭代。这时就可以获得聚类后的参数了。
+&emsp;&emsp;迭代执行以上的 **E-步**和 **M-步**，到达一定的迭代数或者对数似然值变化较小后，我们停止迭代。这时就可以获得聚类后的参数了。
 
 ## 3.3 多元高斯模型中相关方法介绍
 
@@ -223,7 +223,7 @@ private[mllib] def logpdf(x: BV[Double]): Double = {
     u + v.t * v * -0.5
  }
 ```
-&emsp;&emsp;上面的`rootSigmaInv`和`u`通过方法`calculateCovarianceConstants`计算。根据公式**(1)**，这个概率密度函数的计算需要计算`sigma`的行列式以及逆。
+&emsp;&emsp;上面的`rootSigmaInv`和`u`通过方法`calculateCovarianceConstants`计算。根据公式 **(1)** ，这个概率密度函数的计算需要计算`sigma`的行列式以及逆。
 
 ```scala
 sigma = U * D * U.t
