@@ -540,11 +540,11 @@ def run(documents: RDD[(Long, Vector)]): LDAModel = {
 
 &emsp;&emsp;在`spark`中，使用`GraphX`来实现`EMLDAOptimizer`，这个图是有两种类型的顶点的二分图。这两类顶点分别是文档顶点（`Document vertices`）和词顶点（`Term vertices`）。
 
-- 文档顶点使用大于0的唯一的指标来索引，保存长度为`k`（主题个数）的向量
+- 文档顶点文档顶点`ID`编号从0递增，保存长度为`k`（主题个数）的向量
 
-- 词顶点使用`{-1, -2, ..., -vocabSize}`来索引，保存长度为`k`（主题个数）的向量
+- 词顶点使用`{-1, -2, ..., -vocabSize}`来索引，词顶点编号从-1递减，保存长度为`k`（主题个数）的向量
 
-- 边（`edges`）对应词出现在文档中的情况。边的方向是`document -> term`，并且根据`document`进行分区
+- 边（`edges`）对应词出现在文档中的词频。边的方向是`document -> term`，并且根据`document`进行分区
 
 &emsp;&emsp;我们可以根据3.1节中介绍的算法流程来解析源代码。
 
