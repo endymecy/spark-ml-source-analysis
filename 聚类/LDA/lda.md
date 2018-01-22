@@ -362,7 +362,7 @@ $\theta=(P(z_{k}|d_{i}),P(w_{j}|z_{k}))$就是我们要估计的参数,我们要
 
 # 3 LDA 参数估计
 
-&emsp;&emsp;在`spark`中，提供了两种方法来估计参数，分别是变分`EM`（期望最大）算法（见文献【3】【4】）和在线学习算法（见文献【5】）。下面将分别介绍这两种算法以及其源码实现。
+&emsp;&emsp; `spark`实现了2个版本的`LDA`，这里分别叫做`Spark EM LDA`（见文献【3】【4】）和`Spark Online LDA`（见文献【5】）。它们使用同样的数据输入，但是内部的实现和依据的原理完全不同。`Spark EM LDA`使用`GraphX`实现的，通过对图的边和顶点数据的操作来训练模型。而`Spark Online LDA`采用抽样的方式，每次抽取一些文档训练模型，通过多次训练，得到最终模型。在参数估计上，`Spark EM LDA`使用`gibbs`采样原理估计模型参数，`Spark Online LDA`使用贝叶斯变分推断原理估计参数。在模型存储上，`Spark EM LDA`将训练的主题-词模型存储在`GraphX`图顶点上，属于分布式存储方式。`Spark Online`使用矩阵来存储主题-词模型，属于本地模型。通过这些差异，可以看出`Spark EM LDA`和`Spark Online LDA`的不同之处，同时他们各自也有各自的瓶颈。`Spark EM LDA`在训练时`shuffle`量相当大，严重拖慢速度。而`Spark Online LDA`使用矩阵存储模型，矩阵规模直接限制训练文档集的主题数和词的数目。另外，`Spark EM LDA`每轮迭代完毕后更新模型，`Spark Online LDA`每训练完抽样的文本更新模型，因而`Spark Online LDA`模型更新更及时，收敛速度更快。
 
 ## 3.1 变分EM算法
 
@@ -438,11 +438,11 @@ $\theta=(P(z_{k}|d_{i}),P(w_{j}|z_{k}))$就是我们要估计的参数,我们要
 
 <div  align="center"><img src="imgs/3.2.5.png" width = "600" height = "25" alt="topic_words" align="center" /></div><br>
 
-&emsp;&emsp;`log(theta)`和`log(beta)`的期望通过下面的公式 **(3.2.6)**计算：
+&emsp;&emsp;`log(theta)`和`log(beta)`的期望通过下面的公式 **(3.2.6)** 计算：
 
 <div  align="center"><img src="imgs/3.2.6.png" width = "500" height = "25" alt="topic_words" align="center" /></div><br>
 
-&emsp;&emsp;通过`EM`算法，我们可以将这些更新分解成`E-步`和`M-步`。`E-步`固定`lambda`来更新`gamma`和`phi`；`M-步`通过给定`phi`来更新`lambda`。批`VB`算法的过程如下 **(算法1)**所示：
+&emsp;&emsp;通过`EM`算法，我们可以将这些更新分解成`E-步`和`M-步`。`E-步`固定`lambda`来更新`gamma`和`phi`；`M-步`通过给定`phi`来更新`lambda`。批`VB`算法的过程如下 **(算法1)** 所示：
 
 <div  align="center"><img src="imgs/alg1.png" width = "400" height = "250" alt="topic_words" align="center" /></div><br>
 
