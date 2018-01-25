@@ -281,7 +281,7 @@ private def bernoulliCalculation(testData: Vector) = {
   }
 ```
 
-&emsp;&emsp;当词在训练数据中出现与否处理的过程不同。见伯努利模型测试过程，如果`f`为1时，需要计算`log(condprob)`，否在需要计算`log(1-condprob)`，`condprob`为`P(f|c)=exp(theta)`。所以预先计算`log(1-exp(theta))`以及它的和可以在应用到预测过程。这里`thetaMatrix`表示`logP(F|C)`，`negTheta`代表`log(1-exp(theta))=log(1-condprob)`，`thetaMinusNegTheta`代表`log(theta - log(1-exp(theta)))`。
+&emsp;&emsp;当词在训练数据中出现与否处理的过程不同。伯努利模型测试过程中，如果词存在，需要计算`log(condprob)`，否在需要计算`log(1-condprob)`，`condprob`为`P(f|c)=exp(theta)`。所以预先计算`log(1-exp(theta))`以及它的和可以应用到预测过程。这里`thetaMatrix`表示`logP(F|C)`，`negTheta`代表`log(1-exp(theta))=log(1-condprob)`，`thetaMinusNegTheta`代表`log(theta - log(1-exp(theta)))`。
 
 ```scala
  private val (thetaMinusNegTheta, negThetaSum) = modelType match {
