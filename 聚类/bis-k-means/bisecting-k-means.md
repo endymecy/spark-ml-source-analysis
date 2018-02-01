@@ -1,6 +1,6 @@
 # 二分`k-means`算法
 
-&emsp;&emsp;二分`k-means`算法是分层聚类（[Hierarchical clustering](https://en.wikipedia.org/wiki/Hierarchical_clustering)）的一种，分层聚类是聚类分析中常用的方法。
+&emsp;&emsp;二分`k-means`算法是层次聚类（[Hierarchical clustering](https://en.wikipedia.org/wiki/Hierarchical_clustering)）的一种，层次聚类是聚类分析中常用的方法。
 分层聚类的策略一般有两种：
 
 - 聚合。这是一种`自底向上`的方法，每一个观察者初始化本身为一类，然后两两结合
@@ -236,9 +236,3 @@ private def updateAssignments(assignments: RDD[(Long, VectorWithNorm)],divisible
  //调整所需簇的数量
  numLeafClustersNeeded -= divisibleClusters.size
 ```
-
-
-
-
-
-
