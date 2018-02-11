@@ -416,7 +416,8 @@ private[tree] def findSplitsForContinuousFeature(
       if (possibleSplits <= numSplits) {
         valueCounts.map(_._1)
       } else {
-        // 切分点之间的步长
+        // 等频切分
+        // 切分点之间的步长
         val stride: Double = featureSamples.length.toDouble / (numSplits + 1)
         val splitsBuilder = Array.newBuilder[Double]
         var index = 1
@@ -449,6 +450,7 @@ private[tree] def findSplitsForContinuousFeature(
     splits
   }
 ```
+&emsp;&emsp; 在if判断里每步前进`stride`个样本，累加在`targetCount`中。`while`循环逐次把每个特征值的个数加到`currentCount`里，计算前一次`previousCount`和这次`currentCount`到`targetCount`的距离，有3种情况，一种是`pre`和`cur`都在`target`左边，肯定是`cur`小，继续循环，进入第二种情况；第二种一左一右，如果`pre`小，肯定是`pre`是最好的分割点，如果`cur`还是小，继续循环步进，进入第三种情况；第三种就是都在右边，显然是`pre`小。因此`if`的判断条件`pre<cur`，只要满足肯定就是`split`。整体下来的效果就能找到离`target`最近的一个特征值。 
 
 #### 5.1.2 迭代构建随机森林
 
