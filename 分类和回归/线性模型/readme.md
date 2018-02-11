@@ -3,7 +3,7 @@
 # 1 数学描述
 
 &emsp;&emsp;许多标准的机器学习算法可以归结为凸优化问题。例如，找到凸函数`f`的一个极小值的任务，这个凸函数依赖于可变向量`w`（在`spark`源码中，一般表示为`weights`）。
-形式上，我们可以将其当作一个凸优化问题${min}_{w}f(w)$。它的目标函数可以表示为如下公式**(1)**：
+形式上，我们可以将其当作一个凸优化问题${min}_{w}f(w)$。它的目标函数可以表示为如下公式 **(1)**：
 
 <div  align="center"><img src="imgs/introduce1.png" width = "280" height = "60" alt="objective function" align="center" /></div><br>
 
