@@ -2,7 +2,7 @@
 
 ## 1 介绍
 
-&emsp;&emsp;线性支持向量机是一个用于大规模分类任务的标准方法。它的目标函数[线性模型](../readme.md)中的公式（1）。它的损失函数是海格损失，如下所示
+&emsp;&emsp;线性支持向量机是一个用于大规模分类任务的标准方法。它的目标函数[线性模型](../readme.md)中的公式（1）。它的损失函数是合页（`hinge`）损失，如下所示
 
 <div  align="center"><img src="imgs/1.1.png" width = "220" height = "35" alt="1.1" align="center" /></div>
 
