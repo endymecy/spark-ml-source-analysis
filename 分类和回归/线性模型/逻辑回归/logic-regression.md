@@ -13,23 +13,23 @@
 
 <div  align="center"><img src="imgs/1.2.png" width = "700" height = "280" alt="1.2" align="center" /></div><br>
 
-&emsp;&emsp;对于线性边界的情况，边界形式可以归纳为如下公式**(1)**:
+&emsp;&emsp;对于线性边界的情况，边界形式可以归纳为如下公式 **(1)**:
 
 <div  align="center"><img src="imgs/1.3.png" width = "300" height = "60" alt="1.3" align="center" /></div><br>
 
-&emsp;&emsp;因此我们可以构造预测函数为如下公式**(2)**:
+&emsp;&emsp;因此我们可以构造预测函数为如下公式 **(2)**:
 
 <div  align="center"><img src="imgs/1.4.png" width = "250" height = "70" alt="1.4" align="center" /></div><br>
 
-&emsp;&emsp;该预测函数表示分类结果为1时的概率。因此对于输入点`x`，分类结果为类别1和类别0的概率分别为如下公式**(3)**：
+&emsp;&emsp;该预测函数表示分类结果为1时的概率。因此对于输入点`x`，分类结果为类别1和类别0的概率分别为如下公式 **(3)**：
 
 <div  align="center"><img src="imgs/1.5.png" width = "220" height = "55" alt="1.5" align="center" /></div><br>
 
-&emsp;&emsp;对于训练数据集，特征数据`x={x1, x2, … , xm}`和对应的分类数据`y={y1, y2, … , ym}`。构建逻辑回归模型`f`，最典型的构建方法便是应用极大似然估计。对公式**(3)**取极大似然函数，可以得到如下的公式**(4)**:
+&emsp;&emsp;对于训练数据集，特征数据`x={x1, x2, … , xm}`和对应的分类数据`y={y1, y2, … , ym}`。构建逻辑回归模型`f`，最典型的构建方法便是应用极大似然估计。对公式 **(3)** 取极大似然函数，可以得到如下的公式 **(4)**:
 
 <div  align="center"><img src="imgs/1.6.png" width = "350" height = "45" alt="1.6" align="center" /></div><br>
 
-&emsp;&emsp;再对公式**(4)**取对数，可得到公式**(5)**：
+&emsp;&emsp;再对公式 **(4)** 取对数，可得到公式 **(5)**：
 
 <div  align="center"><img src="imgs/1.7.png" width = "450" height = "50" alt="1.7" align="center" /></div><br>
 
@@ -40,24 +40,24 @@
 &emsp;&emsp;二元逻辑回归可以一般化为[多元逻辑回归](http://en.wikipedia.org/wiki/Multinomial_logistic_regression)用来训练和预测多分类问题。对于多分类问题，算法将会训练出一个多元逻辑回归模型，
 它包含`K-1`个二元回归模型。给定一个数据点，`K-1`个模型都会运行，概率最大的类别将会被选为预测类别。
 
-&emsp;&emsp;对于输入点`x`，分类结果为各类别的概率分别为如下公式**(6)**，其中`k`表示类别个数。
+&emsp;&emsp;对于输入点`x`，分类结果为各类别的概率分别为如下公式 **(6)** ，其中`k`表示类别个数。
 
 <div  align="center"><img src="imgs/2.1.png" width = "330" height = "175" alt="2.1" align="center" /></div><br>
 
-&emsp;&emsp;对于`k`类的多分类问题，模型的权重`w = (w_1, w_2, ..., w_{K-1})`是一个矩阵，如果添加截距，矩阵的维度为`(K-1) * (N+1)`，否则为`(K-1) * N`。单个样本的目标函数的损失函数可以写成如下公式**(7)**的形式。
+&emsp;&emsp;对于`k`类的多分类问题，模型的权重`w = (w_1, w_2, ..., w_{K-1})`是一个矩阵，如果添加截距，矩阵的维度为`(K-1) * (N+1)`，否则为`(K-1) * N`。单个样本的目标函数的损失函数可以写成如下公式 **(7)** 的形式。
 
 <div  align="center"><img src="imgs/2.2.png" width = "720" height = "170" alt="2.2" align="center" /></div><br>
 
-&emsp;&emsp;对损失函数求一阶导数，我们可以得到下面的公式**(8)**:
+&emsp;&emsp;对损失函数求一阶导数，我们可以得到下面的公式 **(8)**:
 
 <div  align="center"><img src="imgs/2.3.png" width = "570" height = "140" alt="2.3" align="center" /></div><br>
 
 &emsp;&emsp;根据上面的公式，如果某些`margin`的值大于709.78，`multiplier`以及逻辑函数的计算会出现算术溢出(`arithmetic overflow`)的情况。这个问题发生在有离群点远离超平面的情况下。
-幸运的是，当`max(margins) = maxMargin > 0`时，损失函数可以重写为如下公式**(9)**的形式。
+幸运的是，当`max(margins) = maxMargin > 0`时，损失函数可以重写为如下公式 **(9)** 的形式。
 
 <div  align="center"><img src="imgs/2.4.png" width = "690" height = "190" alt="2.4" align="center" /></div><br>
 
-&emsp;&emsp;同理，`multiplier`也可以重写为如下公式**(10)**的形式。
+&emsp;&emsp;同理，`multiplier`也可以重写为如下公式 **(10)** 的形式。
 
 <div  align="center"><img src="imgs/2.5.png" width = "500" height = "160" alt="2.5" align="center" /></div><br>
 
@@ -227,7 +227,7 @@ if (label > 0) {
     MLUtils.log1pExp(margin) - margin
 }
 ```
-&emsp;&emsp;这里的`multiplier`就是上文的公式**(2)**。`axpy`方法用于计算梯度，这里表示的意思是`h(x) * x`。下面是多元逻辑回归的实现方法。
+&emsp;&emsp;这里的`multiplier`就是上文的公式 **(2)** 。`axpy`方法用于计算梯度，这里表示的意思是`h(x) * x`。下面是多元逻辑回归的实现方法。
 
 ```scala
 //权重
