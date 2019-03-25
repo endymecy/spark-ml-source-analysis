@@ -1,8 +1,8 @@
-# 规则化
+# 正则化
 
-&emsp;&emsp;规则化器缩放单个样本让其拥有单位$L^{p}$范数。这是文本分类和聚类常用的操作。例如，两个$L^{2}$规则化的`TFIDF`向量的点乘就是两个向量的`cosine`相似度。
+&emsp;&emsp;正则化器缩放单个样本让其拥有单位$L^{p}$范数。这是文本分类和聚类常用的操作。例如，两个$L^{2}$正则化的`TFIDF`向量的点乘就是两个向量的`cosine`相似度。
 
-&emsp;&emsp;`Normalizer`实现` VectorTransformer`，将一个向量规则化为转换的向量，或者将一个`RDD`规则化为另一个`RDD`。下面是一个规则化的例子。
+&emsp;&emsp;`Normalizer`实现` VectorTransformer`，将一个向量正则化为转换的向量，或者将一个`RDD`规则化为另一个`RDD`。下面是一个正则化的例子。
 
 ```scala
 import org.apache.spark.SparkContext._
@@ -18,7 +18,7 @@ val data1 = data.map(x => (x.label, normalizer1.transform(x.features)))
 // Each sample in data2 will be normalized using $L^\infty$ norm.
 val data2 = data.map(x => (x.label, normalizer2.transform(x.features)))
 ```
-&emsp;&emsp;规则化的实现很简单，我们看它的`transform`方法。
+&emsp;&emsp;正则化的实现很简单，我们看它的`transform`方法。
 
 ```scala
  override def transform(vector: Vector): Vector = {
